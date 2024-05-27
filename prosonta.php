@@ -80,9 +80,9 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
 
 function EditProsontaThesis($prosonid)
 {   
-    global $xml_proson;
-    $x = simplexml_load_string($xml_proson);
-
+    global $xmlp;
+    EnsureProsonLoaded();
+    
     global $contestrow,$posrow,$rolerow,$placerow;
     $row = QQ("SELECT * FROM REQUIREMENTS WHERE ID = ?",array($prosonid))->fetchArray();
     if (!$row)
@@ -97,7 +97,7 @@ function EditProsontaThesis($prosonid)
             <input type="hidden" name="pos" value="<?= $row['POSID'] ?>" />
             Προσόν:
             <select class="select input" name="PROSONTYPE">
-                <?php echo PrintOptionsProson($x,0,$row['PARAMID']); ?>
+                <?php echo PrintOptionsProson($xmlp,0,$row['PARAMID']); ?>
             </select><br><br>
             Σκορ (0 = Προαπαιτούμενο):
             <input class="input" type="number" name="SCORE" step="0.01" value="<?= $row['SCORE'] ?>"  /><br><br>
@@ -112,8 +112,8 @@ function EditProsontaThesis($prosonid)
 
 function ViewProsontaThesis()
 {
-    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson;
-    $x = simplexml_load_string($xml_proson);
+    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson,$xmlp;
+    EnsureProsonLoaded();
     $q1 = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSID = ?",array($contestrow['ID'],$posrow['ID']));
     ?>
     <table class="table datatable">
@@ -132,7 +132,7 @@ function ViewProsontaThesis()
         printf('<td>%s</td>',$r1['ID']);
 
         $pars = array();
-        $croot = RootForClassId($x->classes,$r1['PROSONTYPE'],$pars);
+        $croot = RootForClassId($xmlp->classes,$r1['PROSONTYPE'],$pars);
         if (!$croot)
             continue;
         $attr = $croot->attributes();
@@ -146,7 +146,7 @@ function ViewProsontaThesis()
         printf('<td>%s</td>',$s);
         printf('<td>%s</td>',$r1['SCORE']);
 
-        printf('<td></td>');
+        printf('<td><button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">Regex</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID']);
         printf('<td><button class="autobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID']);
 
         printf('</tr>');
@@ -157,6 +157,7 @@ function ViewProsontaThesis()
 <?php
 }
 
+printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button><hr> ',$req['t']);
 printf('Θέσεις σε φορέα: %s<br>',$placerow['DESCRIPTION']);
 printf('Θέση: %s<hr>',$posrow['DESCRIPTION']);
 

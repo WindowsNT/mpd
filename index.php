@@ -4,7 +4,7 @@ require_once "function.php";
 require_once "auth.php";
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
-printf('Μητρώο Προσόντων');
+printf('Μητρώο Προσόντων και Διαγωνισμών');
 if ($afm && $ur)
     {
         printf(' %s %s - %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm);

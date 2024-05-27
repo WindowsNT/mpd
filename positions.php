@@ -41,6 +41,7 @@ if (array_key_exists("addposition",$_POST))
 }
 
 
+printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button><hr> ',$req['t']);
 printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 
 ?>
@@ -60,7 +61,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         printf('<td>%s</td>',$r4['ID']);
         printf('<td>%s</td>',$r4['DESCRIPTION']);
         printf('<td>%s</td>',$r4['COUNT']);
-        printf('<td><a href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s">Προσόντα</a></td>',$req['t'],$req['cid'],$req['pid'],$r4['ID']);
+        printf('<td><button class="is-small autobutton is-link button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s">Προσόντα</button></td>',$req['t'],$req['cid'],$req['pid'],$r4['ID']);
         printf('</tr>');
     }
     ?>
@@ -83,7 +84,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         <input type="number" name="COUNT" class="input" required/>
         <br><br>
 
-        <button class="button is-link is-small">Υποβολή<button>
+        <button class="button is-success is-small">Υποβολή<button>
     </form>
 
     <?php

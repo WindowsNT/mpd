@@ -6,7 +6,7 @@ if (session_status() == PHP_SESSION_NONE)
 $req = array_merge($_GET,$_POST);
 
 // Database functions
-$dbxx = 'mp.db';
+$dbxx = 'mpd.db';
 $lastRowID = 0;
 $db = null;
 $mustprepare = 0;
@@ -58,14 +58,34 @@ $xml_proson = <<<XML
                 </c>
                 <c n="302" t="Ιδιωτικό">
                     <params>
-                  <p n="Μήνες" id="1" t="2" />
+                          <p n="Μήνες" id="1" t="2" />
                     </params>
                 </c>
             </classes>
         </c>
+
+        <c n="4" t="Διπλώματα/Πτυχία Μουσικής από Ωδείο" >
+            <classes>
+                <c n="401" t="Δίπλωμα Πιάνου">
+                    <params>
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+            </classes>
+        </c>
+
+
     </classes>
 </root>
 XML;
+
+$xmlp = null;
+function  EnsureProsonLoaded()
+{
+    global $xmlp,$xml_proson;
+    if (!$xmlp)
+        $xmlp = simplexml_load_string($xml_proson);
+}
 
 function QQZ_SQLite($dbs,$q,$arr = array(),$stmtx = null)
 {
@@ -189,7 +209,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
     // Test set
@@ -347,8 +367,8 @@ function PrintContests($t,$uid)
 
 function PrintProsonta($uid,$veruid = 0,$rolerow = null)
 {
-    global $xml_proson;
-    $x = simplexml_load_string($xml_proson);
+    global $xmlp;
+    EnsureProsonLoaded();
 
 
     $s = '<table class="table datatable">';
@@ -356,6 +376,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
                 <th>#</th>
                 <th>Περιγραφή</th>
                 <th>Κατηγορία</th>
+                <th>Ισχύς</th>
                 <th>Παράμετροι</th>
                 <th>Αρχεία</th>
                 <th>Κατάσταση</th>
@@ -372,7 +393,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
 
         $parnames = array();
         $pars = array();
-        $croot = RootForClassId($x->classes,$r1['CLASSID'],$pars);
+        $croot = RootForClassId($xmlp->classes,$r1['CLASSID'],$pars);
         $attr = $croot->attributes();
         $s .= sprintf('<td>');
         foreach($pars as $par)
@@ -390,6 +411,8 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
             $pa = $param->attributes();                              
             $parnames[(int)$pa['id']] = $pa['n'];                       
         }    
+
+        $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '');
 
         // Parameters
         $s .= sprintf('<td>');
@@ -475,7 +498,8 @@ function CheckLevel($who,$target)
 $rejr = '';
 function ScoreForThesi($uid,$posid)
 {
-    global $rejr,$xml_proson;
+    global $rejr,$xmlp;
+    EnsureProsonLoaded();
     $pr = QQ("SELECT * FROM USERS WHERE ID = ?",array($uid))->fetchArray();
     $posr = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($posid))->fetchArray();
     if (!$pr || !$posr)
@@ -490,21 +514,67 @@ function ScoreForThesi($uid,$posid)
     {
         // $r1 is  a proson requirement row
         // does user have this?
-        $r2 = QQ("SELECT * FROM PROSON WHERE UID = ? and CLASSID = ? AND STATE > 0 AND STARTDATE > ? AND (ENDDATE == 0 OR ENDDATE > ?)",array($uid,$r1['PROSONTYPE'],time(),$contestrow['ENDDATE']))->fetchArray();
+        $fail = 0;
+        $r2 = QQ("SELECT * FROM PROSON WHERE UID = ? and CLASSID = ? AND STATE > 0 AND STARTDATE < ? AND (ENDDATE == 0 OR ENDDATE > ?)",array($uid,$r1['PROSONTYPE'],time(),$contestrow['ENDDATE']))->fetchArray();
         if (!$r2)
         {
+            $fail = 1;
             if ($r1['SCORE'] == 0)
                 {
                     $missingp = $r1['PROSONTYPE'];
-                    $x = simplexml_load_string($xml_proson);
-                    $rootc = RootForClassId($x->classes,$missingp);
+                    $rootc = RootForClassId($xmlp->classes,$missingp);
                     $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
                     return -1; // This is a requirement, he doesn't have it
                 }
             continue;
         }
         // Yes he has it
-        // Check regex**
+
+        $q3 = QQ("SELECT * FROM REQRESTRICTIONS WHERE RID = ?",array($r1['ID']));
+        $fail2 = '';
+        while($r3 = $q3->fetchArray())
+        {
+            $param = $r3['PID'];
+            $what = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ?",array($r2['ID'],$param))->fetchArray();
+            if (!$what)
+            {
+                $fail = 1;
+            }
+            else
+            {
+                $de = $r3['RESTRICTION'];
+                if ($de['0'] == '$')
+                {
+                    if (preg_match($de,$what['PVALUE']) != 1)
+                    {
+                        $fail  = 1;
+                    }
+                }
+                else
+                {
+                    $rj = str_replace("%s",$what['PVALUE'],$de);
+                    $rr = eval("return ".$rj.';');
+                    if (!$rr)
+                        {
+                            $fail  = 1;
+                            $fail2 = $de;
+                        }
+                }
+            }
+        }
+
+        if ($fail)
+        {
+            if ($r1['SCORE'] == 0)
+            {
+                $missingp = $r1['PROSONTYPE'];
+                $rootc = RootForClassId($xmlp->classes,$missingp);
+                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s',$rootc->attributes()['t'],$fail2);
+                return -1; // This is a requirement, he doesn't have it
+            }
+            continue;
+        }
+
         $score += $r1['SCORE'];
     }
 

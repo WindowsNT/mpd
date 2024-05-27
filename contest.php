@@ -81,8 +81,7 @@ if (array_key_exists("c",$_POST))
 
 function ViewOrEdit($cid)
 {
-    global $ur,$xml_proson;
-    $x = simplexml_load_string($xml_proson);
+    global $ur;
     $items = array();
     if ($cid)
         $items = QQ("SELECT * FROM CONTENTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();

@@ -10,7 +10,7 @@
             "request": "launch",
             "port": 7011,
             "pathMappings": {
-                "/var/www/msa-apps.com/mp": "${workspaceFolder}"
+                "/var/www/msa-apps.com/mpd": "${workspaceFolder}"
               },
         },
         {

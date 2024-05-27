@@ -51,8 +51,8 @@ echo '<div class="content" style="margin: 20px">';
 
 function ViewOrEdit($pid,$items)
 {
-    global $ur,$xml_proson;
-    $x = simplexml_load_string($xml_proson);
+    global $ur,$xmlp;
+    EnsureProsonLoaded();
     if ($pid)
         $items = QQ("SELECT * FROM PROSON WHERE ID = ? AND UID = ?",array($pid,$ur['ID']))->fetchArray();
     if (!$items)
@@ -62,7 +62,7 @@ function ViewOrEdit($pid,$items)
         $items['CLASSID'] = $_GET['CLASSID'];
 
     // Find root
-    $croot = RootForClassId($x->classes,$items['CLASSID']);
+    $croot = RootForClassId($xmlp->classes,$items['CLASSID']);
     if ($croot && $croot->c)
     {
         ?>
