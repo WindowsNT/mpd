@@ -40,9 +40,7 @@ if (!array_key_exists("f",$_GET))
 
 if (array_key_exists("delete",$_GET))
 {
-    $fr = QQ("SELECT * FROM PROSONFILE WHERE UID = ? AND ID = ?",array($ur['ID'],$_GET['delete']))->fetchArray();
-    unlink("files/{$fr['CLSID']}");
-    QQ("DELETE FROM PROSONFILE WHERE UID = ? AND ID = ?",array($ur['ID'],$_GET['delete']));
+    DeleteProsonFile($req['delete'],$ur['ID']);
     redirect(sprintf("files.php?e=%s&f=0",$_GET['e']));
     die;
 }

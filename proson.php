@@ -134,6 +134,14 @@ if (array_key_exists("e",$_GET))
     die;
 }
 
+
+if (array_key_exists("delete",$_GET))
+{
+    DeleteProson($_GET['delete'],$ur['ID']);
+    redirect("proson.php");
+    die;
+}
+
 printf('<button href="index.php" class="autobutton button is-danger">Πίσω</button> <button class="button is-primary autobutton" href="proson.php?e=0">Νέο Προσόν</button><br><br>Λίστα Προσόντων<hr>');
 echo PrintProsonta($ur['ID']);
 ?>

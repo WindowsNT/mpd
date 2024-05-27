@@ -71,6 +71,26 @@ $xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
+                <c n="402" t="Πτυχίο Αρμονίας">
+                    <params>
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+                <c n="403" t="Πτυχίο Αντίστιξης">
+                    <params>
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+                <c n="404" t="Πτυχίο Φούγκας">
+                    <params>
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+                <c n="405" t="Πτυχίο Σύνθεσης">
+                    <params>
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
             </classes>
         </c>
 
@@ -412,7 +432,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
             $parnames[(int)$pa['id']] = $pa['n'];                       
         }    
 
-        $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '');
+        $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞');
 
         // Parameters
         $s .= sprintf('<td>');
@@ -432,7 +452,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         }
 
         if ($veruid == 0)
-            $s .= sprintf('<br><br><button class="autobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση</button>',$r1['ID']);
+            $s .= sprintf('<br><br><button class="autobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
         if ($r1['STATE'] == 0) $s .= 'Αναμονή';
@@ -451,7 +471,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         }
         else
         {
-            $s .= sprintf('<button class="autobutton button is-small is-link" href="proson.php?e=%s">Διόρθωση</button>',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
         }
         $s .= sprintf('</td>');
 
@@ -464,6 +484,39 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
     return $s;
 }
 
+
+function DeleteProsonFile($id,$uid = 0)
+{
+    if ($uid)
+        $e = QQ("SELECT * FROM PROSONFILE WHERE ID = ? AND UID = ?",array($id,$uid))->fetchArray();
+    else
+        $e = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($id))->fetchArray();
+    if (!$e)
+        return false;
+
+    unlink(sprintf("./files/%s",$e['CLSID']));
+    QQ("DELETE FROM PROSONFILE WHERE ID = ?",array($id));
+    return true;
+}
+
+function DeleteProson($id,$uid = 0)
+{
+    if ($uid)
+        $e = QQ("SELECT * FROM PROSON WHERE ID = ? AND UID = ?",array($id,$uid))->fetchArray();
+    else
+        $e = QQ("SELECT * FROM PROSON WHERE ID = ?",array($id))->fetchArray();
+    if (!$e)
+        return;
+
+    $q1 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($id));
+    while($r1 = $q1->fetchArray())
+    {
+        DeleteProsonFile($r1['ID'],$uid);
+    }
+
+    QQ("DELETE FROM PROSONPAR WHERE PID = ?",array($id));
+    QQ("DELETE FROM PROSON WHERE ID = ?",array($id));
+}
 
 function CheckLevel($who,$target)
 {
@@ -543,14 +596,7 @@ function ScoreForThesi($uid,$posid)
             else
             {
                 $de = $r3['RESTRICTION'];
-                if ($de['0'] == '$')
-                {
-                    if (preg_match($de,$what['PVALUE']) != 1)
-                    {
-                        $fail  = 1;
-                    }
-                }
-                else
+                if (strstr($de,"==") || strstr($de,"!=") || strstr($de,">=") || strstr($de,"<=") || strstr($de," < ") || strstr($de," > "))
                 {
                     $rj = str_replace("%s",$what['PVALUE'],$de);
                     $rr = eval("return ".$rj.';');
@@ -559,6 +605,14 @@ function ScoreForThesi($uid,$posid)
                             $fail  = 1;
                             $fail2 = $de;
                         }
+                }
+                else
+                {
+                    if (preg_match($de,$what['PVALUE']) != 1)
+                    {
+                        $fail  = 1;
+                        $fail2 = $de;
+                    }
                 }
             }
         }
