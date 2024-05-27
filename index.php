@@ -4,10 +4,11 @@ require_once "function.php";
 require_once "auth.php";
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
-printf('Μητρώο Προσόντων<hr>');
+printf('Μητρώο Προσόντων');
 if ($afm && $ur)
     {
-        printf('<button class="button is-danger autobutton" href="auth.php?redirect=index.php&logout=1">Logout</button> %s %s - %s <hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm);
+        printf(' %s %s - %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm);
+        printf('<button class="button is-danger autobutton" href="auth.php?redirect=index.php&logout=1">Logout</button><hr>');
         printf('<button class="button autobutton is-link" href="proson.php">Προσόντα</button> ');
         printf('<button class="button autobutton is-success" href="applications.php">Αιτήσεις</button> ');
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
@@ -26,7 +27,7 @@ if ($afm && $ur)
 else
 {
     ?>
-  
+  <br>
   <div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
     <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">

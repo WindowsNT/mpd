@@ -18,7 +18,9 @@ if ($rolerow['UID'] != $ur['ID'])
     die;
 }
 
-echo 'Αποτελέσματα<hr>';
+
+printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
+WinTable($req['cid']);
 
 $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
 if (!$contestrow)

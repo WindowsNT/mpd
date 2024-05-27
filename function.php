@@ -174,23 +174,23 @@ function PrepareDatabase($msql = 0)
     if ($msql == 0)
         $j = '';
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT)",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (RID) REFERENCES ROLES(ID))",$j));
     /*
         Role 1 -> Checker, PAR1 : AFM list, PAR2 : Level of Checking
         Role 2 -> Test Creator
     */
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,DATA BLOB)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER)",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,RESTRICTION TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER)",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
     // Test set
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ')");
@@ -306,7 +306,7 @@ function PrintForeisContest($t,$cid,$rootfor = 0,$deep = 0)
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b> <a href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</a> - <a href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</a> - <a href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</a><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
+        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
         $s .= deepx($deep);
         $s .= PrintForeisContest($t,$cid,$r1['ID'],$deep + 1);
         $s .= sprintf('<a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω από %s</a><br>',$t,$cid,$r1['ID'],$r1['DESCRIPTION']);
@@ -514,5 +514,48 @@ function ScoreForThesi($uid,$posid)
 
 function WinTable($cid)
 {
-    
+    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+
+    $positions = array();
+    $applications = array();
+
+    $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ?",array($contestrow['ID']));
+    while($r1 = $q1->fetchArray())
+    {
+        $applications[] = array("uid" => $r1['UID'],"pos" => $r1['POS']);
+    }
+
+    $q1 = QQ("SELECT * FROM PLACES WHERE CID = ?",array($contestrow['ID']));
+    while($r1 = $q1->fetchArray())
+    {
+        $q2 = QQ("SELECT * FROM POSITIONS WHERE CID = ? AND PLACEID = ?",array($contestrow['ID'],$r1['ID']));
+        while($r2 = $q2->fetchArray())
+        {
+            $count = $r2['COUNT'];
+            $positions[] = array("pos" => $r2['ID'],"count" => $count,"allscores" => array());
+
+
+        }
+    }
+
+
+
+        /*
+            All positions in all places and return is 
+
+        */
+        foreach($positions as &$position)
+        {
+            foreach($applications as &$app)
+            {
+                if ($app['pos'] == $position['pos'])
+                    {
+                        $st = ScoreForThesi($app['uid'],$position['pos']);
+                        if ($st >= 0)
+                            $position['allscores'][] = array("uid" => $app['uid'],"s" => $st);
+                    }
+            }
+        }
+
+        //printf("<xmp>");        print_r($positions); die;
 }

@@ -36,9 +36,7 @@ if (!$fr)
 
 $d = file_get_contents("files/{$fr['CLSID']}");
 
-if (strtolower($fr['TYPE']) == 'jpg')
-{
-    header("Content-type: image/jpg");
-    echo $d;
-    die;
-}
+$finfo = new finfo(FILEINFO_MIME);
+header(sprintf('Content-Type: %s',$finfo->buffer($d)));
+echo $d;
+die;
