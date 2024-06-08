@@ -214,7 +214,7 @@ function PrepareDatabase($msql = 0)
     if ($msql == 0)
         $j = '';
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT)",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (RID) REFERENCES ROLES(ID))",$j));
     /*
         Role 1 -> Checker, PAR1 : AFM list, PAR2 : Level of Checking
@@ -244,6 +244,19 @@ function PrepareDatabase($msql = 0)
     QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,1,'1001001001')");
     QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,2,'1')");
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,2)");
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ')");
+    $u4Id = $lastRowID;
+    $rparam1 = serialize(array(
+        "n1" => 1,
+        "n2" => 101,
+        "p1" => "ΕΚΠΑ",
+        "p2" => "ΦΙΛΟΣΟΦΙΚΗ",
+        "p3" => "ΤΜΗΜΑ ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ",
+    )); 
+    QQ("INSERT INTO ROLES (UID,ROLE,ROLEPARAMS) VALUES(?,?,?)",array($u4Id,3,$rparam1));
+
+
+
 }
 
 function PrepareDatabaseMySQL()

@@ -152,13 +152,13 @@ if (!array_key_exists("aid",$req))
         $reason = '';
         $sc = ScoreForThesi($ur['ID'],$posrow['ID'],$reason);
         if ($sc >= 0)
-            printf('Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+            printf('Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
         else
             printf('Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <b>%s</b>',$rejr);
     }
     else
     {
-        printf('Έγινε άιτηση (%s)<br><button class="button is-small is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</a>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        printf('Έγινε άιτηση (%s)<br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</a>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
 
     }
 }

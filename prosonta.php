@@ -103,7 +103,7 @@ function EditProsontaThesis($prosonid)
             <input class="input" type="number" name="SCORE" step="0.01" value="<?= $row['SCORE'] ?>"  /><br><br>
 
 
-        <button class="button is-small is-success">Υποβολή</button>
+        <button class="button is-success">Υποβολή</button>
         </form>
 
         <?php
@@ -171,6 +171,6 @@ else
             QQ("DELETE FROM REQUIREMENTS WHERE ID = ?",array($req['delete']));
 
         ViewProsontaThesis();
-        printf('<button class="autobutton is-primary is-small button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+        printf('<button class="autobutton is-primary button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID']);
     }
 

@@ -22,6 +22,10 @@ if ($afm && $ur)
           {
             printf('<button class="button autobutton  is-primary" href="contest.php?t=%s">Διαγωνισμοί Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
+          if ($r1['ROLE'] == 3)
+          {
+            printf('<button class="button autobutton  is-link" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
+          }
         }
     }
 else
@@ -43,6 +47,7 @@ else
         <p>
           <a href="auth.php?redirect=index.php&afm2=1001001001">Παπαδόπουλος Νίκος ΑΦΜ 1001001001<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος Νίκος ΑΦΜ 1001001002 Ελεγτής<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης ΑΦΜ 1001001004 Πανεπιστήμιο<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
         </p>
       </div>

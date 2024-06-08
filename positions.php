@@ -84,7 +84,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         <input type="number" name="COUNT" class="input" required/>
         <br><br>
 
-        <button class="button is-success is-small">Υποβολή<button>
+        <button class="button is-success">Υποβολή<button>
     </form>
 
     <?php
