@@ -12,11 +12,11 @@ if (!$afm || !$ur)
     }
 
 $uid = $ur['ID'];
+if (array_key_exists("force_user",$req))
+    $uid = QQ("SELECT * FROM USERS WHERE CLSID = ?",array($req['force_user']))->fetchArray()['ID'];
 
 if (array_key_exists("e",$_POST))
 {
-    if (array_key_exists("target_id",$_SESSION))
-        $uid = ($_SESSION['target_id']);
     if ($_POST['e'] > 0)
     {
         $lastRowID = $_POST['e'];
@@ -47,9 +47,8 @@ if (array_key_exists("e",$_POST))
             }
         }
     }
-    if (array_key_exists("target_id",$_SESSION))
+    if (array_key_exists("force_user",$req))
     {
-        unset($_SESSION['target_id']);
         redirect("provider.php"); die;
     }
 
@@ -62,18 +61,12 @@ echo '<div class="content" style="margin: 20px">';
 
 function ViewOrEdit($pid,$items)
 {
-    global $xmlp,$_SESSION,$uid;
+    global $xmlp,$_SESSION,$uid,$req;
     EnsureProsonLoaded();
     $xx = $xmlp;
     if (array_key_exists("constraint",$_SESSION))
         $xx = simplexml_load_string($_SESSION['constraint']);
 
-    if (!$pid)
-    {
-        if (array_key_exists("target_id",$_SESSION))
-            $uid = ($_SESSION['target_id']);
-    }
-   
     if ($pid)
         $items = QQ("SELECT * FROM PROSON WHERE ID = ? AND UID = ?",array($pid,$uid))->fetchArray();
     if (!$items)
@@ -89,6 +82,10 @@ function ViewOrEdit($pid,$items)
         ?>
         <form method="GET" action="proson.php">
             <input type="hidden" name="e" value="0" />
+            <?php
+            if (array_key_exists("force_user",$req))
+                printf('<input type="hidden" name="force_user" value="%s" />',$req['force_user']);
+            ?>
         <label for="CLASSID">Επιλογή Τύπου Προσόντος:</label>
             <select class="select" name="CLASSID">
                 <?php
@@ -109,6 +106,11 @@ function ViewOrEdit($pid,$items)
     <form method="POST" action="proson.php">
     <input type="hidden" name="e" value="<?= $items['ID'] ?>" />
         <input type="hidden" name="CLASSID" value="<?= $items['CLASSID'] ?>" />
+
+        <?php
+            if (array_key_exists("force_user",$req))
+                printf('<input type="hidden" name="force_user" value="%s" />',$req['force_user']);
+            ?>
 
         <label for="DESCRIPTION">Περιγραφή</label>
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>

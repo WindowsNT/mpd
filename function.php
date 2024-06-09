@@ -213,7 +213,7 @@ function PrepareDatabase($msql = 0)
     global $lastRowID;
     if ($msql == 0)
         $j = '';
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT)",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT)",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (RID) REFERENCES ROLES(ID))",$j));
     /*
@@ -233,18 +233,18 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
     // Test set
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ')");
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ',?)",array(guidv4()));
     $u1Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u2@example.org','1001001002','ΓΕΩΡΓΙΟΥ','ΒΑΣΙΛΕΙΟΣ')");
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u2@example.org','1001001002','ΓΕΩΡΓΙΟΥ','ΒΑΣΙΛΕΙΟΣ',?)",array(guidv4()));
     $u2Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u3@example.org','1001001003','ΝΙΚΟΛΑΟΥ','ΠΑΝΑΓΙΩΤΗΣ')");
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u3@example.org','1001001003','ΝΙΚΟΛΑΟΥ','ΠΑΝΑΓΙΩΤΗΣ',?)",array(guidv4()));
     $u3Id = $lastRowID;
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
     $r1id = $lastRowID;
     QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,1,'1001001001')");
     QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,2,'1')");
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,2)");
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ')");
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
     $u4Id = $lastRowID;
     $rparam1 = '<root>
     <classes>
@@ -324,6 +324,20 @@ function guidv4()
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
+
+function GetAllClassesInXML($x,&$a)
+{
+    if (!$x)
+        return;
+    foreach($x->c as $c)
+    {
+        $attr = $c->attributes();
+        $n = (string)$attr['n'];
+        $a[] = $n;
+        if ($c->classes)
+            GetAllClassesInXML($c->classes,$a);        
+    }    
+}
 
 function RootForClassId($x,$cid,&$pars = array())
 {

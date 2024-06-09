@@ -16,8 +16,13 @@ if (!array_key_exists("f",$_GET))
     die;
 }
 
-$fr = QQ("SELECT * FROM PROSONFILE WHERE UID = ? AND ID = ?",array($ur['ID'],$_GET['f']))->fetchArray();
-if (!$fr)
+$uid = $ur['ID'];
+if (array_key_exists("force_user",$req))
+    $uid = QQ("SELECT * FROM USERS WHERE CLSID = ?",array($req['force_user']))->fetchArray()['ID'];
+
+
+$fr = QQ("SELECT * FROM PROSONFILE WHERE UID = ? AND ID = ?",array($uid,$_GET['f']))->fetchArray();
+if (!$fr && !array_key_exists("force_user",$req))
 {
     // check if uid checks f
     $fr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($_GET['f']))->fetchArray();

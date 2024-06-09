@@ -10,6 +10,10 @@ if (!$afm || !$ur)
         die;
     }
 
+$uid = $ur['ID'];
+if (array_key_exists("force_user",$req))
+    $uid = QQ("SELECT * FROM USERS WHERE CLSID = ?",array($req['force_user']))->fetchArray()['ID'];
+
 
 if (array_key_exists("f1",$_FILES))
 {
@@ -27,8 +31,11 @@ if (array_key_exists("f1",$_FILES))
     file_put_contents("files/$g",$vev);
 
     QQ("INSERT INTO PROSONFILE (PID,UID,CLSID,DESCRIPTION,FNAME,TYPE) VALUES(?,?,?,?,?,?)",
-        array($_POST['e'],$ur['ID'],$g,$_POST['f0'],$fn,$extension));
-    redirect("proson.php");
+        array($_POST['e'],$uid,$g,$_POST['f0'],$fn,$extension));
+    if (array_key_exists("force_user",$req))
+        redirect("provider.php");
+    else
+        redirect("proson.php");
     die;
 }
 
@@ -40,14 +47,17 @@ if (!array_key_exists("f",$_GET))
 
 if (array_key_exists("delete",$_GET))
 {
-    DeleteProsonFile($req['delete'],$ur['ID']);
-    redirect(sprintf("files.php?e=%s&f=0",$_GET['e']));
+    DeleteProsonFile($req['delete'],$uid);
+    if (array_key_exists("force_user",$req))
+        redirect(sprintf("files.php?e=%s&f=0&force_user=%s",$_GET['e'],$req['force_user']));
+    else
+        redirect(sprintf("files.php?e=%s&f=0",$_GET['e']));
     die;
 }
 
 function PrintFiles($pid)
 {
-    global $ur;
+    global $req;
 
     $s = '<table class="table datatable">';
     $s .= '<thead>
@@ -62,9 +72,16 @@ function PrintFiles($pid)
     {
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
-        $s .= sprintf('<td><b><a href="viewfile.php?f=%s" target="_blank">%s</a></td>',$r1['ID'],$r1['FNAME']);
+        if (array_key_exists("force_user",$req))
+            $s .= sprintf('<td><b><a href="viewfile.php?f=%s&force_user=%s" target="_blank">%s</a></td>',$r1['ID'],$req['force_user'],$r1['FNAME']);
+        else
+            $s .= sprintf('<td><b><a href="viewfile.php?f=%s" target="_blank">%s</a></td>',$r1['ID'],$r1['FNAME']);
         $s .= sprintf('<td>');
-        $s .= sprintf('<button class="sureautobutton button is-small is-danger" q="Να διαγραφεί το συγκεκριμένο αρχείο;" href="files.php?e=%s&delete=%s&f=0">Διαγραφή</button>',$pid,$r1['ID']);
+
+        if (array_key_exists("force_user",$req))
+            $s .= sprintf('<button class="sureautobutton button is-small is-danger" q="Να διαγραφεί το συγκεκριμένο αρχείο;" href="files.php?e=%s&delete=%s&f=0&force_user=%s">Διαγραφή</button>',$pid,$r1['ID'],$req['force_user']);
+        else
+            $s .= sprintf('<button class="sureautobutton button is-small is-danger" q="Να διαγραφεί το συγκεκριμένο αρχείο;" href="files.php?e=%s&delete=%s&f=0">Διαγραφή</button>',$pid,$r1['ID']);
         $s .= sprintf('</td>');
         $s .= sprintf('</tr>');
     }
@@ -83,6 +100,11 @@ if ($_GET['f'] == 0)
     echo '<hr>Ανέβασμα νέου αρχείου<hr>';    
     ?>
         <form method="POST" action="files.php" enctype="multipart/form-data">
+        <?php
+            if (array_key_exists("force_user",$req))
+                printf('<input type="hidden" name="force_user" value="%s" />',$req['force_user']);
+            ?>
+
             <input type="hidden" name="e" value="<?= $_GET['e'] ?>">
             <label for="f0">Περιγραφή</label>
         <input type="text" name="f0" id="f0" required class="input"/><br><br>
