@@ -5,6 +5,8 @@ require_once "auth.php";
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
 printf('Μητρώο Προσόντων και Διαγωνισμών');
+if (array_key_exists("target_id",$_SESSION))
+  unset($_SESSION['target_id']);
 if ($afm && $ur)
     {
         printf(' %s %s - %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm);

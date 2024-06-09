@@ -246,14 +246,25 @@ function PrepareDatabase($msql = 0)
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,2)");
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ')");
     $u4Id = $lastRowID;
-    $rparam1 = serialize(array(
-        "n1" => 1,
-        "n2" => 101,
-        "p1" => "ΕΚΠΑ",
-        "p2" => "ΦΙΛΟΣΟΦΙΚΗ",
-        "p3" => "ΤΜΗΜΑ ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ",
-    )); 
-    QQ("INSERT INTO ROLES (UID,ROLE,ROLEPARAMS) VALUES(?,?,?)",array($u4Id,3,$rparam1));
+    $rparam1 = '<root>
+    <classes>
+        <c n="1" t="Πτυχία Πανεπιστημίου" >
+            <classes>
+                <c n="101" t="Πτυχίο" el="6">
+                    <params>
+                        <p n="Ιδρυμα" id="1" t="0" v="ΕΚΠΑ"/>
+                        <p n="Σχολή" id="2" t="0" v="ΦΙΛΟΣΟΦΙΚΗ"/>
+                        <p n="Τμήμα" id="3" t="0" v="ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ"/>
+                        <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
+                    </params>
+                </c>
+            </classes>
+        </c>
+    </classes>
+</root>';
+    QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?,?)",array($u4Id,3));
+    $r4id = $lastRowID;
+    QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r4id,1,$rparam1)");
 
 
 
