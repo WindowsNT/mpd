@@ -18,4 +18,25 @@ if (!$rolerow)
     die;
 }
 
+if (array_key_exists("x",$_POST))
+{
+    QQ("DELETE FROM GLOBALXML");
+    if (strlen($_POST['x']) > 10)
+        QQ("INSERT INTO GLOBALXML (XML) VALUES(?)",array($_POST['x']));
+    redirect("index.php");
+    die;
+}
+
 printf('<button href="index.php" class="autobutton button  is-danger">Πίσω</button> ');
+
+?>
+<br><br>
+<form method="POST" action="globaleditor.php">
+    <textarea class="textarea" rows="40" name="x">
+        <?= $xml_proson?>
+    </textarea>
+    <br><br>
+<button class="button is-success">ΥΠΟΒΟΛΗ</button>
+</form>
+
+<?php

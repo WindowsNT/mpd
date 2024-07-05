@@ -57,6 +57,38 @@ if (array_key_exists("addplace",$_GET))
 }
 
 
+
+if (array_key_exists("editplace",$_POST))
+{
+    QQ("UPDATE PLACES SET DESCRIPTION = ? WHERE ID = ?",array(
+        $req['DESCRIPTION'],$req['editplace']
+    ));
+    redirect(sprintf("contest.php?t=%s",$_POST['t']));
+    die;
+}
+
+if (array_key_exists("editplace",$_GET))
+{
+    $pr = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+    ?>
+
+    <form method="POST" action="contest.php">
+    <input type="hidden" name="t" value="<?= $req['t'] ?>" />
+    <input type="hidden" name="editplace" value="<?= $req['pid'] ?>" />
+
+        <label for="DESCRIPTION">Όνομα φορέα:</label>
+        <input type="text" name="DESCRIPTION" class="input" required value="<?= $pr['DESCRIPTION'] ?>"/>
+        <br><br>
+
+        <button class="button is-link is-small">Υποβολή<button>
+    </form>
+
+    <?php
+    die;
+}
+
+
+
 if (array_key_exists("c",$_POST))
 {
     if ($_POST['c'] > 0)

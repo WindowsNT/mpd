@@ -12,7 +12,7 @@ $db = null;
 $mustprepare = 0;
 $mysqli = null;
 
-$xml_proson = <<<XML
+$def_xml_proson = <<<XML
 <root>
     <classes>
         <c n="1" t="Πτυχία Πανεπιστημίου" >
@@ -25,7 +25,14 @@ $xml_proson = <<<XML
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
-                <c n="102" t="Μεταπτυχιακό" el="7"/>
+                <c n="102" t="Μεταπτυχιακό" el="7">
+                <params>
+                        <p n="Ιδρυμα" id="1" t="0" />
+                        <p n="Σχολή" id="2" t="0" />
+                        <p n="Τμήμα" id="3" t="0" />
+                        <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
+                    </params>
+                </c>
                 <c n="103" t="Διδακτορικό" el="8" >
                     <params>
                         <p n="Ιδρυμα" id="1" t="0" />
@@ -68,44 +75,61 @@ $xml_proson = <<<XML
             <classes>
                 <c n="401" t="Δίπλωμα Πιάνου">
                     <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="402" t="Πτυχίο Αρμονίας">
                     <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="403" t="Πτυχίο Αντίστιξης">
                     <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="404" t="Πτυχίο Φούγκας">
                     <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="405" t="Πτυχίο Σύνθεσης">
                     <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
             </classes>
         </c>
 
+        <c n="5" t="Κοινωνικά κριτήρια" >
+            <classes>
+                <c n="501" t="Εντοπιότητα">
+                    <params>
+                        <p n="Περιοχή" id="1" t="0" />
+                    </params>
+                </c>
+                <c n="502" t="Οικογενειακή κατάσταση">
+                    <params>
+                        <p n="Γάμος" id="1" t="2" min="0" max="1" />
+                        <p n="Παιδιά" id="2" t="2" />
+                        <p n="Αναπηρία" id="3" t="2" min="0" max="100" />
+                    </params>
+                </c>
+            </classes>
+        </c>
 
     </classes>
 </root>
 XML;
 
 $xmlp = null;
-function  EnsureProsonLoaded()
-{
-    global $xmlp,$xml_proson;
-    if (!$xmlp)
-        $xmlp = simplexml_load_string($xml_proson);
-}
+$xml_proson = '';
+
 
 function QQZ_SQLite($dbs,$q,$arr = array(),$stmtx = null)
 {
@@ -216,9 +240,11 @@ define('ROLE_GLOBALPROSONEDITOR',4);
 function PrepareDatabase($msql = 0)
 {
     $j = 'AUTO_INCREMENT';
-    global $lastRowID;
+    global $lastRowID,$xml_proson;
     if ($msql == 0)
         $j = '';
+    QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY,XML TEXT)");
+    QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT)",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (RID) REFERENCES ROLES(ID))",$j));
@@ -236,7 +262,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
@@ -306,6 +332,14 @@ else
 }
 
 
+
+$xml_proson_row = QQ("SELECT * FROM GLOBALXML WHERE ID = 1")->fetchArray();
+if ($xml_proson_row)
+ $xml_proson = $xml_proson_row['XML'];
+else
+ $xml_proson = $def_xml_proson;
+
+
 function redirect($filename,$u = 0) {
     if (!headers_sent() && $u == 0)
         header('Location: '.$filename);
@@ -333,6 +367,14 @@ function guidv4()
     $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
     $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
+
+function  EnsureProsonLoaded()
+{
+    global $xmlp,$xml_proson;
+    if (!$xmlp)
+        $xmlp = simplexml_load_string($xml_proson);
 }
 
 
@@ -395,13 +437,13 @@ function PrintForeisContest($t,$cid,$rootfor = 0,$deep = 0)
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
+        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
         $s .= deepx($deep);
         $s .= PrintForeisContest($t,$cid,$r1['ID'],$deep + 1);
-        $s .= sprintf('<a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω από %s</a><br>',$t,$cid,$r1['ID'],$r1['DESCRIPTION']);
+//        $s .= sprintf('<a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω από %s</a><br>',$t,$cid,$r1['ID'],$r1['DESCRIPTION']);
     }
     if ($deep == 0)
-        $s .= sprintf('<hr><a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη</a><br>',$t,$cid,$rootfor);
+        $s .= sprintf('<hr><button class="button is-primary is-small autobutton" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη</button><br>',$t,$cid,$rootfor);
 
     return $s;
 }

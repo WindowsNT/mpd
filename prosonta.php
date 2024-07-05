@@ -148,8 +148,8 @@ function ViewProsontaThesis()
 
         if ($r1['ORLINK'] == 0)
             $r1['ORLINK'] = '';
-        printf('<td><button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">Regex</button> <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">OR %s</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$r1['ORLINK']);
-        printf('<td><button class="autobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID']);
+        printf('<td><button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">Regex</button> <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">OR %s</button> <button class="autobutton is-small is-link button" href="notlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">NOT %s</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$r1['ORLINK'],$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$r1['NOTLINK']);
+        printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID']);
 
         printf('</tr>');
     }
