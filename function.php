@@ -2,8 +2,6 @@
 
 /*
 
-    OR NOT REGEX in GLOBAL PROSONS
-    TRANSFER GLOBAL TO LOCAL PROSONS
 
 */
 
@@ -29,6 +27,7 @@ $def_xml_proson = <<<XML
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
                         <p n="Τμήμα" id="3" t="0" />
+                        <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
@@ -37,6 +36,7 @@ $def_xml_proson = <<<XML
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
                         <p n="Τμήμα" id="3" t="0" />
+                        <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
@@ -45,6 +45,7 @@ $def_xml_proson = <<<XML
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
                         <p n="Τμήμα" id="3" t="0" />
+                        <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
@@ -80,9 +81,10 @@ $def_xml_proson = <<<XML
 
         <c n="4" t="Διπλώματα/Πτυχία Μουσικής από Ωδείο" >
             <classes>
-                <c n="401" t="Δίπλωμα Πιάνου">
+                <c n="401" t="Δίπλωμα Οργάνου">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
+                        <p n="Όργανο" id="3" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
@@ -105,6 +107,12 @@ $def_xml_proson = <<<XML
                     </params>
                 </c>
                 <c n="405" t="Πτυχίο Σύνθεσης">
+                    <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+                <c n="406" t="Δίπλωμα Βυζαντινής">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
@@ -283,9 +291,16 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,POSNAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
+ //   QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,IFPOS0TYPE INTEGER,POSNAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
+//    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
+
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,
+        FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),
+        FOREIGN KEY (CID) REFERENCES CONTESTS(ID),
+        FOREIGN KEY (POSID) REFERENCES POSITIONS(ID),
+        FOREIGN KEY (ORLINK) REFERENCES REQS2(ID),
+        FOREIGN KEY (NOTLINK) REFERENCES REQS2(ID))",$j));
 
     // Test set
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ',?)",array(guidv4()));
@@ -460,7 +475,7 @@ function PrintForeisContest($t,$cid,$rootfor = 0,$deep = 0)
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
+        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton button is-small is-link" href="prosonta3.php?t=%s&cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
         $s .= deepx($deep);
         $s .= PrintForeisContest($t,$cid,$r1['ID'],$deep + 1);
 //        $s .= sprintf('<a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω από %s</a><br>',$t,$cid,$r1['ID'],$r1['DESCRIPTION']);
@@ -492,7 +507,9 @@ function PrintContests($t,$uid)
         $s .= PrintForeisContest($t,$r1['ID']);
         $s .= sprintf('</td>');
         // printf('',$req['t']);
-        $s .= sprintf('<td><button class="autobutton button is-small is-link" href="positiongroups.php?t=%s&cid=%s">Γκρουπ Θέσεων</button> <button class="autobutton button is-small is-success" href="results.php?t=%s&cid=%s">Αποτελέσματα</button></td>',$t,$r1['ID'],$t,$r1['ID']);
+        $s .= sprintf('<td><button class="autobutton button is-small is-link" href="positiongroups.php?t=%s&cid=%s">Προσόντα Θέσεων</button> ',$t,$r1['ID']);
+        $s .= sprintf('<button class="autobutton button is-small is-link" href="prosonta3.php?t=%s&cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$t,$r1['ID']);
+        $s .= sprintf(' <button class="autobutton button is-small is-success" href="results.php?t=%s&cid=%s">Αποτελέσματα</button></td>',$t,$r1['ID']);
 
         $s .= sprintf('</tr>');
     }           

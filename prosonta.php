@@ -51,11 +51,13 @@ else
 }
 if (array_key_exists("PROSONTYPE",$_POST))
 {
+    $if0 = $_POST['if0'];
+
     $id = $_POST['e'];
     if ($id == 0)
     {
-        QQ("INSERT INTO REQUIREMENTS (CID,POSID,POSNAME,PROSONTYPE,SCORE) VALUES (?,?,?,?,?)",array(
-            $_POST['cid'],$_POST['pos'],$_POST['name'],$_POST['PROSONTYPE'],$_POST['SCORE']
+        QQ("INSERT INTO REQUIREMENTS (CID,POSID,POSNAME,PROSONTYPE,SCORE,IFPOS0TYPE) VALUES (?,?,?,?,?,?)",array(
+            $_POST['cid'],$_POST['pos'],$_POST['name'],$_POST['PROSONTYPE'],$_POST['SCORE'],$if0
         ));
         $id = $lastRowID;
     }
@@ -67,7 +69,7 @@ if (array_key_exists("PROSONTYPE",$_POST))
 
     }
    
-    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s",$_POST['t'],$_POST['cid'],$_POST['pid'],$_POST['pos'],$_POST['name']));
+    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s&if0=%s",$_POST['t'],$_POST['cid'],$_POST['pid'],$_POST['pos'],$_POST['name'],$if0));
     die;
 }
 
@@ -90,7 +92,7 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
 
 function EditProsontaThesis($prosonid)
 {   
-    global $xmlp;
+    global $xmlp,$if0;
     EnsureProsonLoaded();
     
     global $contestrow,$posrow,$rolerow,$placerow,$byname;
@@ -106,6 +108,7 @@ function EditProsontaThesis($prosonid)
             <input type="hidden" name="pid" value="<?= $placerow['ID'] ?>" />
             <input type="hidden" name="pos" value="<?= $row['POSID'] ?>" />
             <input type="hidden" name="name" value="<?= $row['POSNAME'] ?>" />
+            <input type="hidden" name="if0" value="<?= $if0 ?>" />
 
             Προσόν:
             <select class="select input" name="PROSONTYPE">
@@ -124,7 +127,7 @@ function EditProsontaThesis($prosonid)
 
 function ViewProsontaThesis()
 {
-    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson,$xmlp,$byname;
+    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson,$xmlp,$byname,$if0;
     EnsureProsonLoaded();
     $q1 = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSID = ?",array($contestrow['ID'],$posrow['ID']));
     if ($posrow['ID'] == 0)
@@ -163,12 +166,14 @@ function ViewProsontaThesis()
         if ($r1['ORLINK'] == 0)
             $r1['ORLINK'] = '';
         printf('<td>');
-        printf('<button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">Regex</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname);
-        printf(' <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">OR %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$r1['ORLINK']);
-        printf(' <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">NOT %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$r1['NOTLINK']);
+        $rexcount = QQ("SELECT COUNT(*) FROM REQRESTRICTIONS WHERE RID = ?",array($r1['ID']))->fetchArray()[0];
+
+        printf('<button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s&if0=%s">Regex %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$if0,$rexcount);
+        printf(' <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s&if0=%s">OR %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$if0,$r1['ORLINK']);
+        printf(' <button class="autobutton is-small is-link button" href="notlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s&if0=%s">NOT %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$if0,$r1['NOTLINK']);
         printf('</td>');
 
-        printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname,$r1['ID']);
+        printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s&delete=%s&if0=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname,$r1['ID'],$if0);
 
         printf('</tr>');
     }
@@ -182,6 +187,9 @@ printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Π�
 printf('Θέσεις σε φορέα: %s<br>',$placerow['DESCRIPTION']);
 printf('Θέση: %s<hr>',$posrow['DESCRIPTION']);
 
+
+$if0 = $req['if0'];
+
 if (array_key_exists("e",$req))
 {
     EditProsontaThesis($req['e']);
@@ -192,6 +200,6 @@ else
             QQ("DELETE FROM REQUIREMENTS WHERE ID = ?",array($req['delete']));
 
         ViewProsontaThesis();
-        printf('<button class="autobutton is-primary button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0&name=%s">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname);
+        printf('<a class="autobutton is-primary button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0&name=%s&if0=%s">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname,$if0);
     }
 

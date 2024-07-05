@@ -28,7 +28,7 @@ if (!$contestrow)
 $byname = '';
 $placerow = null;
 if (array_key_exists("pid",$req))
-    $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+        $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
 if (!$placerow)
 {
     if (!array_key_exists("name",$req))
@@ -77,7 +77,7 @@ if (array_key_exists("prid",$_POST))
             ));
         }
     }
-    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s",$req['t'],$req['cid'],$req['pid'],$req['pos']));
+    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s&if0=%s",$req['t'],$req['cid'],$req['pid'],$req['pos'],$req['name'],$req['if0']));
     die;
 //    print_r($_POST); die;
 }
@@ -96,6 +96,8 @@ if (!$proot->params)
     <input type="hidden" name="pid" value="<?= $req['pid'] ?>" />
     <input type="hidden" name="pos" value="<?= $req['pos'] ?>" />
     <input type="hidden" name="prid" value="<?= $req['prid'] ?>" />
+    <input type="hidden" name="name" value="<?= $req['name'] ?>" />
+    <input type="hidden" name="if0" value="<?= $req['if0'] ?>" />
 
 <table class="table datatable">
 <thead>

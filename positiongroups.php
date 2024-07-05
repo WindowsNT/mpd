@@ -19,7 +19,7 @@ if ($rolerow['UID'] != $ur['ID'])
 }
 
 $cidrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
-if (!$rolerow)
+if (!$cidrow)
 {
     redirect("index.php");
     die;
@@ -28,7 +28,10 @@ if (!$rolerow)
 if (array_key_exists("DESCRIPTION",$_POST))
 {
     QQ("DELETE FROM POSITIONGROUPS WHERE CID = ?",array($_POST['cid']));
-    QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array($_POST['cid'],$_POST['DESCRIPTION']));
+    $gl = explode(",",$_POST['DESCRIPTION']);
+    sort($gl);
+    $fl = implode(",",$gl);
+    QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array($_POST['cid'],$fl));
     redirect(sprintf("contest.php?t=%s",$_POST['t']));
     die;
 
@@ -36,7 +39,7 @@ if (array_key_exists("DESCRIPTION",$_POST))
 
 printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
 $v = '';
-$grouprow = QQ("SELECT * FROM POSITIONGROUPS WHERE CId = ?",array($req['cid']))->fetchArray();
+$grouprow = QQ("SELECT * FROM POSITIONGROUPS WHERE CID = ?",array($req['cid']))->fetchArray();
 if ($grouprow)
     $v = $grouprow['GROUPLIST'];
 ?>
@@ -69,7 +72,8 @@ if ($grouprow)
         <?php
         foreach(explode(",",$v) as $vv)
         {
-            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta.php?t=%s&cid=%s&name=%s">Προσόντα</a></td></tr>',$vv,$req['t'],$req['cid'],$vv);
+            $count = QQ("SELECT COUNT(*) FROM REQS2 WHERE FORTHESI = ?",array($vv))->fetchArray()[0];
+            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta3.php?t=%s&cid=%s&placeid=0&forthesi=%s">Προσόντα %s</a></td></tr>',$vv,$req['t'],$req['cid'],$vv,$count);
         }
         ?>
     </tbody>

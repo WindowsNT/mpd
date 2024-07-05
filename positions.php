@@ -46,6 +46,50 @@ function ViewOrEditPos($posid)
 
 }
 
+if (array_key_exists("movefromglobal",$_GET))
+{
+    // cid contest, pid place, movefromglobal pos
+    QQ("BEGIN TRANSACTION");
+    $prosonrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($_GET['movefromglobal']))->fetchArray();
+    if ($prosonrow)
+    {
+        $globalrow = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSNAME = ?",array($req['cid'],$prosonrow['DESCRIPTION']));
+        $dups = array();
+        while($r1 = $globalrow->fetchArray())
+        {
+            QQ("INSERT INTO REQUIREMENTS (CID,POSID,PROSONTYPE,SCORE) VALUES(?,?,?,?)",array($req['cid'],$req['movefromglobal'],$r1['PROSONTYPE'],$r1['SCORE']));
+            $dups[$r1['ID']] = $lastRowID;
+        }
+
+        foreach($dups as $k => $newid)
+        {
+            $old_row = QQ("SELECT * FROM REQUIREMENTS WHERE ID = ?",array($k))->fetchArray();
+
+            if (!$old_row || !$newid)
+                continue;
+
+            $rest_db = QQ("SELECT * FROM REQRESTRICTIONS WHERE RID = ?",array($old_row['ID']));
+            while($rest_row = $rest_db->fetchArray())
+            {
+                QQ("INSERT INTO REQRESTRICTIONS (RID,PID,RESTRICTION) VALUES(?,?,?)",array($newid,$rest_row['PID'],$rest_row['RESTRICTION']));
+            }
+
+            $neworlink = 0;
+            $newnotlink = 0;
+            if ((int)$old_row['ORLINK'] != 0)
+                    $neworlink = $dups[(int)$old_row['ORLINK']];
+            if ((int)$old_row['NOTLINK'] != 0)
+                    $newnotlink = $dups[(int)$old_row['NOTLINK']];
+            QQ("UPDATE REQUIREMENTS SET ORLINK = ?,NOTLINK = ? WHERE ID = ?",array($neworlink,$newnotlink,$newid));
+
+        }
+    }
+//    QQ("ROLLBACK");
+    QQ("COMMIT");
+    redirect(sprintf("positions.php?t=%s&cid=%s&pid=%s",$req['t'],$req['cid'],$req['pid']));
+    die;
+   
+}
 
 if (array_key_exists("delete",$_GET))
 {
@@ -91,7 +135,16 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         printf('<td>%s</td>',$r4['COUNT']);
         printf('<td>');
         if (!$is_foreas_editing)
-            printf('<button class="is-small autobutton is-link button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s">Προσόντα</button> ',$req['t'],$req['cid'],$req['pid'],$r4['ID']);
+            {
+                $CountX = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND POSID = ?",array($req['cid'],$r4['ID']))->fetchArray()[0];
+                printf('<button class="is-small autobutton is-link button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['t'],$req['cid'],$req['pid'],$r4['ID'],$CountX);
+                if ($CountX == 0)   
+                    {
+                        $CountY = QQ("SELECT COUNT (*) FROM REQUIREMENTS WHERE CID = ? AND POSNAME = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
+                        if ($CountY)
+                            printf('<button class="is-small autobutton is-warning button" href="positions.php?t=%s&cid=%s&pid=%s&movefromglobal=%s">Μεταφορά από Global %s</button> ',$req['t'],$req['cid'],$req['pid'],$r4['ID'],$CountY);
+                    }
+            }
         printf('<button class="is-small sureautobutton is-danger button" href="positions.php?t=%s&cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$r4['ID'],$req['t'],$req['cid'],$req['pid'],$r4['ID']);
         printf('</tr>');
     }
