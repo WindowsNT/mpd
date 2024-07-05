@@ -25,18 +25,30 @@ if (!$contestrow)
     die;
 }
 
-$placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+
+$byname = '';
+$placerow = null;
+if (array_key_exists("pid",$req))
+    $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
 if (!$placerow)
 {
-    redirect("index.php");
-    die;
+    if (!array_key_exists("name",$req))
+        {
+            redirect("index.php");
+            die;
+        }
+    $byname = ($req['name']);
+    $posrow = array("ID" => 0,"DESCRIPTION" => $byname);
+    $placerow = array("ID" => 0,"DESCRIPTION" => "Όλοι");
 }
-
-$posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($req['pos']))->fetchArray();
-if (!$posrow)
+else
 {
-    redirect("index.php");
-    die;
+    $posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($req['pos']))->fetchArray();
+    if (!$posrow)
+    {
+        redirect("index.php");
+        die;
+    }
 }
 
 

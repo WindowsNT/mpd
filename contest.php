@@ -152,7 +152,7 @@ else
 {
     printf('<button href="index.php" class="autobutton button  is-danger">Πίσω</button> ');
     printf('<button class="autobutton button  is-primary" href="contest.php?c=0&t=%s">Νέος</button> ',$req['t']);
-    printf('<button class="autobutton button  is-link" href="positiongroups.php?t=%s">Γκρουπ Θέσεων</button>',$req['t']);
+    
        echo PrintContests($req['t'],$ur['ID']);
     ?>
     <?php

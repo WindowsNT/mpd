@@ -18,3 +18,63 @@ if ($rolerow['UID'] != $ur['ID'])
     die;
 }
 
+$cidrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
+if (!$rolerow)
+{
+    redirect("index.php");
+    die;
+}
+
+if (array_key_exists("DESCRIPTION",$_POST))
+{
+    QQ("DELETE FROM POSITIONGROUPS WHERE CID = ?",array($_POST['cid']));
+    QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array($_POST['cid'],$_POST['DESCRIPTION']));
+    redirect(sprintf("contest.php?t=%s",$_POST['t']));
+    die;
+
+}
+
+printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
+$v = '';
+$grouprow = QQ("SELECT * FROM POSITIONGROUPS WHERE CId = ?",array($req['cid']))->fetchArray();
+if ($grouprow)
+    $v = $grouprow['GROUPLIST'];
+?>
+
+<form method="POST" action="positiongroups.php">
+    <input type="hidden" name="t" value="<?= $req['t'] ?>" />
+    <input type="hidden" name="cid" value="<?= $req['cid'] ?>" />
+
+    <br>
+    <br>
+        <label for="DESCRIPTION">Δώστε τις πιθανές θέσεις, διαχωρισμένες με κόμμα:</label>
+        <input type="text" name="DESCRIPTION" class="input" required value="<?= $v ?>"/>
+        <br><br>
+
+        <button class="button is-success ">Υποβολή<button>
+    </form>
+
+    <?php
+
+?>
+<br><br><br>
+Προσόντα για κάθε θέση:
+<br>
+<table class="table">
+    <thead>
+        <th></th>
+        <th></th>
+    </thead>
+    <tbody>
+        <?php
+        foreach(explode(",",$v) as $vv)
+        {
+            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta.php?t=%s&cid=%s&name=%s">Προσόντα</a></td></tr>',$vv,$req['t'],$req['cid'],$vv);
+        }
+        ?>
+    </tbody>
+</table>
+
+<?php
+    die;
+

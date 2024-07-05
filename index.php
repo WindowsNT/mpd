@@ -32,6 +32,10 @@ if ($afm && $ur)
           {
             printf('<button class="button autobutton  is-link" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
           }
+          if ($r1['ROLE'] == ROLE_FOREASSETPLACES)
+          {
+            printf('<button class="button autobutton  is-link" href="editkena.php">Διόρθωση Κενών</button> ');
+          }
       }
     }
 else
@@ -56,6 +60,7 @@ else
           <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης ΑΦΜ 1001001004 Πανεπιστήμιο<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης ΑΦΜ 1001001004 Διόρθωση Γενικών Προσόντων<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία ΑΦΜ 1001001005 Διόρθωση Κενών Μουσικού Αλίμου<hr></a>
         </p>
       </div>
     </div>

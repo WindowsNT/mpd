@@ -25,27 +25,37 @@ if (!$contestrow)
     die;
 }
 
-$placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+$byname = '';
+$placerow = null;
+if (array_key_exists("pid",$req))
+    $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
 if (!$placerow)
 {
-    redirect("index.php");
-    die;
+    if (!array_key_exists("name",$req))
+        {
+            redirect("index.php");
+            die;
+        }
+    $byname = ($req['name']);
+    $posrow = array("ID" => 0,"DESCRIPTION" => $byname);
+    $placerow = array("ID" => 0,"DESCRIPTION" => "Όλοι");
 }
-
-$posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($req['pos']))->fetchArray();
-if (!$posrow)
+else
 {
-    redirect("index.php");
-    die;
+    $posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($req['pos']))->fetchArray();
+    if (!$posrow)
+    {
+        redirect("index.php");
+        die;
+    }
 }
-
 if (array_key_exists("PROSONTYPE",$_POST))
 {
     $id = $_POST['e'];
     if ($id == 0)
     {
-        QQ("INSERT INTO REQUIREMENTS (CID,POSID,PROSONTYPE,SCORE) VALUES (?,?,?,?)",array(
-            $_POST['cid'],$_POST['pos'],$_POST['PROSONTYPE'],$_POST['SCORE']
+        QQ("INSERT INTO REQUIREMENTS (CID,POSID,POSNAME,PROSONTYPE,SCORE) VALUES (?,?,?,?,?)",array(
+            $_POST['cid'],$_POST['pos'],$_POST['name'],$_POST['PROSONTYPE'],$_POST['SCORE']
         ));
         $id = $lastRowID;
     }
@@ -57,7 +67,7 @@ if (array_key_exists("PROSONTYPE",$_POST))
 
     }
    
-    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s",$_POST['t'],$_POST['cid'],$_POST['pid'],$_POST['pos']));
+    redirect(sprintf("prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s",$_POST['t'],$_POST['cid'],$_POST['pid'],$_POST['pos'],$_POST['name']));
     die;
 }
 
@@ -83,10 +93,10 @@ function EditProsontaThesis($prosonid)
     global $xmlp;
     EnsureProsonLoaded();
     
-    global $contestrow,$posrow,$rolerow,$placerow;
+    global $contestrow,$posrow,$rolerow,$placerow,$byname;
     $row = QQ("SELECT * FROM REQUIREMENTS WHERE ID = ?",array($prosonid))->fetchArray();
     if (!$row)
-        $row = array("ID" => 0,"CID" => $contestrow['ID'],"POSID" => $posrow['ID'],"PROSONTYPE" => 0,"PARAMID" => 0,"PARAMREGEX" => "","SCORE" => 0);
+        $row = array("ID" => 0,"CID" => $contestrow['ID'],"POSID" => $posrow['ID'],"PROSONTYPE" => 0,"PARAMID" => 0,"PARAMREGEX" => "","SCORE" => 0,"POSNAME" => $byname);
 
         ?>
         <form method="POST" action="prosonta.php">
@@ -95,6 +105,8 @@ function EditProsontaThesis($prosonid)
             <input type="hidden" name="cid" value="<?= $row['CID'] ?>" />
             <input type="hidden" name="pid" value="<?= $placerow['ID'] ?>" />
             <input type="hidden" name="pos" value="<?= $row['POSID'] ?>" />
+            <input type="hidden" name="name" value="<?= $row['POSNAME'] ?>" />
+
             Προσόν:
             <select class="select input" name="PROSONTYPE">
                 <?php echo PrintOptionsProson($xmlp,0,$row['PARAMID']); ?>
@@ -112,9 +124,11 @@ function EditProsontaThesis($prosonid)
 
 function ViewProsontaThesis()
 {
-    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson,$xmlp;
+    global $contestrow,$posrow,$rolerow,$placerow,$xml_proson,$xmlp,$byname;
     EnsureProsonLoaded();
     $q1 = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSID = ?",array($contestrow['ID'],$posrow['ID']));
+    if ($posrow['ID'] == 0)
+        $q1 = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSNAME = ?",array($contestrow['ID'],$byname));
     ?>
     <table class="table datatable">
     <thead>
@@ -148,8 +162,13 @@ function ViewProsontaThesis()
 
         if ($r1['ORLINK'] == 0)
             $r1['ORLINK'] = '';
-        printf('<td><button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">Regex</button> <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">OR %s</button> <button class="autobutton is-small is-link button" href="notlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s">NOT %s</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$r1['ORLINK'],$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$r1['NOTLINK']);
-        printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID']);
+        printf('<td>');
+        printf('<button class="autobutton is-small is-link button" href="regex.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">Regex</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname);
+        printf(' <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">OR %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$r1['ORLINK']);
+        printf(' <button class="autobutton is-small is-link button" href="orlink.php?t=%s&cid=%s&pid=%s&pos=%s&prid=%s&name=%s">NOT %s</button> ',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$r1['ID'],$byname,$r1['NOTLINK']);
+        printf('</td>');
+
+        printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&name=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname,$r1['ID']);
 
         printf('</tr>');
     }
@@ -173,6 +192,6 @@ else
             QQ("DELETE FROM REQUIREMENTS WHERE ID = ?",array($req['delete']));
 
         ViewProsontaThesis();
-        printf('<button class="autobutton is-primary button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+        printf('<button class="autobutton is-primary button" href="prosonta.php?t=%s&cid=%s&pid=%s&pos=%s&e=0&name=%s">Προσθήκη</a>',$rolerow['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],$byname);
     }
 

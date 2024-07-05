@@ -1,5 +1,12 @@
 <?php
 
+/*
+
+    OR NOT REGEX in GLOBAL PROSONS
+    TRANSFER GLOBAL TO LOCAL PROSONS
+
+*/
+
 ini_set('display_errors', 1); error_reporting(E_ALL);
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
@@ -123,6 +130,18 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
+        <c n="6" t="Υπηρεσιακή Κατάσταση" >
+            <classes>
+                <c n="601" t="Υπηρεσία">
+                    <params>
+                        <p n="Κλάδος" id="1" t="0" />
+                        <p n="ΑΜ" id="2" t="1" />
+                        <p n="Εκπαιδευτική" id="3" t="3" />
+                        <p n="Μουσικά" id="4" t="3" />
+                    </params>
+                </c>
+            </classes>
+        </c>
     </classes>
 </root>
 XML;
@@ -236,6 +255,7 @@ define('ROLE_CHECKER', 1);
 define('ROLE_CREATOR',2);
 define('ROLE_UNI',3);
 define('ROLE_GLOBALPROSONEDITOR',4);
+define('ROLE_FOREASSETPLACES',5);
 
 function PrepareDatabase($msql = 0)
 {
@@ -262,7 +282,8 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,POSID INTEGER,POSNAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
@@ -275,6 +296,8 @@ function PrepareDatabase($msql = 0)
     $u3Id = $lastRowID;
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001005','ΜΑΡΗΣ','ΦΩΤΗΣ',?)",array(guidv4()));
     $u4Id = $lastRowID;
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u5@example.org','1001001006','ΜΑΡΙΝΟΥ','ΕΥΤΥΧΙΑ',?)",array(guidv4()));
+    $u5Id = $lastRowID;
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
     $r1id = $lastRowID;
     QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,1,'1001001001')");
@@ -468,7 +491,8 @@ function PrintContests($t,$uid)
         $s .= sprintf('<td>');
         $s .= PrintForeisContest($t,$r1['ID']);
         $s .= sprintf('</td>');
-        $s .= sprintf('<td><button class="autobutton button is-small is-success" href="results.php?t=%s&cid=%s">Αποτελέσματα</button></td>',$t,$r1['ID']);
+        // printf('',$req['t']);
+        $s .= sprintf('<td><button class="autobutton button is-small is-link" href="positiongroups.php?t=%s&cid=%s">Γκρουπ Θέσεων</button> <button class="autobutton button is-small is-success" href="results.php?t=%s&cid=%s">Αποτελέσματα</button></td>',$t,$r1['ID'],$t,$r1['ID']);
 
         $s .= sprintf('</tr>');
     }           
