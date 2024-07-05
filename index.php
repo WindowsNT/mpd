@@ -16,19 +16,23 @@ if ($afm && $ur)
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
         while($r1 = $q1->fetchArray())
         {
-          if ($r1['ROLE'] == 1)
+          if ($r1['ROLE'] == ROLE_CHECKER)
           {
             printf('<button class="button autobutton  is-info" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
-          if ($r1['ROLE'] == 2)
+          if ($r1['ROLE'] == ROLE_CREATOR)
           {
             printf('<button class="button autobutton  is-primary" href="contest.php?t=%s">Διαγωνισμοί Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
-          if ($r1['ROLE'] == 3)
+          if ($r1['ROLE'] == ROLE_UNI)
           {
             printf('<button class="button autobutton  is-link" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
-        }
+          if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR)
+          {
+            printf('<button class="button autobutton  is-link" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+          }
+      }
     }
 else
 {
@@ -51,6 +55,7 @@ else
           <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος Νίκος ΑΦΜ 1001001002 Ελεγτής<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης ΑΦΜ 1001001004 Πανεπιστήμιο<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης ΑΦΜ 1001001004 Διόρθωση Γενικών Προσόντων<hr></a>
         </p>
       </div>
     </div>
