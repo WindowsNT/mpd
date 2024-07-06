@@ -54,7 +54,7 @@ if ($grouprow)
         <input type="text" name="DESCRIPTION" class="input" required value="<?= $v ?>"/>
         <br><br>
 
-        <button class="button is-success ">Υποβολή<button>
+        <button class="button is-success ">Υποβολή</button>
     </form>
 
     <?php
