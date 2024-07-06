@@ -106,7 +106,7 @@ else
 printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 
 ?>
-<table class="table datatable">
+<table class="table datatable" style="width: 100%">
     <thead>
         <th>#</th>
         <th>θέση</th>

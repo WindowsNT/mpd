@@ -43,7 +43,7 @@ $params = json_decode($role['ROLEPARAMS'],true);
 $afms = $params['afms'];
 
 ?>
-'<table class="table datatable">
+'<table class="table datatable" style="width: 100%">
     <thead>
         <th>ΑΦΜ</th>
         <th>Όνομα</th>

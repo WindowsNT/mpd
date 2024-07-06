@@ -91,7 +91,7 @@ while($place = $place_query->fetchArray())
 }
 
 ?>
-    <table class="table datatable">
+    <table class="table datatable" style="width: 100%">
     <thead>
                 <th>#</th>
                 <th>Φορέας</th>

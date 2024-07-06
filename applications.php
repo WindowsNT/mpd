@@ -17,7 +17,7 @@ $t = time();
 if (!array_key_exists("cid",$req))
 {
     echo '<button href="index.php" class="autobutton button is-danger">Πίσω</button> ';
-    echo '<table class="table datatable">';
+    echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
                 <th>#</th>
                 <th>Περιγραφή</th>
@@ -65,7 +65,7 @@ if (!array_key_exists("pid",$req))
     echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <hr>';
     printf("%s<hr>Επιλέξτε φορέα που σας ενδιαφέρει:",$contestrow['DESCRIPTION']);
 
-    echo '<table class="table datatable">';
+    echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
                 <th>#</th>
                 <th>Περιγραφή</th>
@@ -100,7 +100,7 @@ if (!array_key_exists("pos",$req))
     printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <hr>',$contestrow['ID']);
     printf("%s<br>%s<hr>Επιλέξτε θέση που σας ενδιαφέρει:",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION']);
 
-    echo '<table class="table datatable">';
+    echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
                 <th>#</th>
                 <th>Περιγραφή</th>

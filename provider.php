@@ -37,7 +37,7 @@ function PrintList()
     GetAllClassesInXML($x2->classes,$our_codes);
     $q1 = QQ("SELECT * FROM PROSON");
     ?>
-    <table class="table datatable">
+    <table class="table datatable" style="width: 100%">
     <thead>
         <th>#</th>
         <th>Όνομα</th>

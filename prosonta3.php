@@ -119,7 +119,7 @@ if (array_key_exists("regexedit",$req))
             <input type="hidden" name="posid" value="<?= $req['posid'] ?>" />
             <input type="hidden" name="forthesi" value="<?= $req['forthesi'] ?>" />
         
-        <table class="table datatable">
+        <table class="table datatable" style="width: 100%">
         <thead>
             <th>#</th>
             <th>Όνομα</th>
@@ -206,7 +206,7 @@ $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND  POSID = ? AND (
 if ($forthesi != '')
     $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND  POSID = ? AND FORTHESI = ?",array($cid,$placeid,$posid,$forthesi));
 ?>
-<table class="table datatable">
+<table class="table datatable" style="width: 100%">
 <thead>
     <th>#</th>
     <th>Προσόν</th>
@@ -243,10 +243,10 @@ while($r1 = $q1->fetchArray())
     if ($r1['REGEXRESTRICTIONS'] && strlen($r1['REGEXRESTRICTIONS']))   
         $RexCount = count(explode("|||",$r1['REGEXRESTRICTIONS']));
 
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
+    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
+    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
+    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',(int)$r1['ORLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
+    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',(int)$r1['NOTLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
 
     printf('</td>');
 

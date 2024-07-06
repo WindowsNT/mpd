@@ -63,7 +63,7 @@ if ($grouprow)
 <br><br><br>
 Προσόντα για κάθε θέση:
 <br>
-<table class="table">
+<table class="table datatable" style="width: 100%">
     <thead>
         <th></th>
         <th></th>
@@ -72,8 +72,9 @@ if ($grouprow)
         <?php
         foreach(explode(",",$v) as $vv)
         {
-            $count = QQ("SELECT COUNT(*) FROM REQS2 WHERE FORTHESI = ?",array($vv))->fetchArray()[0];
-            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta3.php?cid=%s&placeid=0&forthesi=%s">Προσόντα %s</a></td></tr>',$vv,$req['cid'],$vv,$count);
+            $count = QQ("SELECT COUNT(*) FROM REQS2 WHERE FORTHESI = ? AND CID = ?",array($vv,$req['cid']))->fetchArray()[0];
+            
+            printf('<tr><td>%s</td><td><a class="button %s is-small autobutton" href="prosonta3.php?cid=%s&placeid=0&forthesi=%s">Προσόντα %s</a></td></tr>',$vv,$count ? 'is-success' : 'is-link',$req['cid'],$vv,$count);
         }
         ?>
     </tbody>

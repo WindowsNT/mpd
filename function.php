@@ -639,7 +639,7 @@ function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
 function PrintContests($uid)
 {
 
-    $s = '<table class="table datatable">';
+    $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th>#</th>
                 <th>Περιγραφή</th>
@@ -707,7 +707,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
     EnsureProsonLoaded();
 
 
-    $s = '<table class="table datatable">';
+    $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th>#</th>
                 <th>Περιγραφή</th>
