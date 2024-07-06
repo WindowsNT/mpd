@@ -119,7 +119,7 @@ $def_xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="405" t="Πτυχίο Σύνθεσης">
+                <c n="408" t="Πτυχίο Σύνθεσης">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
@@ -935,58 +935,67 @@ function ScoreForAitisi($apid)
     return $score;
 }
 
+function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
+{
+    if (array_key_exists($pid,$checked))
+        return -1;
+    $prow  = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($pid))->fetchArray();
+    if (!$prow)
+        return -1;
+    $checked[] = $pid;
+    $y = HasProson($uid,$pid);
+    if ($y == -1)
+    {
+        if ($prow['ANDLINK'] != 0)
+            return -1; // we don't have it, so entire chain fails
+        if ($prow['ORLINK'] == 0)
+            return -1; // nothing more to search
+        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked);
+    }
+    else
+    {
+        // We have it
+        if ($prow['NOTLINK'] != 0)   
+        {
+            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked) == 1)            
+                return -1; // XOR fail
+        }
+
+        if ($prow['ANDLINK'] != 0)
+        {
+            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked);
+        }
+        return 1;
+    }
+
+}
+
 function ScoreForThesi($uid,$cid,$placeid,$posid)
 {
     global $rejr,$xmlp;
     EnsureProsonLoaded();
     $pr = QQ("SELECT * FROM USERS WHERE ID = ?",array($uid))->fetchArray();
-    $posr = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($posid))->fetchArray();
-    if (!$pr || !$posr)
-        return -2;
-    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($posr['CID']))->fetchArray();
+    if (!$pr)
+        return -1;
+    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
     if (!$contestrow)
-        return -2;
-
+        return -1;
+    $posr = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($posid))->fetchArray();
     $score = 0;
 
     // Has general contest
-    $thesiname = $posr['DESCRIPTION'];
+    $thesiname = '';
+    if ($posr)
+        $thesiname = $posr['DESCRIPTION'];
     $CountGeneral = QQ("SELECT COUNT(*) FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname))->fetchArray()[0];
-    if ($CountGeneral)
+    if ($CountGeneral && $thesiname != '')
         $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname));
     else
         $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
     while($r1 = $q1->fetchArray())
     {
         $sp = $r1['SCORE'];
-        $hasTHIS = HasProson($uid,$r1['ID']);
-        $hasOR = HasProson($uid,$r1['ORLINK']);
-        $hasAND = HasProson($uid,$r1['ANDLINK']);
-        $hasNOT = HasProson($uid,$r1['NOTLINK']);
-
-        $has = 0;
-        if ($r1['ANDLINK'] != 0 && $hasAND == -1)
-        {
-            // We don't have the AND
-        }   
-        else
-        {
-            if ($hasTHIS == 1)
-            {
-                // We have it, must not have the not
-                if ($hasNOT == -1)
-                    $has = 1;
-            }
-            else
-            {
-                // We haven't it, but may have the or
-                if ($hasOR == 1)
-                    $has = 1;
-            }
-        }
-
-
-
+        $has = ProsonResolutAndOrNot($uid,$r1['ID']);
         if ($has == 1)
             {
                 $score += $sp;
@@ -1000,95 +1009,22 @@ function ScoreForThesi($uid,$cid,$placeid,$posid)
     }
 
 
-    // Check if it has
-    $q1 = QQ("SELECT * FROM REQS2 WHERE POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($posid));
-    while($r1 = $q1->fetchArray())
+    if ($posid)
     {
-        $has = HasProson($uid,$r1['ID']);
-        if ($has == 1)
-            continue;
-
-        // It doesn't have it, but it may have the ORLINK
-        $has = HasProson($uid,$r1['ORLINK']);
-        if ($has == 1)
-            continue;
-
-        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-        $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
-        return -1;
+        $v = ScoreForThesi($uid,$cid,$placeid,0);;
+        if ($v == -1)
+            return -1;
+        $score += $v;
+    }
+    else
+    if ($placeid)
+    {
+        $v =  ScoreForThesi($uid,$cid,0,0);
+        if ($v == -1)
+            return -1;
+        $score += $v;
     }
 
-
-/*    $q1 = QQ("SELECT * FROM REQS2 WHERE POSID = ?",array($posid));
-    while($r1 = $q1->fetchArray())
-    {
-        // $r1 is  a proson requirement row
-        // does user have this?
-        $fail = 0;
-        $r2 = QQ("SELECT * FROM PROSON WHERE UID = ? and CLASSID = ? AND STATE > 0 AND STARTDATE < ? AND (ENDDATE == 0 OR ENDDATE > ?)",array($uid,$r1['PROSONTYPE'],time(),$contestrow['ENDDATE']))->fetchArray();
-        if (!$r2)
-        {
-            $fail = 1;
-            if ($r1['SCORE'] == 0)
-                {
-                    $missingp = $r1['PROSONTYPE'];
-                    $rootc = RootForClassId($xmlp->classes,$missingp);
-                    $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
-                    return -1; // This is a requirement, he doesn't have it
-                }
-            continue;
-        }
-        // Yes he has it
-
-        $q3 = QQ("SELECT * FROM REQRESTRICTIONS WHERE RID = ?",array($r1['ID']));
-        $fail2 = '';
-        while($r3 = $q3->fetchArray())
-        {
-            $param = $r3['PID'];
-            $what = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ?",array($r2['ID'],$param))->fetchArray();
-            if (!$what)
-            {
-                $fail = 1;
-            }
-            else
-            {
-                $de = $r3['RESTRICTION'];
-                if (strstr($de,"==") || strstr($de,"!=") || strstr($de,">=") || strstr($de,"<=") || strstr($de," < ") || strstr($de," > "))
-                {
-                    $rj = str_replace("%s",$what['PVALUE'],$de);
-                    $rr = eval("return ".$rj.';');
-                    if (!$rr)
-                        {
-                            $fail  = 1;
-                            $fail2 = $de;
-                        }
-                }
-                else
-                {
-                    if (preg_match($de,$what['PVALUE']) != 1)
-                    {
-                        $fail  = 1;
-                        $fail2 = $de;
-                    }
-                }
-            }
-        }
-
-        if ($fail)
-        {
-            if ($r1['SCORE'] == 0)
-            {
-                $missingp = $r1['PROSONTYPE'];
-                $rootc = RootForClassId($xmlp->classes,$missingp);
-                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s',$rootc->attributes()['t'],$fail2);
-                return -1; // This is a requirement, he doesn't have it
-            }
-            continue;
-        }
-
-        $score += $r1['SCORE'];
-    }
-*/
     return $score;
 }   
 
