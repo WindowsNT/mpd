@@ -11,12 +11,6 @@ if (!$afm || !$ur)
         die;
     }
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
-if ($rolerow['UID'] != $ur['ID'])
-{
-    redirect("index.php");
-    die;
-}
 
 $cidrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
 if (!$cidrow)
@@ -25,6 +19,13 @@ if (!$cidrow)
     die;
 }
 
+if (!HasContestAccess($cidrow['ID'],$ur['ID'],1))
+{
+    redirect("index.php");
+    die;
+}
+    
+
 if (array_key_exists("DESCRIPTION",$_POST))
 {
     QQ("DELETE FROM POSITIONGROUPS WHERE CID = ?",array($_POST['cid']));
@@ -32,12 +33,12 @@ if (array_key_exists("DESCRIPTION",$_POST))
     sort($gl);
     $fl = implode(",",$gl);
     QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array($_POST['cid'],$fl));
-    redirect(sprintf("contest.php?t=%s",$_POST['t']));
+    redirect(sprintf("contest.php"));
     die;
 
 }
 
-printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
+printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσω</button> ');
 $v = '';
 $grouprow = QQ("SELECT * FROM POSITIONGROUPS WHERE CID = ?",array($req['cid']))->fetchArray();
 if ($grouprow)
@@ -45,7 +46,6 @@ if ($grouprow)
 ?>
 
 <form method="POST" action="positiongroups.php">
-    <input type="hidden" name="t" value="<?= $req['t'] ?>" />
     <input type="hidden" name="cid" value="<?= $req['cid'] ?>" />
 
     <br>
@@ -73,7 +73,7 @@ if ($grouprow)
         foreach(explode(",",$v) as $vv)
         {
             $count = QQ("SELECT COUNT(*) FROM REQS2 WHERE FORTHESI = ?",array($vv))->fetchArray()[0];
-            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta3.php?t=%s&cid=%s&placeid=0&forthesi=%s">Προσόντα %s</a></td></tr>',$vv,$req['t'],$req['cid'],$vv,$count);
+            printf('<tr><td>%s</td><td><a class="button is-link is-small autobutton" href="prosonta3.php?cid=%s&placeid=0&forthesi=%s">Προσόντα %s</a></td></tr>',$vv,$req['cid'],$vv,$count);
         }
         ?>
     </tbody>

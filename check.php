@@ -39,17 +39,8 @@ if (array_key_exists("reject",$_GET))
 echo '<div class="content" style="margin: 20px">';
 echo 'Έλεγχος Προσόντων<hr>';
 
-$afms = array();
-$q2 = QQ("SELECT * FROM ROLEPAR WHERE RID = ?",array($role['ID']));
-while($r2 = $q2->fetchArray())
-{
-    if ($r2['PIDX'] == 1)
-        {
-         $list =  explode(",",$r2['PVALUE']);
-         foreach($list as $li)
-            $afms[] = $li;
-        }
-}
+$params = json_decode($role['ROLEPARAMS'],true);
+$afms = $params['afms'];
 
 ?>
 '<table class="table datatable">

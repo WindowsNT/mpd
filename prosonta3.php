@@ -30,8 +30,7 @@ if (array_key_exists("forthesi",$req)) $forthesi = $req['forthesi'];
 if ($cid == 0)
     die; // atm
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($ur['ID'],ROLE_CREATOR))->fetchArray();
-if (!$rolerow)
+if (!HasContestAccess($req['cid'],$ur['ID'],1))
 {
     redirect("index.php");
     die;
@@ -43,7 +42,7 @@ if (array_key_exists("e",$_POST))
         QQ("INSERT INTO REQS2 (CID,PLACEID,POSID,FORTHESI,PROSONTYPE,SCORE) VALUES(?,?,?,?,?,?)",array(
             $cid,$placeid,$posid,$forthesi,$req['PROSONTYPE'],$req['SCORE']
         ));
-    $a = sprintf("prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s",$req['t'],$cid,$placeid,$posid,$forthesi);
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
 }
@@ -52,7 +51,7 @@ if (array_key_exists("e",$_POST))
 if (array_key_exists("delete",$req))
 {
     QQ("DELETE FROM REQS2 WHERE ID = ?",array($req['delete']));
-    $a = sprintf("prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s",$req['t'],$cid,$placeid,$posid,$forthesi);
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
 }
@@ -77,7 +76,6 @@ if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) )
         <form method="POST" action="prosonta3.php">
         <input type="hidden" name="ornotapply" value="<?= $what ?>" />
         <input type="hidden" name="ornot" value="<?= $which ?>" />
-            <input type="hidden" name="t" value="<?= $req['t'] ?>" />
             <input type="hidden" name="cid" value="<?= $req['cid'] ?>" />
             <input type="hidden" name="placeid" value="<?= $req['placeid'] ?>" />
             <input type="hidden" name="posid" value="<?= $req['posid'] ?>" />
@@ -108,7 +106,6 @@ if (array_key_exists("regexedit",$req))
         ?>
         <form method="POST" action="prosonta3.php">
             <input type="hidden" name="rexapply" value="<?= $req['regexedit'] ?>" />
-            <input type="hidden" name="t" value="<?= $req['t'] ?>" />
             <input type="hidden" name="cid" value="<?= $req['cid'] ?>" />
             <input type="hidden" name="placeid" value="<?= $req['placeid'] ?>" />
             <input type="hidden" name="posid" value="<?= $req['posid'] ?>" />
@@ -177,7 +174,7 @@ if (array_key_exists("rexapply",$_POST))
         }
     }
     QQ("UPDATE REQS2 SET REGEXRESTRICTIONS = ? WHERE ID = ?",array($rest,$req['rexapply']));
-    $a = sprintf("prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s",$req['t'],$cid,$placeid,$posid,$forthesi);
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
 }
@@ -188,13 +185,13 @@ if (array_key_exists("ornotapply",$_POST))
         QQ("UPDATE REQS2 SET ORLINK = ? WHERE ID = ?",array($req['to'],$req['ornotapply']));
     if ($req['ornot'] == 1)
         QQ("UPDATE REQS2 SET NOTLINK = ? WHERE ID = ?",array($req['to'],$req['ornotapply']));
-    $a = sprintf("prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s",$req['t'],$cid,$placeid,$posid,$forthesi);
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
 }
 
 
-printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
+printf('<button href="contest.php" class="autobutton button  is-danger">Πίσω</button> ');
 $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND  POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
 if ($forthesi != '')
     $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND  POSID = ? AND FORTHESI = ?",array($cid,$placeid,$posid,$forthesi));
@@ -236,13 +233,13 @@ while($r1 = $q1->fetchArray())
     if ($r1['REGEXRESTRICTIONS'] && strlen($r1['REGEXRESTRICTIONS']))   
         $RexCount = count(explode("|||",$r1['REGEXRESTRICTIONS']));
 
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$rolerow['ID'],$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',$rolerow['ID'],$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
-    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',$rolerow['ID'],$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
+    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
+    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
+    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
 
     printf('</td>');
 
-    printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button></td>',$rolerow['ID'],$cid,$placeid,$posid,$forthesi,$r1['ID']);
+    printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button></td>',$cid,$placeid,$posid,$forthesi,$r1['ID']);
 
     printf('</tr>');
 }
@@ -297,7 +294,6 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
 <div id="addpos" style="display:none;">
 Προσθήκη Προσόντος<hr>
         <form method="POST" action="prosonta3.php">
-            <input type="hidden" name="t" value="<?= $req['t'] ?>"/>
             <input type="hidden" name="e" value="0"/>
             <input type="hidden" name="cid" value="<?= $cid ?>"/>
             <input type="hidden" name="placeid" value="<?= $placeid ?>"/>

@@ -18,14 +18,8 @@ if ($rolerow['UID'] != $ur['ID'])
     die;
 }
 
-$params = array();
-
-$q1 = QQ("SELECT * FROM ROLEPAR WHERE RID = ?",array($rolerow['ID']));
-while($r1 = $q1->fetchArray())
-    $params[$r1['PIDX']] = $r1['PVALUE'];
-
-$provider_data = $params[1];
-
+$params = json_decode($rolerow['ROLEPARAMS'],true);
+$provider_data = base64_decode($params['restriction']);
 if (array_key_exists("delete",$req))
 {
     $what = QQ("SELECT * FROM USERS WHERE CLSID = ?",array($req['force_user']))->fetchArray()['ID'];
@@ -80,7 +74,7 @@ function PrintList()
         $q3 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($r1['ID']));
         while($r3 = $q3->fetchArray())
         {
-            $files .= sprintf('<a href="viewfile.php?f=%s&force_user=%s" target="_blank"><b>%s</b><br>',$r3['ID'],$ur2['CLSID'],$r3['DESCRIPTION']);
+            $files .= sprintf('<a href="viewfile.php?f=%s" target="_blank"><b>%s</b><br>',$r3['ID'],$r3['DESCRIPTION']);
         }
         if ($r1['STATE'] <= 0)
         {

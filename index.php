@@ -22,7 +22,7 @@ if ($afm && $ur)
           }
           if ($r1['ROLE'] == ROLE_CREATOR)
           {
-            printf('<button class="button autobutton  is-primary" href="contest.php?t=%s">Διαγωνισμοί Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-primary" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_UNI)
           {

@@ -17,27 +17,10 @@ if (!array_key_exists("f",$_GET))
 }
 
 $uid = $ur['ID'];
-if (array_key_exists("force_user",$req))
-    $uid = QQ("SELECT * FROM USERS WHERE CLSID = ?",array($req['force_user']))->fetchArray()['ID'];
-
-
-$fr = QQ("SELECT * FROM PROSONFILE WHERE UID = ? AND ID = ?",array($uid,$_GET['f']))->fetchArray();
-if (!$fr && !array_key_exists("force_user",$req))
-{
-    // check if uid checks f
-    $fr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($_GET['f']))->fetchArray();
-    if ($fr)
-    {
-        $cl = CheckLevel($ur['ID'],$fr['UID']);
-        if ($cl <= 0)
-            $fr = null;
-    }
-}
-if (!$fr)
-{
-    redirect("index.php");
+if (!HasFileAccess($req['f'],$uid,0))
     die;
-}
+$fr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($req['f']))->fetchArray();
+
 
 $d = file_get_contents("files/{$fr['CLSID']}");
 

@@ -12,27 +12,19 @@ if (!$afm || !$ur)
         die;
     }
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
-if ($rolerow['UID'] != $ur['ID'])
-{
-    redirect("index.php");
-    die;
-}
-
 $is_foreas_editing = 0;
-if ($rolerow['ROLE'] == ROLE_CREATOR)
+if (!HasContestAccess($req['cid'],$ur['ID'],1))
 {
-}
-else
-if ($rolerow['ROLE'] == ROLE_FOREASSETPLACES)
-{
-    $roleparx = QQ("SELECT * FROM ROLEPAR WHERE RID = ? AND PVALUE = ?",array($rolerow['ID'],$req['pid']))->fetchArray();
-    if (!$roleparx)
+    // Check place access
+    if (!HasPlaceAccessForKena($req['pid'],$ur['ID']))
+    {
+        redirect("index.php");
         die;
+    }
     $is_foreas_editing = 1;
 }
-else
-     die;
+
+//*
 
 $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
 if (!$placerow)
@@ -53,26 +45,20 @@ if (array_key_exists("movefromglobal",$_GET))
     $prosonrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($_GET['movefromglobal']))->fetchArray();
     if ($prosonrow)
     {
-        $globalrow = QQ("SELECT * FROM REQUIREMENTS WHERE CID = ? AND POSNAME = ?",array($req['cid'],$prosonrow['DESCRIPTION']));
+        $globalrow = QQ("SELECT * FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$prosonrow['DESCRIPTION']));
         $dups = array();
         while($r1 = $globalrow->fetchArray())
         {
-            QQ("INSERT INTO REQUIREMENTS (CID,POSID,PROSONTYPE,SCORE) VALUES(?,?,?,?)",array($req['cid'],$req['movefromglobal'],$r1['PROSONTYPE'],$r1['SCORE']));
+            QQ("INSERT INTO REQS2 (CID,PLACEID,POSID,PROSONTYPE,SCORE,REGEXRESTRICTIONS) VALUES(?,?,?,?,?,?)",array($req['cid'],$req['pid'],$req['movefromglobal'],$r1['PROSONTYPE'],$r1['SCORE'],$r1['REGEXRESTRICTIONS']));
             $dups[$r1['ID']] = $lastRowID;
         }
 
         foreach($dups as $k => $newid)
         {
-            $old_row = QQ("SELECT * FROM REQUIREMENTS WHERE ID = ?",array($k))->fetchArray();
+            $old_row = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($k))->fetchArray();
 
             if (!$old_row || !$newid)
                 continue;
-
-            $rest_db = QQ("SELECT * FROM REQRESTRICTIONS WHERE RID = ?",array($old_row['ID']));
-            while($rest_row = $rest_db->fetchArray())
-            {
-                QQ("INSERT INTO REQRESTRICTIONS (RID,PID,RESTRICTION) VALUES(?,?,?)",array($newid,$rest_row['PID'],$rest_row['RESTRICTION']));
-            }
 
             $neworlink = 0;
             $newnotlink = 0;
@@ -80,13 +66,13 @@ if (array_key_exists("movefromglobal",$_GET))
                     $neworlink = $dups[(int)$old_row['ORLINK']];
             if ((int)$old_row['NOTLINK'] != 0)
                     $newnotlink = $dups[(int)$old_row['NOTLINK']];
-            QQ("UPDATE REQUIREMENTS SET ORLINK = ?,NOTLINK = ? WHERE ID = ?",array($neworlink,$newnotlink,$newid));
+            QQ("UPDATE REQS2 SET ORLINK = ?,NOTLINK = ? WHERE ID = ?",array($neworlink,$newnotlink,$newid));
 
         }
     }
 //    QQ("ROLLBACK");
     QQ("COMMIT");
-    redirect(sprintf("positions.php?t=%s&cid=%s&pid=%s",$req['t'],$req['cid'],$req['pid']));
+    redirect(sprintf("positions.php?cid=%s&pid=%s",$req['cid'],$req['pid']));
     die;
    
 }
@@ -96,7 +82,7 @@ if (array_key_exists("delete",$_GET))
     QQ("DELETE FROM POSITIONS WHERE ID = ?",array(
         $req['delete']
     ));
-    redirect(sprintf("positions.php?t=%s&cid=%s&pid=%s",$req['t'],$req['cid'],$req['pid']));
+    redirect(sprintf("positions.php?cid=%s&pid=%s",$req['cid'],$req['pid']));
     die;
 }
 
@@ -105,15 +91,15 @@ if (array_key_exists("addposition",$_POST))
     QQ("INSERT INTO POSITIONS (CID,PLACEID,DESCRIPTION,COUNT) VALUES(?,?,?,?)",array(
         $req['cid'],$req['pid'],$req['DESCRIPTION'],$req['COUNT']
     ));
-    redirect(sprintf("positions.php?t=%s&cid=%s&pid=%s",$_POST['t'],$_POST['cid'],$_POST['pid']));
+    redirect(sprintf("positions.php?cid=%s&pid=%s",$_POST['cid'],$_POST['pid']));
     die;
 }
 
 
 if ($is_foreas_editing)
-    printf('<button href="index.php?t=%s" class="autobutton button  is-danger">Πίσω</button><hr> ',$req['t']);
+    printf('<button href="index.php" class="autobutton button  is-danger">Πίσω</button><hr> ');
 else
-    printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button><hr> ',$req['t']);
+    printf('<button href="contest.php" class="autobutton button  is-danger">Πίσω</button><hr> ');
 printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 
 ?>
@@ -137,15 +123,15 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         if (!$is_foreas_editing)
             {
                 $CountX = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND POSID = ?",array($req['cid'],$r4['ID']))->fetchArray()[0];
-                printf('<button class="is-small autobutton is-link button" href="prosonta3.php?t=%s&cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['t'],$req['cid'],$req['pid'],$r4['ID'],$CountX);
+                printf('<button class="is-small autobutton is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountX);
                 if ($CountX == 0)   
                     {
-                        $CountY = QQ("SELECT COUNT (*) FROM REQUIREMENTS WHERE CID = ? AND POSNAME = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
+                        $CountY = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
                         if ($CountY)
-                            printf('<button class="is-small autobutton is-warning button" href="positions.php?t=%s&cid=%s&pid=%s&movefromglobal=%s">Μεταφορά από Global %s</button> ',$req['t'],$req['cid'],$req['pid'],$r4['ID'],$CountY);
+                            printf('<button class="is-small autobutton is-warning button" href="positions.php?cid=%s&pid=%s&movefromglobal=%s">Μεταφορά από Global %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountY);
                     }
             }
-        printf('<button class="is-small sureautobutton is-danger button" href="positions.php?t=%s&cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$r4['ID'],$req['t'],$req['cid'],$req['pid'],$r4['ID']);
+        printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$req['cid'],$req['pid'],$r4['ID']);
         printf('</tr>');
     }
     ?>
@@ -173,7 +159,6 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 Προσθήκη Θέσης<hr>
         <form method="POST" action="positions.php">
     <input type="hidden" name="cid" value="<?= $req['cid'] ?>" />
-    <input type="hidden" name="t" value="<?= $req['t'] ?>" />
     <input type="hidden" name="pid" value="<?= $req['pid'] ?>" />
     <input type="hidden" name="addposition" value="1" />
 

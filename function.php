@@ -275,13 +275,7 @@ function PrepareDatabase($msql = 0)
     QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT)",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLEPAR (ID INTEGER PRIMARY KEY %s,RID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (RID) REFERENCES ROLES(ID))",$j));
-    /*
-        Role 1 -> Checker, PAR1 : AFM list, PAR2 : Level of Checking
-        Role 2 -> Test Creator
-        Role 3 -> University put prosonta
-        Role 4 -> Editor or prosonta root
-    */
+
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
@@ -315,8 +309,6 @@ function PrepareDatabase($msql = 0)
     $u5Id = $lastRowID;
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
     $r1id = $lastRowID;
-    QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,1,'1001001001')");
-    QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r1id,2,'1')");
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,ROLE_CREATOR)");
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,ROLE_GLOBALPROSONEDITOR)");
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
@@ -339,7 +331,6 @@ function PrepareDatabase($msql = 0)
 </root>';
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?,?)",array($u4Id,ROLE_UNI));
     $r4id = $lastRowID;
-    QQ("INSERT INTO ROLEPAR (RID,PIDX,PVALUE) VALUES($r4id,1,$rparam1)");
 
 
 
@@ -416,6 +407,76 @@ function  EnsureProsonLoaded()
 }
 
 
+// Access functions
+function HasPlaceAccessForKena($pid,$uid)
+{
+    $j = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($uid,ROLE_FOREASSETPLACES));
+    while($r = $j->fetchArray())
+    {
+        $params = json_decode($r['ROLEPARAMS'],true);
+        $places = $params['places'];
+        if (in_array($pid,$places))
+            return true;
+
+    }
+    return false;
+}
+
+function HasContestAccess($cid,$uid,$wr = 0) 
+{
+    $crow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+    if (!$crow)
+        return false;
+    $j = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($uid,ROLE_CREATOR));
+    while($r = $j->fetchArray())
+    {
+        $params = json_decode($r['ROLEPARAMS'],true);
+        $contests = $params['contests'];
+        if (in_array(0,$contests))
+            return true;
+        if (in_array($cid,$contests))
+            return true;
+        }
+
+    if ($wr == 0) 
+    {
+        $t = time();
+        if ($t >= $crow['STARTDATE'] && $t <= $crow['ENDDATE'])           
+            return true;
+        return false;
+    }
+
+    return false;
+}
+
+function HasFileAccess($fid,$uid,$wr = 0)
+{
+    $pr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($fid))->fetchArray();
+    if (!$pr)
+        return false;
+    if ($pr['UID'] == $uid)
+        return true;
+    if ($wr == 1)
+        return false;
+
+    // Check if it is a checker
+    $belongsto = QQ("SELECT * FROM USERS WHERE ID = ?",array($pr['UID']))->fetchArray();
+    if (!$belongsto)
+        return false;
+
+    $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
+    while($r1 = $roles->fetchArray())
+    {
+        if ($r1['ROLE'] != ROLE_CHECKER)
+            continue;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        $afms = $params['afms'];
+        if (in_array($belongsto['AFM'],$afms))
+            return true;
+    }
+    return false;
+}
+
 function GetAllClassesInXML($x,&$a)
 {
     if (!$x)
@@ -463,30 +524,30 @@ function deepx($de)
     while($de > 0)
     {
         $de--;
-        $s .= '&nbsp;';
+        $s .= '&nbsp';
     }
     return $s;
 }
 
-function PrintForeisContest($t,$cid,$rootfor = 0,$deep = 0)
+function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
 {
     $s = '';
     $q1 = QQ("SELECT * FROM PLACES WHERE CID = ? AND PARENTPLACEID = ?",array($cid,$rootfor));
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&t=%s&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?t=%s&cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton button is-small is-link" href="prosonta3.php?t=%s&cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&t=%s&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$t,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$cid,$r1['ID'],$t,$r1['ID']);
+        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$r1['ID']);
         $s .= deepx($deep);
-        $s .= PrintForeisContest($t,$cid,$r1['ID'],$deep + 1);
-//        $s .= sprintf('<a href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη κάτω από %s</a><br>',$t,$cid,$r1['ID'],$r1['DESCRIPTION']);
+        $s .= PrintForeisContest($cid,$r1['ID'],$deep + 1);
     }
     if ($deep == 0)
-        $s .= sprintf('<hr><button class="button is-primary is-small autobutton" href="contest.php?addplace=1&t=%s&cid=%s&par=%s">Προσθήκη</button><br>',$t,$cid,$rootfor);
+        $s .= sprintf('<hr><button class="button is-primary is-small autobutton" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη</button><br>',$cid,$rootfor);
 
     return $s;
 }
-function PrintContests($t,$uid)
+function PrintContests($uid)
 {
+
     $s = '<table class="table datatable">';
     $s .= '<thead>
                 <th>#</th>
@@ -499,18 +560,26 @@ function PrintContests($t,$uid)
     $q1 = QQ("SELECT * FROM CONTESTS WHERE UID = ?",array($uid));
     while($r1 = $q1->fetchArray())
     {
+        $ra = HasContestAccess($r1['ID'],$uid,0);
+        $wa = HasContestAccess($r1['ID'],$uid,1);
+        if (!$ra)
+            continue;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
         $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
         $s .= sprintf('<td>%s &mdash; %s</td>',date("d/m/Y",$r1['STARTDATE']),date("d/m/Y",$r1['ENDDATE']));
         $s .= sprintf('<td>');
-        $s .= PrintForeisContest($t,$r1['ID']);
+        $s .= PrintForeisContest($r1['ID']);
         $s .= sprintf('</td>');
         // printf('',$req['t']);
-        $s .= sprintf('<td><button class="autobutton button is-small is-link" href="positiongroups.php?t=%s&cid=%s">Προσόντα Θέσεων</button> ',$t,$r1['ID']);
-        $s .= sprintf('<button class="autobutton button is-small is-link" href="prosonta3.php?t=%s&cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$t,$r1['ID']);
-        $s .= sprintf(' <button class="autobutton button is-small is-success" href="results.php?t=%s&cid=%s">Αποτελέσματα</button></td>',$t,$r1['ID']);
-
+        $s .= '<td>';
+        if ($wa == 1)
+        {
+            $s .= sprintf('<button class="is-small is-info autobutton button" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link" href="positiongroups.php?cid=%s">Προσόντα Θέσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
+            $s .= sprintf(' <button class="autobutton button is-small is-success" href="results.php?cid=%s">Αποτελέσματα</button></td>',$r1['ID']);
+        }
         $s .= sprintf('</tr>');
     }           
 
@@ -650,34 +719,6 @@ function DeleteProson($id,$uid = 0)
     QQ("DELETE FROM PROSON WHERE ID = ?",array($id));
 }
 
-function CheckLevel($who,$target)
-{
-    $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($who));
-    $cr = QQ("SELECT * FROM USERS WHERE ID = ?",array($target))->fetchArray();
-    if (!$cr)
-        return 0;
-    $afms = array();
-    while($r1 = $q1->fetchArray())
-    {
-        if ($r1['ROLE'] != 1)
-            continue;
-
-            $afms = array();
-            $q2 = QQ("SELECT * FROM ROLEPAR WHERE RID = ?",array($r1['ID']));
-            while($r2 = $q2->fetchArray())
-            {
-                if ($r2['PIDX'] == 1)
-                    {
-                        $list =  explode(",",$r2['PVALUE']);
-                        foreach($list as $li)
-                        $afms[] = $li;
-                    }
-            }
-    }
-    if (in_array($cr['AFM'],$afms))
-        return 1;
-    return 0;
-}
 
 
 $rejr = '';
@@ -694,7 +735,7 @@ function ScoreForThesi($uid,$posid)
         return -2;
 
     $score = 0;
-    $q1 = QQ("SELECT * FROM REQUIREMENTS WHERE POSID = ?",array($posid));
+/*    $q1 = QQ("SELECT * FROM REQS2 WHERE POSID = ?",array($posid));
     while($r1 = $q1->fetchArray())
     {
         // $r1 is  a proson requirement row
@@ -763,7 +804,7 @@ function ScoreForThesi($uid,$posid)
 
         $score += $r1['SCORE'];
     }
-
+*/
     return $score;
 }   
 
