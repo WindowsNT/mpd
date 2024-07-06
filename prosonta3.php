@@ -56,9 +56,15 @@ if (array_key_exists("delete",$req))
     die;
 }
 
-if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) )
+if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array_key_exists("andedit",$req) )
 {
     $which = 0;
+    if (array_key_exists("andedit",$req) )
+    {
+        $which = 2;
+        $what = $req['andedit'];
+    }
+    else
     if (array_key_exists("oredit",$req) )
     {
         $which = 0;
@@ -72,6 +78,8 @@ if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) )
     $to = (int)$reqrow['ORLINK'];
     if ($which == 1)
         $to = (int)$reqrow['NOTLINK'];
+    if ($which == 1)
+        $to = (int)$reqrow['ANDLINK'];
 ?>
         <form method="POST" action="prosonta3.php">
         <input type="hidden" name="ornotapply" value="<?= $what ?>" />
@@ -140,7 +148,7 @@ if (array_key_exists("regexedit",$req))
             printf('<td>%s</td>',$attrs2['id']);
             printf('<td>%s</td>',$attrs2['n']);
             printf('<td>
-                <input type="text" class="input" name="reg%s" id="reg%s" value="%s"/>
+                <textarea type="text" class="input" cols="100" name="reg%s" id="reg%s" >%s</textarea>
             </td>',$attrs2['id'],$attrs2['id'],$val);
             printf('</tr>');
         }
@@ -185,6 +193,8 @@ if (array_key_exists("ornotapply",$_POST))
         QQ("UPDATE REQS2 SET ORLINK = ? WHERE ID = ?",array($req['to'],$req['ornotapply']));
     if ($req['ornot'] == 1)
         QQ("UPDATE REQS2 SET NOTLINK = ? WHERE ID = ?",array($req['to'],$req['ornotapply']));
+    if ($req['ornot'] == 2)
+        QQ("UPDATE REQS2 SET ANDLINK = ? WHERE ID = ?",array($req['to'],$req['ornotapply']));
     $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
@@ -234,6 +244,7 @@ while($r1 = $q1->fetchArray())
         $RexCount = count(explode("|||",$r1['REGEXRESTRICTIONS']));
 
     printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
+    printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
     printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
     printf('<button class="autobutton is-small is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
 

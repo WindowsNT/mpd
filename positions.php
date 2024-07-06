@@ -62,11 +62,14 @@ if (array_key_exists("movefromglobal",$_GET))
 
             $neworlink = 0;
             $newnotlink = 0;
+            $newandlink = 0;
             if ((int)$old_row['ORLINK'] != 0)
                     $neworlink = $dups[(int)$old_row['ORLINK']];
             if ((int)$old_row['NOTLINK'] != 0)
                     $newnotlink = $dups[(int)$old_row['NOTLINK']];
-            QQ("UPDATE REQS2 SET ORLINK = ?,NOTLINK = ? WHERE ID = ?",array($neworlink,$newnotlink,$newid));
+            if ((int)$old_row['ANDLINK'] != 0)
+                    $newandlink = $dups[(int)$old_row['ANDLINK']];
+            QQ("UPDATE REQS2 SET ORLINK = ?,NOTLINK = ?,ANDLINK = ? WHERE ID = ?",array($neworlink,$newnotlink,$newandlink,$newid));
 
         }
     }
@@ -108,6 +111,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         <th>#</th>
         <th>θέση</th>
         <th>Διαθεσιμότητα</th>
+        <th>Προσόντα</th>
         <th>Επιλογές</th>
     </thead>
     <tbody>
@@ -122,16 +126,24 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         printf('<td>');
         if (!$is_foreas_editing)
             {
+                $CountY = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
+                if ($CountY) 
+                    printf('Προσόντα Κοινά από τον Διαγωνισμό &nbsp;');
+                else
+                {
                 $CountX = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND POSID = ?",array($req['cid'],$r4['ID']))->fetchArray()[0];
                 printf('<button class="is-small autobutton is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountX);
-                if ($CountX == 0)   
+/*                if ($CountX == 0)   
                     {
-                        $CountY = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
                         if ($CountY)
                             printf('<button class="is-small autobutton is-warning button" href="positions.php?cid=%s&pid=%s&movefromglobal=%s">Μεταφορά από Global %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountY);
                     }
+*/
+                }   
+
             }
-        printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$req['cid'],$req['pid'],$r4['ID']);
+        printf('</td>');
+        printf('<td><button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$req['cid'],$req['pid'],$r4['ID']);
         printf('</tr>');
     }
     ?>

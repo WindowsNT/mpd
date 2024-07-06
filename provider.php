@@ -31,7 +31,7 @@ if (array_key_exists("delete",$req))
 
 function PrintList()
 {
-    global $provider_data,$req;
+    global $provider_data,$req,$ur;
     $x2 = simplexml_load_string($provider_data);
     $our_codes = array();
     GetAllClassesInXML($x2->classes,$our_codes);
@@ -55,8 +55,9 @@ function PrintList()
     while($r1 = $q1->fetchArray())
     {
         // Check if this belongs to us
-        if (!in_array($r1['CLASSID'],$our_codes))
+        if (!HasProsonAccess($r1['ID'],$ur['ID'],0))
             continue;
+
 
         $ur2 = QQ("SELECT * FROM USERS WHERE ID = ?",array($r1['UID']))->fetchArray();
         if (!$ur2)

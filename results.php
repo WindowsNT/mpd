@@ -11,15 +11,14 @@ if (!$afm || !$ur)
         die;
     }
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
-if ($rolerow['UID'] != $ur['ID'])
-{
-    redirect("index.php");
-    die;
-}
+
+//print_r($req); die;
+$uid = $ur['ID'];
+$ra = HasContestAccess($req['cid'],$uid,0);    
+$wa = HasContestAccess($req['cid'],$uid,1);    
 
 
-printf('<button href="contest.php?t=%s" class="autobutton button  is-danger">Πίσω</button> ',$req['t']);
+printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσω</button> ');
 WinTable($req['cid']);
 
 $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
@@ -77,7 +76,7 @@ while($r1 = $q1->fetchArray())
             {
                 if (in_array($r3['ID'],$fullfill))
                     continue;
-                $sc = ScoreForThesi($r3['UID'],$r2['ID']);
+                $sc = ScoreForThesi($r3['UID'],$req['cid'],$r3['PID'],$r3['POS']);
                 if ($sc >= 0)
                 {
                     $sort_moria [$r3['UID']] = $sc;

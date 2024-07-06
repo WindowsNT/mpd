@@ -24,6 +24,7 @@ if (!array_key_exists("cid",$req))
                 <th>Έναρξη</th>
                 <th>Λήξη</th>
                 <th>Επιλογές</th>
+                <th>Αιτήσεις</th>
             </thead><tbody>';
 
     $q1 = QQ("SELECT * FROM CONTESTS WHERE STARTDATE < $t AND ENDDATE > $t ORDER BY ENDDATE ASC");
@@ -36,6 +37,13 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
         printf('<button class="button is-small is-link autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
+        printf('</td>');
+        printf('<td>');
+        $q2 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']));
+        while($r2 = $q2->fetchArray())
+        {
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),ScoreForAitisi($r2['ID']));
+        }
         printf('</td>');
         printf('</tr>');
 
@@ -150,12 +158,13 @@ if (!array_key_exists("aid",$req))
     if (!$app)
     {
         $reason = '';
-        $sc = ScoreForThesi($ur['ID'],$posrow['ID'],$reason);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],$reason);
         if ($sc >= 0)
             printf('Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
         else
             printf('Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <b>%s</b>',$rejr);
-    }
+//            echo PrintProsontaForThesi($req['cid'],$req['pid'],$req['pos']);
+        }
     else
     {
         printf('Έγινε άιτηση (%s)<br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</a>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);

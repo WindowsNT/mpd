@@ -20,8 +20,8 @@ if (!$role)
 if (array_key_exists("approve",$_GET))
 {
     $prr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($_GET['approve']))->fetchArray();
-    $acc = CheckLevel($ur['ID'],$prr['UID']);
-    if ($acc > 0)
+    $acc = HasProsonAccess($prr['UID'],$ur['ID']);
+    if ($acc)
         QQ("UPDATE PROSON SET STATE = 1 WHERE ID = ?",array($prr['ID']));
     redirect(sprintf("check.php?t=%s",$_GET['t']));
     die;
@@ -29,8 +29,8 @@ if (array_key_exists("approve",$_GET))
 if (array_key_exists("reject",$_GET))
 {
     $prr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($_GET['reject']))->fetchArray();
-    $acc = CheckLevel($ur['ID'],$prr['UID']);
-    if ($acc > 0)
+    $acc = HasProsonAccess($prr['UID'],$ur['ID']);
+    if ($acc)
         QQ("UPDATE PROSON SET STATE = -1 WHERE ID = ?",array($prr['ID']));
     redirect(sprintf("check.php?t=%s",$_GET['t']));
     die;

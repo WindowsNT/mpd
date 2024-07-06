@@ -81,10 +81,23 @@ $def_xml_proson = <<<XML
 
         <c n="4" t="Διπλώματα/Πτυχία Μουσικής από Ωδείο" >
             <classes>
+                <c n="405" t="Πτυχίο Οργάνου">
+                    <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
+                        <p n="Όργανο" id="3" t="0" />
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
                 <c n="401" t="Δίπλωμα Οργάνου">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Όργανο" id="3" t="0" />
+                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
+                    </params>
+                </c>
+                <c n="406" t="Πτυχίο Ωδικής">
+                    <params>
+                        <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
@@ -112,7 +125,7 @@ $def_xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="406" t="Δίπλωμα Βυζαντινής">
+                <c n="407" t="Δίπλωμα Βυζαντινής">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
@@ -143,13 +156,29 @@ $def_xml_proson = <<<XML
                 <c n="601" t="Υπηρεσία">
                     <params>
                         <p n="Κλάδος" id="1" t="0" />
-                        <p n="ΑΜ" id="2" t="1" />
-                        <p n="Εκπαιδευτική" id="3" t="3" />
-                        <p n="Μουσικά" id="4" t="3" />
+                        <p n="ΑΜ" id="2" t="2" />
+                        <p n="Μουσική Ειδίκευση" id="5" t="0" />
+                        <p n="Εκπαιδευτική Προϋπηρεσία" id="3" t="2" />
+                        <p n="Προϋπηρεσία στα Μουσικά" id="4" t="2" />
+                        <p n="Περιοχή Οργανικής" id="5" t="0" />
+                        <p n="Τύπος Οργανικής" id="6" t="0" />
+                        <p n="Οργανική Θέση" id="6" t="0" />
                     </params>
                 </c>
             </classes>
         </c>
+
+        <c n="7" t="ΤΠΕ" >
+            <classes>
+                <c n="701" t="Α">
+                </c>
+                <c n="702" t="B1">
+                </c>
+                <c n="703" t="Β2">
+                </c>
+            </classes>
+        </c>
+
     </classes>
 </root>
 XML;
@@ -285,11 +314,10 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
- //   QQ(sprintf("CREATE TABLE IF NOT EXISTS REQUIREMENTS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,IFPOS0TYPE INTEGER,POSNAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (POSID) REFERENCES POSITIONS(ID)),FOREIGN KEY (ORLINK) REFERENCES REQUIREMENTS(ID),FOREIGN KEY (NOTLINK) REFERENCES REQUIREMENTS(ID))",$j));
-//    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQRESTRICTIONS (ID INTEGER PRIMARY KEY %s,RID INTEGER,PID INTEGER,RESTRICTION TEXT,FOREIGN KEY (RID) REFERENCES REQUIREMENTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS WINTABLE (ID INTEGER PRIMARY KEY %s,CID INTEGER,PID INTEGER,POS INTEGER,UID INTEGER,AID INTEGER,EXTRA TEXT,FOREIGN KEY (AID) REFERENCES APPLICATIONS(ID),FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ANDLINK INTEGER,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,
         FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),
         FOREIGN KEY (CID) REFERENCES CONTESTS(ID),
         FOREIGN KEY (POSID) REFERENCES POSITIONS(ID),
@@ -322,7 +350,6 @@ function PrepareDatabase($msql = 0)
                         <p n="Ιδρυμα" id="1" t="0" v="ΕΚΠΑ"/>
                         <p n="Σχολή" id="2" t="0" v="ΦΙΛΟΣΟΦΙΚΗ"/>
                         <p n="Τμήμα" id="3" t="0" v="ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ"/>
-                        <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
             </classes>
@@ -449,9 +476,9 @@ function HasContestAccess($cid,$uid,$wr = 0)
     return false;
 }
 
-function HasFileAccess($fid,$uid,$wr = 0)
+function HasProsonAccess($pid,$uid,$wr = 0)
 {
-    $pr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($fid))->fetchArray();
+    $pr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($pid))->fetchArray();
     if (!$pr)
         return false;
     if ($pr['UID'] == $uid)
@@ -459,11 +486,11 @@ function HasFileAccess($fid,$uid,$wr = 0)
     if ($wr == 1)
         return false;
 
-    // Check if it is a checker
     $belongsto = QQ("SELECT * FROM USERS WHERE ID = ?",array($pr['UID']))->fetchArray();
     if (!$belongsto)
         return false;
 
+    // Check if it is a checker
     $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
     while($r1 = $roles->fetchArray())
     {
@@ -474,7 +501,71 @@ function HasFileAccess($fid,$uid,$wr = 0)
         if (in_array($belongsto['AFM'],$afms))
             return true;
     }
+
+    // Check if it is a university
+    $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
+    while($r1 = $roles->fetchArray())
+    {
+        if ($r1['ROLE'] != ROLE_UNI)
+            continue;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        $xmlx = base64_decode($params['restriction']);
+
+        $xml2 = simplexml_load_string($xmlx);
+        $rootc = RootForClassId($xml2->classes,$pr['CLASSID']);
+
+        if (!$rootc)
+            continue;
+        if (!$rootc->attributes())
+            continue;
+
+        if ($rootc->attributes()['n'] != $pr['CLASSID'])
+            continue;
+
+        $proson_par = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($pid));
+        $proson_parameters = array();
+        while($prp = $proson_par->fetchArray())
+           $proson_parameters[] = $prp;
+
+        $fail = 0;
+        foreach($proson_parameters as $prp)
+        {
+            $pidx = $prp['PIDX'];
+            $pv = $prp['PVALUE'];
+
+            foreach($rootc->params->children() as $ch)
+            {
+                if (!$ch->attributes())
+                    continue;
+                if ($ch->attributes()['id'] == $pidx)
+                {
+                    $fail = 1;
+                    if ($ch->attributes()['v'] == $pv)
+                    {
+                        $fail = 0;
+                        break;
+                    }
+                }
+            }
+
+            if ($fail)
+                break;
+        }
+        
+        if (!$fail)
+            return true;
+    }
+
+
     return false;
+}
+
+function HasFileAccess($fid,$uid,$wr = 0)
+{
+    $pr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($fid))->fetchArray();
+    if (!$pr)
+        return false;
+    return HasProsonAccess($pr['PID'],$uid,$wr);
 }
 
 function GetAllClassesInXML($x,&$a)
@@ -575,10 +666,34 @@ function PrintContests($uid)
         $s .= '<td>';
         if ($wa == 1)
         {
+            $s .= sprintf('<div class="dropdown is-hoverable">
+  <div class="dropdown-trigger">
+    <button class="button is-secondary is-small block" aria-haspopup="true" aria-controls="dropdown-menu4">
+      <span>ΟΠΣΥΔ</span>
+    </button>
+  </div>
+  <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+    <div class="dropdown-content">
+      <div class="dropdown-item">
+            <a href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών</a>
+      </div>
+      <div class="dropdown-item">
+            <a href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</a>
+      </div>
+      <div class="dropdown-item">
+            <a href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</a>
+      </div>
+      <div class="dropdown-item">
+            <a href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</a>
+      </div>
+    </div>
+  </div>
+</div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
             $s .= sprintf('<button class="is-small is-info autobutton button" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link" href="positiongroups.php?cid=%s">Προσόντα Θέσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-link" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
-            $s .= sprintf(' <button class="autobutton button is-small is-success" href="results.php?cid=%s">Αποτελέσματα</button></td>',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-success" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
+           $s .= sprintf('<button class="sureautobutton button is-small is-danger" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
         }
         $s .= sprintf('</tr>');
     }           
@@ -722,7 +837,105 @@ function DeleteProson($id,$uid = 0)
 
 
 $rejr = '';
-function ScoreForThesi($uid,$posid)
+
+function HasProson($uid,$reqid)
+{
+    $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($reqid))->fetchArray();
+    if (!$reqrow)
+        return -1;
+
+
+    $rex = explode("|||",$reqrow['REGEXRESTRICTIONS'] ? $reqrow['REGEXRESTRICTIONS'] : '');
+    $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$reqrow['PROSONTYPE']));
+    while($r = $q->fetchArray())
+    {
+        $fail = 0;
+        foreach($rex as $rex2)
+        {
+            $rex3 = explode("||",$rex2);
+            if (count($rex3) != 2)
+                continue;
+
+            $fail = 1;
+            $proson_par = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($r['ID']));
+            while($r2 = $proson_par->fetchArray())
+            {
+                $pidx = $r2['PIDX'];
+                $pv = $r2['PVALUE'];
+
+                if ($pidx != $rex3[0])
+                    continue;
+
+
+                    if (strstr($rex3[1],'$value'))
+                    {
+                        $x = str_replace('$value',$pv,$rex3[1]);
+                        try
+                        {
+                        $res = eval($x);
+                        if ($res == true)
+                            {
+                                $fail = 0;
+                                break;
+                            }
+                        }
+                        catch(Exception $e)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                    // check $pv against $rex3[1]
+                    if (preg_match($rex3[1],$pv))
+                        {
+                            $fail = 0;
+                            break;
+                        }
+                    }
+            }
+                if ($fail == 1)
+                break;
+        }
+        if ($fail)
+            continue;
+        return 1;
+    }
+    return -1;
+}
+
+function AppPreference($apid)
+{
+    $apr = QQ("SELECT * FROM APPLICATIONS WHERE ID = ?",array($apid))->fetchArray();
+    if (!$apr)
+        return 0;
+    $e = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? ORDER BY DATE ASC",array($apr['UID']));
+    $j = 0;
+    while($ee = $e->fetchArray())
+    {
+        $j++;
+        if ($ee['ID'] == $apr['ID'])
+            break;
+    }
+    return $j;
+}
+
+function ScoreForAitisi($apid)
+{
+    $score = 0;
+    $apr = QQ("SELECT * FROM APPLICATIONS WHERE ID = ?",array($apid))->fetchArray();
+    if (!$apr)
+        return -1;
+
+    $pref = AppPreference($apid);
+    if ($pref == 1)
+        $score += 2.0;
+   
+    $score += ScoreForThesi($apr['UID'],$apr['CID'],$apr['PID'],$apr['POS']);
+    return $score;
+}
+
+function ScoreForThesi($uid,$cid,$placeid,$posid)
 {
     global $rejr,$xmlp;
     EnsureProsonLoaded();
@@ -735,6 +948,77 @@ function ScoreForThesi($uid,$posid)
         return -2;
 
     $score = 0;
+
+    // Has general contest
+    $thesiname = $posr['DESCRIPTION'];
+    $CountGeneral = QQ("SELECT COUNT(*) FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname))->fetchArray()[0];
+    if ($CountGeneral)
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname));
+    else
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
+    while($r1 = $q1->fetchArray())
+    {
+        $sp = $r1['SCORE'];
+        $hasTHIS = HasProson($uid,$r1['ID']);
+        $hasOR = HasProson($uid,$r1['ORLINK']);
+        $hasAND = HasProson($uid,$r1['ANDLINK']);
+        $hasNOT = HasProson($uid,$r1['NOTLINK']);
+
+        $has = 0;
+        if ($r1['ANDLINK'] != 0 && $hasAND == -1)
+        {
+            // We don't have the AND
+        }   
+        else
+        {
+            if ($hasTHIS == 1)
+            {
+                // We have it, must not have the not
+                if ($hasNOT == -1)
+                    $has = 1;
+            }
+            else
+            {
+                // We haven't it, but may have the or
+                if ($hasOR == 1)
+                    $has = 1;
+            }
+        }
+
+
+
+        if ($has == 1)
+            {
+                $score += $sp;
+                continue;
+            }
+        if ($sp > 0)
+            continue; // not required
+        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+        $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
+        return -1;
+    }
+
+
+    // Check if it has
+    $q1 = QQ("SELECT * FROM REQS2 WHERE POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($posid));
+    while($r1 = $q1->fetchArray())
+    {
+        $has = HasProson($uid,$r1['ID']);
+        if ($has == 1)
+            continue;
+
+        // It doesn't have it, but it may have the ORLINK
+        $has = HasProson($uid,$r1['ORLINK']);
+        if ($has == 1)
+            continue;
+
+        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+        $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
+        return -1;
+    }
+
+
 /*    $q1 = QQ("SELECT * FROM REQS2 WHERE POSID = ?",array($posid));
     while($r1 = $q1->fetchArray())
     {
@@ -811,7 +1095,7 @@ function ScoreForThesi($uid,$posid)
 
 function WinTable($cid)
 {
-    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+/*    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
 
     $positions = array();
     $applications = array();
@@ -836,11 +1120,6 @@ function WinTable($cid)
     }
 
 
-
-        /*
-            All positions in all places and return is 
-
-        */
         foreach($positions as &$position)
         {
             foreach($applications as &$app)
@@ -853,6 +1132,129 @@ function WinTable($cid)
                     }
             }
         }
-
+*/
         //printf("<xmp>");        print_r($positions); die;
+}
+
+function ProsonDescription($id)
+{
+    $r = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($id))->fetchArray();
+    global $xmlp,$xml_proson;
+    EnsureProsonLoaded();    
+    $pars = array();
+    $croot = RootForClassId($xmlp->classes,$r['PROSONTYPE'],$pars);
+    $attr = $croot->attributes();
+    $s = sprintf('#%s<br>',$r['ID']);
+    foreach($pars as $par)
+    {
+        $attrp = $par->attributes();
+        $s .= sprintf('%s<br>',$attrp['t']);
+    }
+    $s .= sprintf('%s<br>',$attr['t']);
+
+
+    $regex = explode("|||",$r['REGEXRESTRICTIONS']? $r['REGEXRESTRICTIONS'] : '');
+    foreach($regex as $r2)
+    {
+        $x = explode("||",$r2);
+        if (count($x) == 2)
+        {
+            foreach($croot->params->children() as $ch)
+            {
+                if ($ch->attributes()->id == $x[0])
+                {
+                    $parx = $ch;
+                    $s .= $ch->attributes()->n.' '.$x[1].'<br>';
+                }
+            }
+        }
+    }   
+    if ($r['SCORE'] == 0)
+        $s .= '[Προαπαιτούμενο]<br>';
+    else
+        $s .= sprintf('[Μόρια %s]',$r['SCORE']);
+
+    if ($r['ORLINK'] != 0)
+        $s .= sprintf(' [Εναλλακτικό %s]',$r['ORLINK']);
+    $s .= '<br><br>';
+    return $s;
+}
+
+function PrintProsontaForThesi($cid,$placeid,$posid)
+{
+    // Contest-only
+    $s = '<div class="notification is-info">
+    <b>Προσόντα επιπέδου διαγωνισμού</b><br><br>';
+    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid));
+    while ($r1 = $q1->fetchArray())
+    {
+        $s .= ProsonDescription($r1['ID']);
+    }
+    $s .= '</div>';
+    $s .= '<div class="notification is-info">
+    <b>Προσόντα επιπέδου φορέα</b><br><br>';
+    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid));
+    while ($r1 = $q1->fetchArray())
+    {
+        $s .= ProsonDescription($r1['ID']);
+    }
+    $s .= '</div>';
+
+    $s .= '<div class="notification is-info">
+    <b>Προσόντα επιπέδου θέσης</b><br><br>';
+    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
+    while ($r1 = $q1->fetchArray())
+    {
+        $s .= ProsonDescription($r1['ID']);
+    }
+    $s .= '</div>';
+
+    return $s;
+}
+
+function Kill($cid,$placeid,$posid,$appid)
+{
+    QQ("BEGIN TRANSACTION");
+    if ($appid)
+    {
+        QQ("DELETE FROM APPLICATIONS WHERE ID = ?",array($appid));
+    }
+    else
+    {
+        if ($posid)
+        {
+            QQ("DELETE FROM APPLICATIONS WHERE POS = ?",array($posid));
+            QQ("DELETE FROM POSITIONS WHERE ID = ?",array($posid));
+            QQ("DELETE FROM REQS2 WHERE POSID = ?",array($posid));
+        }
+        else
+        {
+            if ($placeid)
+            {
+                QQ("DELETE FROM APPLICATIONS WHERE PID = ?",array($placeid));
+                QQ("DELETE FROM POSITIONS WHERE PLACEID = ?",array($placeid));
+                QQ("DELETE FROM REQS2 WHERE PLACEID = ?",array($placeid));
+                QQ("DELETE FROM PLACES WHERE ID = ?",array($placeid));
+            }
+            else
+            {
+                if ($cid)
+                {
+                    QQ("DELETE FROM APPLICATIONS WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM POSITIONS WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM REQS2 WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM PLACES WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM POSITIONGROUPS WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM WINTABLE WHERE CID = ?",array($cid));
+                    QQ("DELETE FROM CONTESTS WHERE ID = ?",array($cid));
+                }
+                else
+                {
+                    // Can't delete all !       
+                }                    
+            }    
+        }
+
+    }
+    QQ("COMMIT");
 }
