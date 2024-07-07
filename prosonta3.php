@@ -42,6 +42,10 @@ if (array_key_exists("e",$_POST))
         QQ("INSERT INTO REQS2 (CID,PLACEID,POSID,FORTHESI,PROSONTYPE,SCORE) VALUES(?,?,?,?,?,?)",array(
             $cid,$placeid,$posid,$forthesi,$req['PROSONTYPE'],$req['SCORE']
         ));
+        else
+        QQ("UPDATE REQS2 SET SCORE = ?,PROSONTYPE = ? WHERE ID = ?",array(
+            $req['SCORE'],$req['PROSONTYPE'],$req['e']
+        ));
     $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
     redirect($a);
     die;
@@ -78,7 +82,7 @@ if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array
     $to = (int)$reqrow['ORLINK'];
     if ($which == 1)
         $to = (int)$reqrow['NOTLINK'];
-    if ($which == 1)
+    if ($which == 2)
         $to = (int)$reqrow['ANDLINK'];
 ?>
         <form method="POST" action="prosonta3.php">
@@ -243,19 +247,31 @@ while($r1 = $q1->fetchArray())
     if ($r1['REGEXRESTRICTIONS'] && strlen($r1['REGEXRESTRICTIONS']))   
         $RexCount = count(explode("|||",$r1['REGEXRESTRICTIONS']));
 
-    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Regex %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
+    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Eval %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',(int)$r1['ORLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',(int)$r1['NOTLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
 
     printf('</td>');
+    printf('<td>');
 
-    printf('<td><button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button></td>',$cid,$placeid,$posid,$forthesi,$r1['ID']);
+    printf('<button class="is-small is-primary button" onclick="editx(%s,%s,%s,\'%s\',%s,%s,\'%s\');">Επεξεργασία</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$r1['PROSONTYPE'],$r1['SCORE']);
+    printf('<button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID']);
+    printf('</td>');
 
     printf('</tr>');
 }
 ?>
 </tbody></table>
+<script>
+    function editx(cid,placeid,posid,thesi,id,type,score)
+    {
+        toggleadd();
+        $("#e").val(id);
+        $("#proson").val(type);
+        $("#score").val(score);
+    }
+</script>
 <?php
 
 //printf('<a class="autobutton is-primary button" href="prosonta3.php?t=%s&cid=%s&placeid=0&posid=%s&forthesi=%s">Προσθήκη</a>',$req['t'],$cid,$placeid,$posid,$forthesi);
@@ -290,6 +306,9 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
     {
         $("#addpos1").hide();
         $("#addpos").show();
+        $("#e").val(0);
+        $("#proson").val(0);
+        $("#score").val('');
     }
     function toggleadd2()
     {
@@ -303,20 +322,19 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
 </div>
 
 <div id="addpos" style="display:none;">
-Προσθήκη Προσόντος<hr>
         <form method="POST" action="prosonta3.php">
-            <input type="hidden" name="e" value="0"/>
+            <input type="hidden" id="e" name="e" value="0"/>
             <input type="hidden" name="cid" value="<?= $cid ?>"/>
             <input type="hidden" name="placeid" value="<?= $placeid ?>"/>
             <input type="hidden" name="posid" value="<?= $posid ?>"/>
             <input type="hidden" name="forthesi" value="<?= $forthesi ?>"/>
 
                         Προσόν:
-            <select class="select input" name="PROSONTYPE">
+            <select class="select input" id="proson" name="PROSONTYPE">
                 <?php echo PrintOptionsProson($xmlp,0,$row['PARAMID']); ?>
             </select><br><br>
             Σκορ (0 = Προαπαιτούμενο):
-            <input class="input" type="number" name="SCORE" step="0.01" value="<?= $row['SCORE'] ?>"  required /><br><br>
+            <textarea class="input" id="score" name="SCORE" required></textarea><br><br>
 
         <button class="button is-success">Υποβολή<button>
     </form>

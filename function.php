@@ -163,6 +163,7 @@ $def_xml_proson = <<<XML
                         <p n="Περιοχή Οργανικής" id="5" t="0" />
                         <p n="Τύπος Οργανικής" id="6" t="0" />
                         <p n="Οργανική Θέση" id="7" t="0" />
+                        <p n="Συνολική Προϋπηρεσία" id="9" t="2" />
                     </params>
                 </c>
             </classes>
@@ -995,6 +996,21 @@ function ScoreForThesi($uid,$cid,$placeid,$posid)
     while($r1 = $q1->fetchArray())
     {
         $sp = $r1['SCORE'];
+        if (strstr($sp,'$values'))
+        {
+            $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$r1['PROSONTYPE']));
+            while($rpr = $qpr->fetchArray())
+            {
+                $pars = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($rpr['ID']));
+                while($par = $pars->fetchArray())
+                {
+                    $p_idx = $par['PIDX'];
+                    $p_val = $par['PVALUE'];
+                    $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
+                }
+            }
+            $sp = eval($sp);
+        }
         $has = ProsonResolutAndOrNot($uid,$r1['ID']);
         if ($has == 1)
             {
