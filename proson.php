@@ -17,6 +17,22 @@ if (array_key_exists("force_user",$req))
 
 if (array_key_exists("e",$_POST))
 {
+    // For ClassID 201-210, check [param_1] and if exists in other proson, deny
+    if ($_POST['CLASSID'] >= 201 && $_POST['CLASSID'] <= 210)
+    {
+        $val = $_POST['param_1'];
+        $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND (CLASSID >= 201 OR CLASSID <= 210)",array($ur['ID']));
+        while($other = $others->fetchArray())
+        {
+            $que = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ? AND PVALUE = ?",array($other['ID'],1,$val))->fetchArray();
+            if ($que)
+            {
+                printf("Feature %s already found in another upload.",$val);
+                die;
+            }
+        }
+    }
+
     if ($_POST['e'] > 0)
     {
         $lastRowID = $_POST['e'];

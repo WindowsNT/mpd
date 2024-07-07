@@ -54,12 +54,24 @@ $def_xml_proson = <<<XML
         <c n="2" t="Ξένες Γλώσσες" >
             <classes>
                 <c n="201" t="B1">
+                <params>
+                    <p n="Γλώσσα" id="1"  />
+                </params>
                 </c>
                 <c n="202" t="B2">
+                <params>
+                    <p n="Γλώσσα" id="1"  />
+                </params>
                 </c>
                 <c n="203" t="C1">
+                <params>
+                    <p n="Γλώσσα" id="1"  />
+                </params>
                 </c>
                 <c n="204" t="C2">
+                <params>
+                    <p n="Γλώσσα" id="1"  />
+                </params>
                 </c>
             </classes>
         </c>
@@ -95,32 +107,9 @@ $def_xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="406" t="Πτυχίο Ωδικής">
+                <c n="408" t="Πτυχίο Ανώτερων Θεωρητικών">
                     <params>
-                        <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
-                    </params>
-                </c>
-                <c n="402" t="Πτυχίο Αρμονίας">
-                    <params>
-                        <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
-                    </params>
-                </c>
-                <c n="403" t="Πτυχίο Αντίστιξης">
-                    <params>
-                        <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
-                    </params>
-                </c>
-                <c n="404" t="Πτυχίο Φούγκας">
-                    <params>
-                        <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
-                    </params>
-                </c>
-                <c n="408" t="Πτυχίο Σύνθεσης">
-                    <params>
+                        <p n="Επίπεδο (1 - Ωδικής, 2-Αρμονίας, 3-Αντίστιξης, 4-Φούγκας, 5-Σύνθεσης)" id="3" t="1" min="1" max="5"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
@@ -1019,7 +1008,9 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
         if ($prow['NOTLINK'] != 0)   
         {
             if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked) == 1)            
-                return -1; // XOR fail
+                {
+                    return -1; // XOR fail
+                }
         }
 
         if ($prow['ANDLINK'] != 0)
