@@ -33,9 +33,9 @@ if (!$contestrow)
 ?>
 <table class="table datatable">
 <thead>
-    <th>#</th>
-    <th>Φορέας</th>
-    <th>Θέσεις</th>
+    <th class="all">#</th>
+    <th class="all">Φορέας</th>
+    <th class="all">Θέσεις</th>
 </thead>
 <tbody>
 <?php
@@ -56,10 +56,10 @@ while($r1 = $q1->fetchArray())
         ?>
         <table class="table datatable">
         <thead>
-            <th>#</th>
-            <th>Θέση</th>
-            <th>Θέσεις</th>
-            <th>Αιτήσεις</th>
+            <th class="all">#</th>
+            <th class="all">Θέση</th>
+            <th class="all">Θέσεις</th>
+            <th class="all">Αιτήσεις</th>
         </thead>
         <tbody>
         <?php
@@ -93,10 +93,10 @@ while($r1 = $q1->fetchArray())
                 ?>
                 <table class="table datatable">
                 <thead>
-                    <th>#</th>
-                    <th>Όνομα</th>
-                    <th>Αίτηση</th>
-                    <th>Σκορ</th>
+                    <th class="all">#</th>
+                    <th class="all">Όνομα</th>
+                    <th class="all">Αίτηση</th>
+                    <th class="all">Σκορ</th>
                 </thead>
                 <tbody>
                 <?php

@@ -125,9 +125,9 @@ if (array_key_exists("regexedit",$req))
         
         <table class="table datatable" style="width: 100%">
         <thead>
-            <th>#</th>
-            <th>Όνομα</th>
-            <th>Expression</th>
+            <th class="all">#</th>
+            <th class="all">Όνομα</th>
+            <th class="all">Expression</th>
         </thead>
         <tbody>
         <?php
@@ -212,11 +212,11 @@ if ($forthesi != '')
 ?>
 <table class="table datatable" style="width: 100%">
 <thead>
-    <th>#</th>
-    <th>Προσόν</th>
-    <th>Σκορ</th>
-    <th>Παράμετροι</th>
-    <th>Εντολές</th>
+    <th class="all">#</th>
+    <th class="all">Προσόν</th>
+    <th class="all">Σκορ</th>
+    <th class="all">Παράμετροι</th>
+    <th class="all">Εντολές</th>
 </thead>
 <tbody>
 <?php

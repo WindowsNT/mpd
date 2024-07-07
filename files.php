@@ -68,9 +68,9 @@ function PrintFiles($pid)
 
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
-                <th>#</th>
-                <th>Αρχείο</th>
-                <th>Εντολές</th>
+                <th class="all">#</th>
+                <th class="all">Αρχείο</th>
+                <th class="all">Εντολές</th>
             </thead><tbody>';
 
             

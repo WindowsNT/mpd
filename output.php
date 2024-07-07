@@ -76,6 +76,7 @@ function goblank(q)
 
   function AutoBu()
 {
+  
   $(".sureautobutton").click(function()
     {
       var url = $(this).attr("href");

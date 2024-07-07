@@ -39,16 +39,16 @@ function PrintList()
     ?>
     <table class="table datatable" style="width: 100%">
     <thead>
-        <th>#</th>
-        <th>Όνομα</th>
-        <th>ΑΦΜ</th>
-        <th>Περιγραφή</th>
-        <th>Έναρξη</th>
-        <th>Λήξη</th>
-        <th>Αρχεία</th>
-        <th>Παράμετροι</th>
-        <th>Κατάσταση</th>
-        <th>Ενέργειες</th>
+        <th class="all">#</th>
+        <th class="all">Όνομα</th>
+        <th class="all">ΑΦΜ</th>
+        <th class="all">Περιγραφή</th>
+        <th class="all">Έναρξη</th>
+        <th class="all">Λήξη</th>
+        <th class="all">Αρχεία</th>
+        <th class="all">Παράμετροι</th>
+        <th class="all">Κατάσταση</th>
+        <th class="all">Ενέργειες</th>
     </thead>
     <tbody>
     <?php

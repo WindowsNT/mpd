@@ -19,12 +19,12 @@ if (!array_key_exists("cid",$req))
     echo '<button href="index.php" class="autobutton button is-danger">Πίσω</button> ';
     echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
-                <th>#</th>
-                <th>Περιγραφή</th>
-                <th>Έναρξη</th>
-                <th>Λήξη</th>
-                <th>Επιλογές</th>
-                <th>Αιτήσεις</th>
+                <th class="all">#</th>
+                <th class="all">Περιγραφή</th>
+                <th class="all">Έναρξη</th>
+                <th class="all">Λήξη</th>
+                <th class="all">Επιλογές</th>
+                <th class="all">Αιτήσεις</th>
             </thead><tbody>';
 
     $q1 = QQ("SELECT * FROM CONTESTS WHERE STARTDATE < $t AND ENDDATE > $t ORDER BY ENDDATE ASC");
@@ -67,9 +67,9 @@ if (!array_key_exists("pid",$req))
 
     echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
-                <th>#</th>
-                <th>Περιγραφή</th>
-                <th>Επιλογές</th>
+                <th class="all">#</th>
+                <th class="all">Περιγραφή</th>
+                <th class="all">Επιλογές</th>
             </thead><tbody>';
 
     $q2 = QQ("SELECT * FROM PLACES  WHERE CID = ?",array($contestrow['ID']));
@@ -102,10 +102,10 @@ if (!array_key_exists("pos",$req))
 
     echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
-                <th>#</th>
-                <th>Περιγραφή</th>
-                <th>Θέσεις</th>
-                <th>Επιλογές</th>
+                <th class="all">#</th>
+                <th class="all">Περιγραφή</th>
+                <th class="all">Θέσεις</th>
+                <th class="all">Επιλογές</th>
             </thead><tbody>';
 
     $q3 = QQ("SELECT * FROM POSITIONS  WHERE CID = ? AND PLACEID = ?",array($contestrow['ID'],$placerow['ID']));

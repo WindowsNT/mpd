@@ -51,8 +51,8 @@ while($place = $place_query->fetchArray())
     while($position = $position_query->fetchArray())
     {
         // completed?
-        $completed = QQ("SELECT * FROM WINTABLE WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$place['ID'],$position['ID']))->fetchArray();
-        if ($completed)
+        $completed = QQ("SELECT COUNT(*) FROM WINTABLE WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$place['ID'],$position['ID']))->fetchArray()[0];
+        if ($completed == $position['COUNT'])
             continue;
 
         // collect aithseis
@@ -60,6 +60,9 @@ while($place = $place_query->fetchArray())
         $app_query = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$place['ID'],$position['ID']));
         while($app = $app_query->fetchArray())
         {
+            if ($app['INACTIVE'] == 1)
+                continue;
+
             // Excluded users?
             if (in_array($app['UID'],$exu))
                 continue;
@@ -93,13 +96,13 @@ while($place = $place_query->fetchArray())
 ?>
     <table class="table datatable" style="width: 100%">
     <thead>
-                <th>#</th>
-                <th>Φορέας</th>
-                <th>Θέση</th>
-                <th>Χρήστης</th>
-                <th>Αίτηση</th>
-                <th>Προτίμηση</th>
-                <th>Μόρια</th>
+                <th class="all">#</th>
+                <th class="all">Φορέας</th>
+                <th class="all">Θέση</th>
+                <th class="all">Χρήστης</th>
+                <th class="all">Αίτηση</th>
+                <th class="all">Προτίμηση</th>
+                <th class="all">Μόρια</th>
             </thead><tbody>
 <?php
     $q1 = QQ("SELECT * FROM WINTABLE WHERE CID = ? ",array($req['cid']));

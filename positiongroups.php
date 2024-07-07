@@ -65,8 +65,8 @@ if ($grouprow)
 <br>
 <table class="table datatable" style="width: 100%">
     <thead>
-        <th></th>
-        <th></th>
+        <th class="all"></th>
+        <th class="all"></th>
     </thead>
     <tbody>
         <?php

@@ -45,9 +45,9 @@ $afms = $params['afms'];
 ?>
 '<table class="table datatable" style="width: 100%">
     <thead>
-        <th>ΑΦΜ</th>
-        <th>Όνομα</th>
-        <th>Προσόντα</th>
+        <th class="all">ΑΦΜ</th>
+        <th class="all">Όνομα</th>
+        <th class="all">Προσόντα</th>
     </thead>
     <tbody>
 <?php

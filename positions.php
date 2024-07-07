@@ -108,11 +108,11 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 ?>
 <table class="table datatable" style="width: 100%">
     <thead>
-        <th>#</th>
-        <th>θέση</th>
-        <th>Διαθεσιμότητα</th>
-        <th>Προσόντα</th>
-        <th>Επιλογές</th>
+        <th class="all">#</th>
+        <th class="all">θέση</th>
+        <th class="all">Διαθεσιμότητα</th>
+        <th class="all">Προσόντα</th>
+        <th class="all">Επιλογές</th>
     </thead>
     <tbody>
     <?php

@@ -1,8 +1,7 @@
 <?php
 
 /*
-
-
+    Unique Prosonta
 */
 
 ini_set('display_errors', 1); error_reporting(E_ALL);
@@ -26,7 +25,7 @@ $def_xml_proson = <<<XML
                     <params>
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
-                        <p n="Τμήμα" id="3" t="0" />
+                        <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
@@ -35,7 +34,7 @@ $def_xml_proson = <<<XML
                 <params>
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
-                        <p n="Τμήμα" id="3" t="0" />
+                        <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
@@ -44,46 +43,28 @@ $def_xml_proson = <<<XML
                     <params>
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
-                        <p n="Τμήμα" id="3" t="0" />
+                        <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
             </classes>
         </c>
-        <c n="2" t="Ξένες Γλώσσες" >
-            <classes>
-                <c n="201" t="B1">
-                <params>
-                    <p n="Γλώσσα" id="1"  />
-                </params>
-                </c>
-                <c n="202" t="B2">
-                <params>
-                    <p n="Γλώσσα" id="1"  />
-                </params>
-                </c>
-                <c n="203" t="C1">
-                <params>
-                    <p n="Γλώσσα" id="1"  />
-                </params>
-                </c>
-                <c n="204" t="C2">
-                <params>
-                    <p n="Γλώσσα" id="1"  />
-                </params>
-                </c>
-            </classes>
+        <c n="2" t="Ξένη Γλώσσα" >
+            <params>
+                    <p n="Γλώσσα" id="1" unique="1" />
+                    <p n="Επίπεδο (1 - Β1, 2 - Β2, 3 - C1, 4 - C2)" id="2" t="1" min="1" max="4"/>
+            </params>
         </c>
 
         <c n="3" t="Εργασιακή Εμπειρία" >
             <classes>
-                <c n="301" t="Δημόσιο">
+                <c n="301" t="Δημόσιο" unique="1">
                     <params>
                         <p n="Μήνες" id="1" t="2" />
                     </params>
                 </c>
-                <c n="302" t="Ιδιωτικό">
+                <c n="302" t="Ιδιωτικό" unique="1">
                     <params>
                           <p n="Μήνες" id="1" t="2" />
                     </params>
@@ -96,25 +77,25 @@ $def_xml_proson = <<<XML
                 <c n="405" t="Πτυχίο Οργάνου">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Όργανο" id="3" t="0" />
+                        <p n="Όργανο" id="3" t="0" unique="1" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="401" t="Δίπλωμα Οργάνου">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Όργανο" id="3" t="0" />
+                        <p n="Όργανο" id="3" t="0" unique="1" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="408" t="Πτυχίο Ανώτερων Θεωρητικών">
+                <c n="408" t="Πτυχίο Ανώτερων Θεωρητικών" unique="1">
                     <params>
-                        <p n="Επίπεδο (1 - Ωδικής, 2-Αρμονίας, 3-Αντίστιξης, 4-Φούγκας, 5-Σύνθεσης)" id="3" t="1" min="1" max="5"/>
+                        <p n="Επίπεδο (1 - Ωδικής, 2 - Αρμονίας, 3 - Αντίστιξης, 4 - Φούγκας, 5 - Σύνθεσης)" id="3" t="1" min="1" max="5"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="407" t="Δίπλωμα Βυζαντινής">
+                <c n="407" t="Δίπλωμα Βυζαντινής" unique="1">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
@@ -125,12 +106,12 @@ $def_xml_proson = <<<XML
 
         <c n="5" t="Κοινωνικά κριτήρια" >
             <classes>
-                <c n="501" t="Εντοπιότητα">
+                <c n="501" t="Εντοπιότητα" unique="1">
                     <params>
                         <p n="Περιοχή" id="1" t="0" />
                     </params>
                 </c>
-                <c n="502" t="Οικογενειακή κατάσταση">
+                <c n="502" t="Οικογενειακή κατάσταση" unique="1">
                     <params>
                         <p n="Γάμος" id="1" t="2" min="0" max="1" />
                         <p n="Παιδιά" id="2" t="2" />
@@ -140,9 +121,9 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
-        <c n="6" t="Υπηρεσιακή Κατάσταση" >
+        <c n="6" t="Υπηρεσιακή Κατάσταση">
             <classes>
-                <c n="601" t="Υπηρεσία">
+                <c n="601" t="Υπηρεσία" unique="1">
                     <params>
                         <p n="Κλάδος" id="1" t="0" />
                         <p n="ΑΜ" id="2" t="2" />
@@ -160,11 +141,10 @@ $def_xml_proson = <<<XML
 
         <c n="7" t="ΤΠΕ" >
             <classes>
-                <c n="701" t="Α">
-                </c>
-                <c n="702" t="B1">
-                </c>
-                <c n="703" t="Β2">
+                <c n="701" t="Επιμόρφωση" unique="1">
+                <params>
+                        <p n="Επίπεδο (1 - Α, 2 - Β1, 3 - Β2, 4 - Επιμορφωτής Β Επιπέδου)" id="1" t="1" min="1" max="4"/>
+                    </params>
                 </c>
             </classes>
         </c>
@@ -304,7 +284,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FORCEDMORIA TEXT,INACTIVE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS WINTABLE (ID INTEGER PRIMARY KEY %s,CID INTEGER,PID INTEGER,POS INTEGER,UID INTEGER,AID INTEGER,EXTRA TEXT,FOREIGN KEY (AID) REFERENCES APPLICATIONS(ID),FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ANDLINK INTEGER,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,
@@ -646,7 +626,7 @@ function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$r1['ID']);
+        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button block" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button  block" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$r1['ID']);
         $s .= deepx($deep);
         $s .= PrintForeisContest($cid,$r1['ID'],$deep + 1);
     }
@@ -660,11 +640,11 @@ function PrintContests($uid)
 
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
-                <th>#</th>
-                <th>Περιγραφή</th>
-                <th>Ημερομηνίες</th>
-                <th>Φορείς</th>
-                <th>Ενέργειες</th>
+                <th class="all">#</th>
+                <th class="all">Περιγραφή</th>
+                <th class="all">Ημερομηνίες</th>
+                <th class="all">Φορείς</th>
+                <th class="all">Ενέργειες</th>
             </thead><tbody>';
 
     $q1 = QQ("SELECT * FROM CONTESTS WHERE UID = ?",array($uid));
@@ -708,11 +688,12 @@ function PrintContests($uid)
     </div>
   </div>
 </div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
-            $s .= sprintf('<button class="is-small is-info autobutton button" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-success" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
-           $s .= sprintf('<button class="sureautobutton button is-small is-danger" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
+            $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
+           $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
         }
         $s .= sprintf('</tr>');
     }           
@@ -728,14 +709,14 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
 
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
-                <th>#</th>
-                <th>Περιγραφή</th>
-                <th>Κατηγορία</th>
-                <th>Ισχύς</th>
-                <th>Παράμετροι</th>
-                <th>Αρχεία</th>
-                <th>Κατάσταση</th>
-                <th>Εντολές</th>
+                <th class="all">#</th>
+                <th class="all">Περιγραφή</th>
+                <th class="all">Κατηγορία</th>
+                <th class="all">Ισχύς</th>
+                <th class="all">Παράμετροι</th>
+                <th class="all">Αρχεία</th>
+                <th class="all">Κατάσταση</th>
+                <th class="all">Εντολές</th>
             </thead><tbody>';
 
             
@@ -821,7 +802,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         }
         else
         {
-            $s .= sprintf('<button class="autobutton button is-small is-link" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
         }
         $s .= sprintf('</td>');
 
@@ -977,9 +958,14 @@ function ScoreForAitisi($apid)
     if (!$apr)
         return -1;
 
+    if ((int)$apr['FORCEDMORIA'] != 0)
+        return $apr['FORCEDMORIA'];
+
     $pref = AppPreference($apid);
     if ($pref == 1)
         $score += $first_pref_score;
+
+
    
     $score += ScoreForThesi($apr['UID'],$apr['CID'],$apr['PID'],$apr['POS']);
     return $score;
@@ -1057,9 +1043,10 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
             $pa = $param->attributes();                              
             $partypes[(int)$pa['id']] = $pa['t'];                       
         }    
-
+        $wouldeval = 0;
         if (strstr($sp,'$values'))
         {
+            $wouldeval = 1;
             $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$r1['PROSONTYPE']));
             while($rpr = $qpr->fetchArray())
             {
@@ -1086,7 +1073,10 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
                     $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
                 }
             }
-            $sp = eval($sp);
+            if (strstr($sp,'$values'))
+                $sp = 0;
+            else
+                $sp = eval($sp);
         }
         $has = ProsonResolutAndOrNot($uid,$r1['ID']);
         if ($has == 1)
@@ -1099,7 +1089,7 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
                 $score += $sp;
                 continue;
             }
-        if ($sp > 0)
+        if ($sp > 0 || $wouldeval == 1)
             continue; // not required
         $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
         $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);

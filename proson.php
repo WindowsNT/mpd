@@ -17,22 +17,56 @@ if (array_key_exists("force_user",$req))
 
 if (array_key_exists("e",$_POST))
 {
-    // For ClassID 201-210, check [param_1] and if exists in other proson, deny
-    if ($_POST['CLASSID'] >= 201 && $_POST['CLASSID'] <= 210)
+    // Unique Parameters
+    EnsureProsonLoaded();
+    $rootc = RootForClassId($xmlp->classes,$_POST['CLASSID']);
+    if ($rootc->params)
     {
-        $val = $_POST['param_1'];
-        $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND (CLASSID >= 201 OR CLASSID <= 210)",array($ur['ID']));
-        while($other = $others->fetchArray())
+        foreach($rootc->params->children() as $ch)
         {
-            $que = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ? AND PVALUE = ?",array($other['ID'],1,$val))->fetchArray();
-            if ($que)
+            if (!$ch->attributes())
+                continue;
+            $uni = $ch->attributes()['unique'];
+            if ($uni == 0)
+                continue;
+            $parid = $ch->attributes()['id'];
+            $val = $_POST[sprintf("param_%s",$parid)];
+            
+            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($ur['ID'],$_POST['CLASSID']));
+            while($other = $others->fetchArray())
             {
-                printf("Feature %s already found in another upload.",$val);
-                die;
+                $que = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ? AND PVALUE = ?",array($other['ID'],$parid,$val))->fetchArray();
+                if ($que && $other['ID'] != $_POST['e'])
+                {
+                    printf("Feature %s already found in another upload.",$val);
+                    die;
+                }
             }
+        }
+
+    }
+
+    // Unique Class
+    if ($rootc->attributes())
+    {
+        $uni = $rootc->attributes()['unique'];
+        if ($uni == 1)
+        {
+            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($ur['ID'],$_POST['CLASSID']));
+            while($other = $others->fetchArray())
+            {
+                if ($other['ID'] != $_POST['e'])
+                {
+                    printf("Feature %s already found in another upload.",$rootc->attributes()['t']);
+                    die;
+                }
+            }
+    
         }
     }
 
+   
+    $newly = 0;
     if ($_POST['e'] > 0)
     {
         $lastRowID = $_POST['e'];
@@ -45,10 +79,14 @@ if (array_key_exists("e",$_POST))
     
     }
     else    
-    QQ("INSERT INTO PROSON (UID,CLSID,DESCRIPTION,CLASSID,STARTDATE,ENDDATE) VALUES (?,?,?,?,?,?) ",array(
+        {
+            $newly = 1;
+            QQ("INSERT INTO PROSON (UID,CLSID,DESCRIPTION,CLASSID,STARTDATE,ENDDATE) VALUES (?,?,?,?,?,?) ",array(
         $uid,guidv4(),$_POST['DESCRIPTION'],$_POST['CLASSID'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE'])
     ));
+        }
 
+    $pid = 0;
     if ($lastRowID)
     {
         $pid = $lastRowID;
@@ -68,7 +106,10 @@ if (array_key_exists("e",$_POST))
         redirect("provider.php"); die;
     }
 
-    redirect("proson.php");
+    if ($newly)
+        redirect(sprintf("files.php?e=%s&f=0",$pid));
+    else
+        redirect("proson.php");
     die;
 }
 
@@ -97,13 +138,13 @@ function ViewOrEdit($pid,$items)
     {
         ?>
         <form method="GET" action="proson.php">
-            <input type="hidden" name="e" value="0" />
+            <input type="hidden" name="e" value="0"/>
             <?php
             if (array_key_exists("force_user",$req))
                 printf('<input type="hidden" name="force_user" value="%s" />',$req['force_user']);
             ?>
         <label for="CLASSID">Επιλογή Τύπου Προσόντος:</label>
-            <select class="select" name="CLASSID">
+            <select class="input" name="CLASSID">
                 <?php
                 foreach($croot->c as $c)
                 {
@@ -111,7 +152,7 @@ function ViewOrEdit($pid,$items)
                     printf('<option value="%s">%s</option>',$attr['n'],$attr['t']);
                 }
                 ?>
-            </select>
+            </select><br><br>
             <button class="button is-link">Συνέχεια<button>
         </form>
         <?php
@@ -148,7 +189,11 @@ function ViewOrEdit($pid,$items)
             $pa = $param->attributes();                         
             $parval = '';
             if ($_GET['e'] > 0)
-                $parval = QQ("SELECT * FROM PROSONPAR WHERE PIDX = ? AND PID = ?",array($pa['id'],$_GET['e']))->fetchArray()['PVALUE'];
+                {
+                    $yu9 = QQ("SELECT * FROM PROSONPAR WHERE PIDX = ? AND PID = ?",array($pa['id'],$_GET['e']))->fetchArray();
+                    if ($yu9)
+                        $parval = $yu9['PVALUE'];
+                }
 
             if ($pa['t'] == 0) // Text
             {
