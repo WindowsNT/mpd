@@ -186,7 +186,7 @@ XML;
 
 $xmlp = null;
 $xml_proson = '';
-
+$first_pref_score = 2;
 
 function QQZ_SQLite($dbs,$q,$arr = array(),$stmtx = null)
 {
@@ -923,6 +923,7 @@ function AppPreference($apid)
 
 function ScoreForAitisi($apid)
 {
+    global $first_pref_score;
     $score = 0;
     $apr = QQ("SELECT * FROM APPLICATIONS WHERE ID = ?",array($apid))->fetchArray();
     if (!$apr)
@@ -930,7 +931,7 @@ function ScoreForAitisi($apid)
 
     $pref = AppPreference($apid);
     if ($pref == 1)
-        $score += 2.0;
+        $score += $first_pref_score;
    
     $score += ScoreForThesi($apr['UID'],$apr['CID'],$apr['PID'],$apr['POS']);
     return $score;
@@ -971,7 +972,7 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
 
 }
 
-function ScoreForThesi($uid,$cid,$placeid,$posid)
+function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
 {
     global $rejr,$xmlp;
     EnsureProsonLoaded();
@@ -1014,6 +1015,12 @@ function ScoreForThesi($uid,$cid,$placeid,$posid)
         $has = ProsonResolutAndOrNot($uid,$r1['ID']);
         if ($has == 1)
             {
+                if ($debug)
+                    {
+                        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+                        if ($sp > 0)
+                            printf("%s: %s<br>",$rootc->attributes()['t'],$sp);
+                    }
                 $score += $sp;
                 continue;
             }
@@ -1027,7 +1034,7 @@ function ScoreForThesi($uid,$cid,$placeid,$posid)
 
     if ($posid)
     {
-        $v = ScoreForThesi($uid,$cid,$placeid,0);;
+        $v = ScoreForThesi($uid,$cid,$placeid,0,$debug);;
         if ($v == -1)
             return -1;
         $score += $v;
@@ -1035,7 +1042,7 @@ function ScoreForThesi($uid,$cid,$placeid,$posid)
     else
     if ($placeid)
     {
-        $v =  ScoreForThesi($uid,$cid,0,0);
+        $v =  ScoreForThesi($uid,$cid,0,0,$debug);
         if ($v == -1)
             return -1;
         $score += $v;

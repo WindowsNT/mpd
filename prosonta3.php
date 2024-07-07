@@ -127,7 +127,7 @@ if (array_key_exists("regexedit",$req))
         <thead>
             <th>#</th>
             <th>Όνομα</th>
-            <th>Regex/Expression</th>
+            <th>Expression</th>
         </thead>
         <tbody>
         <?php

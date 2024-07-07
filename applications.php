@@ -157,8 +157,7 @@ if (!array_key_exists("aid",$req))
     ))->fetchArray();
     if (!$app)
     {
-        $reason = '';
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],$reason);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID']);
         if ($sc >= 0)
             printf('Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
         else
@@ -167,7 +166,11 @@ if (!array_key_exists("aid",$req))
         }
     else
     {
-        printf('Έγινε άιτηση (%s)<br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</a>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        printf('Έγινε αίτηση (%s)<br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],true);
+        printf("Σύνολο μορίων: %s<br>",$sc);
+        if (AppPreference($app['ID']) == 1)
+            printf("+$first_pref_score Πρώτη προτίμηση<br>");
 
     }
 }
