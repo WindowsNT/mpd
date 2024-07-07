@@ -868,7 +868,7 @@ function jpegrecompress($d)
 
 $rejr = '';
 
-function HasProson($uid,$reqid,$deep = 0)
+function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 {
     $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($reqid))->fetchArray();
     if (!$reqrow)
@@ -908,6 +908,8 @@ function HasProson($uid,$reqid,$deep = 0)
                                 $fail = 0;
                                 break;
                             }
+                            else
+                            $reason = $x;
                         }
                         catch(Exception $e)
                         {
@@ -920,11 +922,12 @@ function HasProson($uid,$reqid,$deep = 0)
                     if (preg_match($rex3[1],$pv))
                         {
                             $fail = 0;
+                            $reason = sprintf("%s/%s",$rex3[1],$pv);
                             break;
                         }
                     }
             }
-                if ($fail == 1)
+            if ($fail == 1)
                 break;
         }
         if ($fail)
@@ -976,7 +979,7 @@ function ScoreForAitisi($apid)
     return $score;
 }
 
-function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0)
+function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason = '')
 {
     if (array_key_exists($pid,$checked))
         return -1;
@@ -984,21 +987,21 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0)
     if (!$prow)
         return -1;
     $checked[] = $pid;
-    $y = HasProson($uid,$pid,$deep);
+    $y = HasProson($uid,$pid,$deep,$reason);
     if ($y == -1)
     {
         if ($prow['ANDLINK'] != 0)
             return -1; // we don't have it, so entire chain fails
         if ($prow['ORLINK'] == 0)
             return -1; // nothing more to search
-        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked,$deep);
+        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked,$deep,$reason);
     }
     else
     {
         // We have it
         if ($prow['NOTLINK'] != 0)   
         {
-            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked,$deep) == 1)            
+            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked,$deep,$reason) == 1)            
                 {
                     return -1; // XOR fail
                 }
@@ -1006,7 +1009,7 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0)
 
         if ($prow['ANDLINK'] != 0)
         {
-            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked,$deep);
+            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked,$deep,$reason);
         }
         return 1;
     }

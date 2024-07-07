@@ -48,7 +48,8 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
         for($deep = 0 ; ; $deep++)
         {
             $checked = array();
-            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep);
+            $reason = '';
+            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason);
 
 //            if ($deep == 1 && $has == 1)
  //               xdebug_break();
@@ -58,7 +59,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
                 if ($sp > 0 || $wouldeval == 1 || $deep > 0)
                     break; // not required
                 $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
+                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s',$rootc->attributes()['t'],$reason);
                 return -1;    
             }
 
