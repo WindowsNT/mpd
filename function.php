@@ -868,7 +868,7 @@ function jpegrecompress($d)
 
 $rejr = '';
 
-function HasProson($uid,$reqid)
+function HasProson($uid,$reqid,$deep = 0)
 {
     $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($reqid))->fetchArray();
     if (!$reqrow)
@@ -929,6 +929,11 @@ function HasProson($uid,$reqid)
         }
         if ($fail)
             continue;
+        if ($deep > 0)
+        {
+            $deep--;
+            continue;
+        }
         return 1;
     }
     return -1;
@@ -971,7 +976,7 @@ function ScoreForAitisi($apid)
     return $score;
 }
 
-function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
+function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0)
 {
     if (array_key_exists($pid,$checked))
         return -1;
@@ -979,21 +984,21 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
     if (!$prow)
         return -1;
     $checked[] = $pid;
-    $y = HasProson($uid,$pid);
+    $y = HasProson($uid,$pid,$deep);
     if ($y == -1)
     {
         if ($prow['ANDLINK'] != 0)
             return -1; // we don't have it, so entire chain fails
         if ($prow['ORLINK'] == 0)
             return -1; // nothing more to search
-        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked);
+        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked,$deep);
     }
     else
     {
         // We have it
         if ($prow['NOTLINK'] != 0)   
         {
-            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked) == 1)            
+            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked,$deep) == 1)            
                 {
                     return -1; // XOR fail
                 }
@@ -1001,16 +1006,19 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array())
 
         if ($prow['ANDLINK'] != 0)
         {
-            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked);
+            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked,$deep);
         }
         return 1;
     }
 
 }
 
+require_once "score.php";
+
 function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
 {
-    global $rejr,$xmlp;
+    return CalculateScore($uid,$cid,$placeid,$posid,$debug);
+/*    global $rejr,$xmlp;
     EnsureProsonLoaded();
     $pr = QQ("SELECT * FROM USERS WHERE ID = ?",array($uid))->fetchArray();
     if (!$pr)
@@ -1036,13 +1044,15 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
         $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
 
         if ($rootc)
-        $params_root = $rootc->params;
+            $params_root = $rootc->params;
         if ($params_root)
-        foreach($params_root->p as $param)
-        {
-            $pa = $param->attributes();                              
-            $partypes[(int)$pa['id']] = $pa['t'];                       
-        }    
+            {
+                foreach($params_root->p as $param)
+                {
+                    $pa = $param->attributes();                              
+                    $partypes[(int)$pa['id']] = $pa['t'];                       
+                }    
+            }
         $wouldeval = 0;
         if (strstr($sp,'$values'))
         {
@@ -1069,7 +1079,7 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
                             $p_val = FromActualTo360($a1);
                         }
                     }
-        
+                    if ($p_val == '') $p_val = 0;
                     $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
                 }
             }
@@ -1113,7 +1123,7 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
         $score += $v;
     }
 
-    return $score;
+    return $score;*/
 }   
 
 
