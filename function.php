@@ -149,6 +149,35 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
+        <c n="8" t="Επιστημονικό Έργο" >
+            <classes>
+                <c n="801" t="Συνέδριο" >
+                    <params>
+                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Ίδρυμα" id="2" t="0"/>
+                        <p n="Διεθνές" id="3" t="1" min="0" max="1" />
+                        <p n="ISSN" id="4" />
+                    </params>
+                </c>
+                <c n="802" t="Δημοσίευση" >
+                    <params>
+                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Περιοδικό" id="2" t="0"/>
+                        <p n="Διεθνής" id="3" t="1" min="0" max="1" />
+                        <p n="ISSN" id="4" />
+                    </params>
+                </c>
+                <c n="803" t="Βιβλίο" >
+                    <params>
+                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Εκδτοικός Οίκος" id="2" t="0"/>
+                        <p n="Διεθνής" id="3" t="1" min="0" max="1" />
+                        <p n="ISSN" id="4" />
+                    </params>
+                </c>
+            </classes>
+        </c>
+
     </classes>
 </root>
 XML;

@@ -95,6 +95,10 @@ if (array_key_exists("e",$_POST))
             if (strstr($key,"param_"))
             {
                 $pi = (int)substr($key,6);
+                if ($value == "on") 
+                {
+                    $value = 1;
+                }
                 QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES (?,?,?)",array(
                     $pid,$pi,$value
                 ));
@@ -204,10 +208,21 @@ function ViewOrEdit($pid,$items)
             }
             if ($pa['t'] == 1 || $pa['t'] == 3) // integer/integer days
             {
-                if ($pa['v'] && strlen($pa['v']))
-                    printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  readonly/><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$pa['v']);
+                if ($pa['min'] == 0 && $pa['max'] == 1 && $pa['t'] == 1)
+                {
+                    if ($pa['v'] && strlen($pa['v']))
+                        printf('<label class="checkbox" for="param_%s">%s</label><br><input type="checkbox" name="param_%s" %s readonly/><br><br>',$pa['id'],$pa['n'],$pa['id'],$pa['v'] == 1 ? 'checked' : '');
+                    else
+                        printf('<label class="checkbox" for="param_%s">%s</label><br><input type="checkbox" name="param_%s" %s /><br><br>',$pa['id'],$pa['n'],$pa['id'],$parval == 1 ? 'checked' : '');
+
+                }
                 else
-                    printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  /><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$parval);
+                {
+                    if ($pa['v'] && strlen($pa['v']))
+                        printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  readonly/><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$pa['v']);
+                    else
+                        printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  /><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$parval);
+                }
             }
             if ($pa['t'] == 2) // float
             {
