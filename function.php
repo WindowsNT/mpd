@@ -158,12 +158,12 @@ $def_xml_proson = <<<XML
                         <p n="Κλάδος" id="1" t="0" />
                         <p n="ΑΜ" id="2" t="2" />
                         <p n="Μουσική Ειδίκευση" id="8" t="0" />
-                        <p n="Εκπαιδευτική Προϋπηρεσία" id="3" t="2" />
-                        <p n="Προϋπηρεσία στα Μουσικά" id="4" t="2" />
+                        <p n="Εκπαιδευτική Προϋπηρεσία" id="3" t="3" />
+                        <p n="Προϋπηρεσία στα Μουσικά" id="4" t="3" />
                         <p n="Περιοχή Οργανικής" id="5" t="0" />
                         <p n="Τύπος Οργανικής" id="6" t="0" />
                         <p n="Οργανική Θέση" id="7" t="0" />
-                        <p n="Συνολική Προϋπηρεσία" id="9" t="2" />
+                        <p n="Συνολική Προϋπηρεσία" id="9" t="3" />
                     </params>
                 </c>
             </classes>
@@ -477,6 +477,35 @@ function HasContestAccess($cid,$uid,$wr = 0)
     return false;
 }
 
+function FromActualTo360($v)
+{
+    $y = date("Y",$v);
+    $m = date("m",$v);
+    $d = date("d",$v);
+
+    while($d >= 30)
+    {
+        $m++;
+        $d -= 30;
+    }
+    while($m >= 12)
+        {
+            $m -= 12;
+            $y++;
+        }
+    return ($y - 1970)*360 + $m*30 + $d;
+}
+
+function From360ToActual($v)
+{
+    $years = (int)($v / 360);
+    $v %= 360;
+    $months = (int)($v / 30);
+    $v %= 30;
+    $days = $v;
+    return mktime(0,0,0,$months,$days,$years + 1970);
+}
+
 function HasProsonAccess($pid,$uid,$wr = 0)
 {
     $pr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($pid))->fetchArray();
@@ -729,6 +758,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
 
         $parnames = array();
+        $partypes = array();
         $pars = array();
         $croot = RootForClassId($xmlp->classes,$r1['CLASSID'],$pars);
         $attr = $croot->attributes();
@@ -747,6 +777,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         {
             $pa = $param->attributes();                              
             $parnames[(int)$pa['id']] = $pa['n'];                       
+            $partypes[(int)$pa['id']] = $pa['t'];                       
         }    
 
         $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞');
@@ -756,7 +787,20 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         $q2 = QQ("SELECT * FROM PROSONPAR WHERE PID = ? ",array($r1['ID']));
         while($r2 = $q2->fetchArray())
         {
-            $s .= sprintf('<b>%s</b><br>%s<br>',$parnames[$r2['PIDX']],$r2['PVALUE']);
+            $vvv = $r2['PVALUE'];
+            if ($partypes[$r2['PIDX']] == 3)
+            {
+                $startwhen = $r1['STARTDATE'];
+                $now = time();
+                if ($now > $startwhen)
+                {
+                    $a1 = From360ToActual($vvv);
+                    $a1 += ($now - $startwhen);
+                    $vvv = FromActualTo360($a1);
+                }
+            }
+            
+            $s .= sprintf('<b>%s</b><br>%s<br>',$parnames[$r2['PIDX']],$vvv);
         }
         $s .= sprintf('</td>');
 
@@ -835,6 +879,21 @@ function DeleteProson($id,$uid = 0)
     QQ("DELETE FROM PROSON WHERE ID = ?",array($id));
 }
 
+function jpegrecompress($d)
+{
+    $f1 = tempnam(sys_get_temp_dir(), rand());
+    if (!file_put_contents($f1,$d))
+        return $d;
+    $f2 = tempnam(sys_get_temp_dir(), rand());
+    unlink($f2);
+    exec("jpeg-recompress $f1 $f2");
+    $d2 = file_get_contents($f2);
+    unlink($f1);
+    unlink($f2);
+    if (strlen($d2) == 0 || strlen($d2) > strlen($d))
+        return $d;
+    return $d2;
+}
 
 
 $rejr = '';
@@ -997,6 +1056,17 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
     while($r1 = $q1->fetchArray())
     {
         $sp = $r1['SCORE'];
+        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+
+        if ($rootc)
+        $params_root = $rootc->params;
+        if ($params_root)
+        foreach($params_root->p as $param)
+        {
+            $pa = $param->attributes();                              
+            $partypes[(int)$pa['id']] = $pa['t'];                       
+        }    
+
         if (strstr($sp,'$values'))
         {
             $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$r1['PROSONTYPE']));
@@ -1007,6 +1077,21 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
                 {
                     $p_idx = $par['PIDX'];
                     $p_val = $par['PVALUE'];
+
+                    // Check if it's date
+
+                    if ($partypes[$p_idx] == 3)
+                    {
+                        $startwhen = $rpr['STARTDATE'];
+                        $now = time();
+                        if ($now > $startwhen)
+                        {
+                            $a1 = From360ToActual($p_val);
+                            $a1 += ($now - $startwhen);
+                            $p_val = FromActualTo360($a1);
+                        }
+                    }
+        
                     $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
                 }
             }
@@ -1017,7 +1102,6 @@ function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
             {
                 if ($debug)
                     {
-                        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
                         if ($sp > 0)
                             printf("%s: %s<br>",$rootc->attributes()['t'],$sp);
                     }

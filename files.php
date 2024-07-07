@@ -27,7 +27,14 @@ if (array_key_exists("f1",$_FILES))
 	$tempfile = $file['tmp_name'];
 	$vev = file_get_contents($tempfile);
 
+    // check jpg
+    $finfo = new finfo(FILEINFO_MIME);
+    $ct = $finfo->buffer($vev);
     $g = guidv4();
+    if (strstr($ct,"image/jpeg"))
+    {
+        $vev = jpegrecompress($vev);
+    }
     file_put_contents("files/$g",$vev);
 
     QQ("INSERT INTO PROSONFILE (PID,UID,CLSID,DESCRIPTION,FNAME,TYPE) VALUES(?,?,?,?,?,?)",
@@ -59,7 +66,7 @@ function PrintFiles($pid)
 {
     global $req;
 
-    $s = '<table class="table datatable">';
+    $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th>#</th>
                 <th>Αρχείο</th>

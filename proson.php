@@ -141,6 +141,13 @@ function ViewOrEdit($pid,$items)
                 else
                     printf('<label for="param_%s">%s</label><input class="input" type="text" name="param_%s" value="%s" /><br><br>',$pa['id'],$pa['n'],$pa['id'],$parval);
             }
+            if ($pa['t'] == 1 || $pa['t'] == 3) // integer/integer days
+            {
+                if ($pa['v'] && strlen($pa['v']))
+                    printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  readonly/><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$pa['v']);
+                else
+                    printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  /><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$parval);
+            }
             if ($pa['t'] == 2) // float
             {
                 if ($pa['v'] && strlen($pa['v']))
