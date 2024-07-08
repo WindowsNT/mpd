@@ -12,7 +12,7 @@ $Push3_pushpriv = 'ZrdiwLJKMNMQv0PGeHpsF-1UCucemkWKEJ4PrhjKYXQ';
 
 
 $GLOBALS['Push3_path'] = $pageroot;
-$GLOBALS['Push3_adminfile'] = 'index.php';
+$GLOBALS['Push3_adminfile'] = 'settings.php';
 $GLOBALS['Push3_req'] = array_merge($_GET,$_POST);
 
 $zd = $GLOBALS['Push3_req'];

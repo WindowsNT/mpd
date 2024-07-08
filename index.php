@@ -47,17 +47,9 @@ if ($afm && $ur)
           if ($superadmin)
             break;
       }
+
+      printf('<button class="button autobutton  is-warning block" href="settings.php">Ρυθμίσεις</button> ');
       printf('<br>');
-
-      // Push Notifications
-      if (1)
-      {
-        echo '<hr>';
-        Push3_ShowScripts($ur['CLSID'],0);
-        echo Push3_ShowOptions($ur['CLSID'],0,0);
-
-      }
-
     }
 else
 {
