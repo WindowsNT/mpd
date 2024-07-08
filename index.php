@@ -47,6 +47,8 @@ if ($afm && $ur)
       }
 
       printf('<button class="button autobutton  is-warning block" href="settings.php">Ρυθμίσεις</button> ');
+      if ($superadmin)
+        printf('<button class="button autobutton  is-success block" href="update.php">Update</button> ');
       printf('<br>');
     }
 else
