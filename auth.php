@@ -7,6 +7,7 @@ if (array_key_exists("afm2",$_GET))
 if (array_key_exists("logout",$_GET))
     {
         unset($_SESSION['afm']);
+        unset($_SESSION['afm2']);
         unset($_SESSION['oauth2_results']);
     }
 $ur = null;

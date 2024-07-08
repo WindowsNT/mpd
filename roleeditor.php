@@ -187,6 +187,8 @@ while($r2 = $q2->fetchArray())
     printf('<td>');
 
     printf('<button class="autobutton button is-small is-primary block" href="roleeditor.php?c=%s">Επεξεργασία</button> ',$r2['ID']);
+    if ($superadmin)
+        printf('<button class="autobutton button is-small is-warning block" href="impersonate.php?u=%s">Impersonate</button> ',$r2['UID']);
     printf('<button class="sureautobutton button is-small is-danger block" href="roleeditor.php?delete=%s">Διαγραφή</button></td>',$r2['ID']);
 
     printf('</tr>');
