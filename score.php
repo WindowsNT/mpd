@@ -45,21 +45,28 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
             $wouldeval = 1;
         }
 
+        $min_needed = 1;
+        if ((int)$r1['MINX'] > 0)
+            $min_needed = (int)$r1['MINX'];
+        $max_needed = 0;
+        if ((int)$r1['MAXX'] > 0)
+            $max_needed = (int)$r1['MAXX'];
+
         for($deep = 0 ; ; $deep++)
         {
+            if ($deep > 0 && $max_needed > 0 && $deep >= $max_needed)
+                break;
             $checked = array();
             $reason = '';
-            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason);
 
-//            if ($deep == 1 && $has == 1)
- //               xdebug_break();
+            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason);
 
             if ($has != 1)
             {
-                if ($sp > 0 || $wouldeval == 1 || $deep > 0)
+                if ($sp > 0 || $wouldeval == 1 || $deep >= $min_needed)
                     break; // not required
                 $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s',$rootc->attributes()['t'],$reason);
+                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s x%s',$rootc->attributes()['t'],$reason,$min_needed);
                 return -1;    
             }
 

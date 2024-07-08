@@ -85,7 +85,7 @@ if (array_key_exists("c",$_POST))
 {
     if ($_POST['c'] > 0)
     {
-        if (!HasContestAccess($_POST['c'],$ur['UID'],1))
+        if (!HasContestAccess($_POST['c'],$ur['ID'],1))
             die;
         QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ? WHERE ID = ? ",array(
            $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['c']

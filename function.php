@@ -1,7 +1,6 @@
 <?php
 
 /*
-    Unique Prosonta
 */
 
 ini_set('display_errors', 1); error_reporting(E_ALL);
@@ -38,6 +37,7 @@ $def_xml_proson = <<<XML
                         <p n="Σχολή" id="2" t="0" />
                         <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
+                        <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
@@ -47,6 +47,7 @@ $def_xml_proson = <<<XML
                         <p n="Σχολή" id="2" t="0" />
                         <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
+                        <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                     </params>
                 </c>
@@ -155,7 +156,7 @@ $def_xml_proson = <<<XML
             <classes>
                 <c n="801" t="Συνέδριο" >
                     <params>
-                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Ίδρυμα" id="2" t="0"/>
                         <p n="Διεθνές" id="3" t="1" min="0" max="1" />
                         <p n="ISSN" id="4" />
@@ -163,7 +164,7 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="802" t="Δημοσίευση" >
                     <params>
-                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Περιοδικό" id="2" t="0"/>
                         <p n="Διεθνής" id="3" t="1" min="0" max="1" />
                         <p n="ISSN" id="4" />
@@ -171,7 +172,7 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="803" t="Βιβλίο" >
                     <params>
-                        <p n="Τίτλος" id="1" t="0"/>
+                        <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Εκδτοικός Οίκος" id="2" t="0"/>
                         <p n="Διεθνής" id="3" t="1" min="0" max="1" />
                         <p n="ISSN" id="4" />
@@ -331,7 +332,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FORCEDMORIA TEXT,INACTIVE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS WINTABLE (ID INTEGER PRIMARY KEY %s,CID INTEGER,PID INTEGER,POS INTEGER,UID INTEGER,AID INTEGER,EXTRA TEXT,FOREIGN KEY (AID) REFERENCES APPLICATIONS(ID),FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ANDLINK INTEGER,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ANDLINK INTEGER,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,MINX INTEGER,MAXX INTEGER,
         FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),
         FOREIGN KEY (CID) REFERENCES CONTESTS(ID),
         FOREIGN KEY (POSID) REFERENCES POSITIONS(ID),

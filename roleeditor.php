@@ -31,6 +31,9 @@ if (array_key_exists("delete",$req))
 if (array_key_exists("c",$_POST))
 {
     $params = '';
+    if ($_POST['ROLE'] == ROLE_ROLEEDITOR && !$superadmin)
+        die;
+
     if ($_POST['ROLE'] == ROLE_CHECKER)
         $params = sprintf('{"afms":[%s]}',$_POST['ROLEPARAMS']);
     if ($_POST['ROLE'] == ROLE_CREATOR)
@@ -135,6 +138,13 @@ if (array_key_exists("c",$_GET))
         die;
     }
 
+$j = '      <div class="dropdown-item">
+            <a href="roleeditor.php?c=0&t=%s">Role Editor</a>
+      </div>
+';
+    if (!$superadmin)
+        $j = '';
+
 printf('<div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
     <button class="button is-primary  block" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -158,12 +168,10 @@ printf('<div class="dropdown is-hoverable">
       <div class="dropdown-item">
             <a href="roleeditor.php?c=0&t=%s">Διαχειριστής Κενών Φορέα</a>
       </div>
-      <div class="dropdown-item">
-            <a href="roleeditor.php?c=0&t=%s">Role Editor</a>
-      </div>
+      %s
     </div>
   </div>
-</div> ',ROLE_CHECKER,ROLE_CREATOR,ROLE_UNI,ROLE_GLOBALPROSONEDITOR,ROLE_FOREASSETPLACES,ROLE_ROLEEDITOR);
+</div> ',ROLE_CHECKER,ROLE_CREATOR,ROLE_UNI,ROLE_GLOBALPROSONEDITOR,ROLE_FOREASSETPLACES,$j);
 
 echo '<table class="table datatable" style="width: 100%">';
 echo '<thead>
@@ -177,6 +185,8 @@ echo '<thead>
 $q2 = QQ("SELECT * FROM ROLES");
 while($r2 = $q2->fetchArray())
 {
+    if ($r2['ROLE'] == ROLE_ROLEEDITOR && !$superadmin)
+        continue;
     printf('<tr>');
     printf('<td>%s</td>',$r2['ID']);
     printf('<td>%s</td>',$r2['UID']);

@@ -4,15 +4,13 @@ require_once "function.php";
 require_once "auth.php";
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
-printf('Μητρώο Προσόντων και Διαγωνισμών');
 if (array_key_exists("target_id",$_SESSION))
   unset($_SESSION['target_id']);
 if ($afm && $ur)
     {
-        printf(' %s %s - %s - ID %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID']);
-        printf('<button class="button is-danger autobutton" href="auth.php?redirect=index.php&logout=1">Logout</button><hr>');
-        printf('<button class="button autobutton is-link" href="proson.php">Προσόντα</button> ');
-        printf('<button class="button autobutton is-success" href="applications.php">Αιτήσεις</button> ');
+        printf('<button class="button is-danger autobutton block" href="auth.php?redirect=index.php&logout=1">Logout %s %s - %s ID %s</button><hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID']);
+        printf('<button class="button autobutton is-link block" href="proson.php">Προσόντα</button> ');
+        printf('<button class="button autobutton is-success block" href="applications.php">Αιτήσεις</button> ');
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
         while(($r1 = $q1->fetchArray()) || $superadmin)
         {
@@ -53,6 +51,7 @@ if ($afm && $ur)
     }
 else
 {
+  printf('Μητρώο Προσόντων και Διαγωνισμών');
   $_SESSION['return_msa'] = 'mpd';
     ?>
   <br>

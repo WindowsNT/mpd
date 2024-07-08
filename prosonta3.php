@@ -60,6 +60,29 @@ if (array_key_exists("delete",$req))
     die;
 }
 
+
+if (array_key_exists("setmin",$req))
+{
+    QQ("UPDATE REQS2 SET MINX = ? WHERE ID = ?",array($req['value'],$req['setmin']));
+    $si = Single("REQS2","ID",$req['setmin']);
+    if ($si && (int)$si['MAXX'] < (int)$si['MINX'])
+        QQ("UPDATE REQS2 SET MAXX = ? WHERE ID = ?",array($req['value'],$req['setmin']));
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
+    redirect($a);
+    die;
+}
+
+if (array_key_exists("setmax",$req))
+{
+    QQ("UPDATE REQS2 SET MAXX = ? WHERE ID = ?",array($req['value'],$req['setmax']));
+    $si = Single("REQS2","ID",$req['setmax']);
+    if ($si && (int)$si['MINX'] > (int)$si['MAXX'])
+        QQ("UPDATE REQS2 SET MINX = ? WHERE ID = ?",array($req['value'],$req['setmax']));
+    $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
+    redirect($a);
+    die;
+}
+
 if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array_key_exists("andedit",$req) )
 {
     $which = 0;
@@ -214,6 +237,7 @@ if ($forthesi != '')
 <thead>
     <th class="all">#</th>
     <th class="all">Προσόν</th>
+    <th class="all">Expression</th>
     <th class="all">Σκορ</th>
     <th class="all">Παράμετροι</th>
     <th class="all">Εντολές</th>
@@ -239,6 +263,27 @@ while($r1 = $q1->fetchArray())
     }
     $s .= $attr['t'].'<br>';
     printf('<td>%s</td>',$s);
+
+    $sfinal = '';
+    $s2 = explode("|||",$r1['REGEXRESTRICTIONS'] ? $r1['REGEXRESTRICTIONS'] : '');
+    foreach($s2 as $ss2)
+    {
+        $ss3 = explode("||",$ss2);
+        if (count($ss3) == 2)
+        {
+            foreach($croot->params->children() as $ch)
+            {
+                if ($ss3[0] != $ch->attributes()['id'])
+                    continue;
+                $parname = $ch->attributes()['n'];
+                if ($parname)
+                    $sfinal .= sprintf("%s<br>%s",$parname,$ss3[1]);
+                break;
+            }
+        }
+    }
+
+    printf('<td>%s</td>',$sfinal);
     printf('<td>%s</td>',$r1['SCORE']);
 
 
@@ -251,6 +296,8 @@ while($r1 = $q1->fetchArray())
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',(int)$r1['ORLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',(int)$r1['NOTLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
+    printf('<button class="is-small %s button block" onclick="askmin(%s,%s,%s,%s,\'%s\');">MIN %s</button> ',(int)$r1['MINX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MINX'] > 0 ? $r1['MINX'] : '');
+    printf('<button class="is-small %s button block" onclick="askmax(%s,%s,%s,%s,\'%s\');">MAX %s</button> ',(int)$r1['MAXX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MAXX'] > 0 ? $r1['MAXX'] : '');
 
     printf('</td>');
     printf('<td>');
@@ -264,6 +311,22 @@ while($r1 = $q1->fetchArray())
 ?>
 </tbody></table>
 <script>
+    function askmin(id,cid,placeid,posid,forthesi)
+    {
+        var x = prompt("Ελάχιστη τιμή προσόντων:");
+        if (x == null) return;
+        x = parseInt(x);
+        var url = "prosonta3.php?setmin=" + id + "&value=" + x + "&cid=" + cid + "&placeid=" + placeid + "&posid=" + posid + "&forthesi=" + forthesi;
+        window.location = url;
+    }
+    function askmax(id,cid,placeid,posid,forthesi)
+    {
+        var x = prompt("Μέγιστη τιμή προσόντων:");
+        if (x == null) return;
+        x = parseInt(x);
+        var url = "prosonta3.php?setmax=" + id + "&value=" + x + "&cid=" + cid + "&placeid=" + placeid + "&posid=" + posid + "&forthesi=" + forthesi;
+        window.location = url;
+    }
     function editx(cid,placeid,posid,thesi,id,type,score)
     {
         toggleadd();
