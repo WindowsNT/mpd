@@ -85,14 +85,14 @@ if (array_key_exists("c",$_POST))
 {
     if ($_POST['c'] > 0)
     {
-        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,STARTDATE = ?,ENDDATE = ? WHERE ID = ? ",array(
-           $_POST['DESCRIPTION'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['c']
+        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ? WHERE ID = ? ",array(
+           $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['c']
         ));
         $lastRowID = $_POST['c'];
     }
     else    
-    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,STARTDATE,ENDDATE) VALUES (?,?,?,?) ",array(
-        $ur['ID'],$_POST['DESCRIPTION'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE'])
+    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,MINISTRY,CATEGORY,STARTDATE,ENDDATE) VALUES (?,?,?,?,?,?) ",array(
+        $ur['ID'],$_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE'])
     ));
 
     if ($lastRowID)
@@ -110,11 +110,19 @@ function ViewOrEdit($cid)
     if ($cid)
         $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
     if (!$items)
-        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0');
+        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '');
 
     ?>
     <form method="POST" action="contest.php">
     <input type="hidden" name="c" value="<?= $items['ID'] ?>" />
+
+        <label for="MINISTRY">Υπουργείο</label>
+        <input type="text" name="MINISTRY" class="input" value="<?= $items['MINISTRY'] ?>" required/>
+        <br><br>
+
+        <label for="CATEGORY">Κατηγορία</label>
+        <input type="text" name="CATEGORY" class="input" value="<?= $items['CATEGORY'] ?>" required/>
+        <br><br>
 
         <label for="DESCRIPTION">Περιγραφή</label>
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>

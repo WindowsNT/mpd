@@ -20,6 +20,8 @@ if (!array_key_exists("cid",$req))
     echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
                 <th class="all">#</th>
+                <th class="all">Υπουργείο</th>
+                <th class="all">Κατηγορία</th>
                 <th class="all">Περιγραφή</th>
                 <th class="all">Έναρξη</th>
                 <th class="all">Λήξη</th>
@@ -32,6 +34,8 @@ if (!array_key_exists("cid",$req))
     {
         printf('<tr>');
         printf('<td>%s</td>',$r1['ID']);
+        printf('<td>%s</td>',$r1['MINISTRY']);
+        printf('<td>%s</td>',$r1['CATEGORY']);
         printf('<td>%s</td>',$r1['DESCRIPTION']);
         printf('<td>%s</td>',date("Y-m-d",$r1['STARTDATE']));
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
@@ -42,7 +46,9 @@ if (!array_key_exists("cid",$req))
         $q2 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']));
         while($r2 = $q2->fetchArray())
         {
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),ScoreForAitisi($r2['ID']));
+            $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($r2['PID']))->fetchArray();
+            $posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($r2['POS']))->fetchArray();
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>%s<br>%s</br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r2['ID']));
         }
         printf('</td>');
         printf('</tr>');

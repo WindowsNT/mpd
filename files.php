@@ -116,7 +116,23 @@ if ($_GET['f'] == 0)
             <label for="f0">Περιγραφή</label>
         <input type="text" name="f0" id="f0" required class="input"/><br><br>
         <label for="f1">Ανέβασμα</label>
-        <input type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required class="input"/><br>
+
+<!--        <input type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required class="input"/><br>-->
+<div class="file has-name is-boxed">
+    <label class="file-label">
+        <input class="file-input" type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required >
+        <span class="file-cta">
+            <span class="file-icon">
+                <i class="fa fa-upload"></i>
+            </span>
+            <span class="file-label">
+                Επιλογή αρχείου
+            </span>
+        </span>
+        <span class="file-name">Επιλέξτε αρχείο...</span>
+    </label>
+</div>
+
         <br><br>
         <button class="button is-success">Yποβολή</button>
         </form>

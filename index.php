@@ -14,32 +14,50 @@ if ($afm && $ur)
         printf('<button class="button autobutton is-link" href="proson.php">Προσόντα</button> ');
         printf('<button class="button autobutton is-success" href="applications.php">Αιτήσεις</button> ');
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
-        while($r1 = $q1->fetchArray())
+        while(($r1 = $q1->fetchArray()) || $superadmin)
         {
-          if ($r1['ROLE'] == ROLE_CHECKER)
+          if ($superadmin)
+            {
+              $r1 = array("ROLE" => ROLE_SUPERADMIN,"ID" => 0);
+            }
+          if ($r1['ROLE'] == ROLE_CHECKER || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-info" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-info block" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
-          if ($r1['ROLE'] == ROLE_CREATOR)
+          if ($r1['ROLE'] == ROLE_CREATOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-primary" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+            printf('<button class="button autobutton  is-primary block" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
-          if ($r1['ROLE'] == ROLE_UNI)
+          if ($r1['ROLE'] == ROLE_UNI  || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-link block" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
-          if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR)
+          if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+            printf('<button class="button autobutton  is-link block" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
           }
-          if ($r1['ROLE'] == ROLE_FOREASSETPLACES)
+          if ($r1['ROLE'] == ROLE_FOREASSETPLACES || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link" href="editkena.php">Διόρθωση Κενών</button> ');
+            printf('<button class="button autobutton  is-link block" href="editkena.php">Διόρθωση Κενών</button> ');
           }
+          if ($superadmin)
+            break;
       }
+      printf('<br>');
+
+      // Push Notifications
+      if (1)
+      {
+        echo '<hr>';
+        Push3_ShowScripts($ur['ID'],0);
+        echo Push3_ShowOptions($ur['ID'],0,0);
+
+      }
+
     }
 else
 {
+  $_SESSION['return_msa'] = 'mpd';
     ?>
   <br>
   <div class="dropdown is-hoverable">
@@ -63,6 +81,12 @@ else
           <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία ΑΦΜ 1001001005 Διόρθωση Κενών Μουσικού Αλίμου<hr></a>
         </p>
       </div>
+      <div class="dropdown-item">
+        <p>
+          <a href="https://www.msa-apps.com/taxis.php">Taxis Login<hr></a>
+        </p>
+      </div>
+      
     </div>
   </div>
 </div>

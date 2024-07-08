@@ -9,12 +9,14 @@ if (session_status() == PHP_SESSION_NONE)
     session_start();
 $req = array_merge($_GET,$_POST);
 
+require_once "config.php";
+
 // Database functions
-$dbxx = 'mpd.db';
 $lastRowID = 0;
 $db = null;
 $mustprepare = 0;
 $mysqli = null;
+$superadmin = 0;
 
 $def_xml_proson = <<<XML
 <root>
@@ -292,6 +294,8 @@ define('ROLE_CREATOR',2);
 define('ROLE_UNI',3);
 define('ROLE_GLOBALPROSONEDITOR',4);
 define('ROLE_FOREASSETPLACES',5);
+define('ROLE_ROLEEDITOR',6);
+define('ROLE_SUPERADMIN',99);
 
 function PrepareDatabase($msql = 0)
 {
@@ -309,7 +313,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
@@ -322,6 +326,9 @@ function PrepareDatabase($msql = 0)
         FOREIGN KEY (POSID) REFERENCES POSITIONS(ID),
         FOREIGN KEY (ORLINK) REFERENCES REQS2(ID),
         FOREIGN KEY (NOTLINK) REFERENCES REQS2(ID))",$j));
+
+    QQ("CREATE TABLE IF NOT EXISTS PUSHING (ID INTEGER PRIMARY KEY $j,CLSID TEXT,STR TEXT,ENDPOINT TEXT)");
+
 
     // Test set
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ',?)",array(guidv4()));
@@ -450,6 +457,7 @@ function HasPlaceAccessForKena($pid,$uid)
 
 function HasContestAccess($cid,$uid,$wr = 0) 
 {
+    global $superadmin; if ($superadmin) return true;
     $crow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
     if (!$crow)
         return false;
@@ -506,6 +514,7 @@ function From360ToActual($v)
 
 function HasProsonAccess($pid,$uid,$wr = 0)
 {
+    global $superadmin; if ($superadmin) return true;
     $pr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($pid))->fetchArray();
     if (!$pr)
         return false;
@@ -670,6 +679,8 @@ function PrintContests($uid)
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th class="all">#</th>
+                <th class="all">Υπουργείο</th>
+                <th class="all">Κατηγορία</th>
                 <th class="all">Περιγραφή</th>
                 <th class="all">Ημερομηνίες</th>
                 <th class="all">Φορείς</th>
@@ -685,6 +696,8 @@ function PrintContests($uid)
             continue;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
+        $s .= sprintf('<td>%s</td>',$r1['MINISTRY']);
+        $s .= sprintf('<td>%s</td>',$r1['CATEGORY']);
         $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
         $s .= sprintf('<td>%s &mdash; %s</td>',date("d/m/Y",$r1['STARTDATE']),date("d/m/Y",$r1['ENDDATE']));
         $s .= sprintf('<td>');
@@ -694,6 +707,10 @@ function PrintContests($uid)
         $s .= '<td>';
         if ($wa == 1)
         {
+            $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
             $s .= sprintf('<div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
     <button class="button is-secondary is-small block" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -717,10 +734,6 @@ function PrintContests($uid)
     </div>
   </div>
 </div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
-            $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
            $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
         }
@@ -1046,6 +1059,8 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason 
 }
 
 require_once "score.php";
+$push3_admin = 1;
+require_once "push3.php";
 
 function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
 {
