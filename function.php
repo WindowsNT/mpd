@@ -297,6 +297,17 @@ define('ROLE_FOREASSETPLACES',5);
 define('ROLE_ROLEEDITOR',6);
 define('ROLE_SUPERADMIN',99);
 
+function RoleToText($r)
+{
+    if ($r == ROLE_CHECKER) return 'Ελεγκτής Προσόντων';
+    if ($r == ROLE_CREATOR) return 'Χειριστής Διαγωνισμών';
+    if ($r == ROLE_UNI) return 'Ίδρυμα';
+    if ($r == ROLE_GLOBALPROSONEDITOR) return 'Διορθωτής XML Προσόντων';
+    if ($r == ROLE_FOREASSETPLACES) return 'Διορθωτής Κενών Φορέα';
+    if ($r == ROLE_ROLEEDITOR) return 'Ελεγκτής Ρόλων';
+    return '';
+}
+
 function PrepareDatabase($msql = 0)
 {
     $j = 'AUTO_INCREMENT';
@@ -439,6 +450,11 @@ function  EnsureProsonLoaded()
         $xmlp = simplexml_load_string($xml_proson);
 }
 
+
+function Single($table,$column,$id)
+{
+    return QQ(sprintf("SELECT * FROM %s WHERE %s = ?",$table,$column),array($id))->fetchArray();
+}
 
 // Access functions
 function HasPlaceAccessForKena($pid,$uid)
@@ -675,7 +691,7 @@ function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
 }
 function PrintContests($uid)
 {
-
+    global $superadmin;
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th class="all">#</th>
@@ -688,6 +704,8 @@ function PrintContests($uid)
             </thead><tbody>';
 
     $q1 = QQ("SELECT * FROM CONTESTS WHERE UID = ?",array($uid));
+    if ($superadmin)
+        $q1 = QQ("SELECT * FROM CONTESTS");
     while($r1 = $q1->fetchArray())
     {
         $ra = HasContestAccess($r1['ID'],$uid,0);

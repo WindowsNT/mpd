@@ -85,6 +85,8 @@ if (array_key_exists("c",$_POST))
 {
     if ($_POST['c'] > 0)
     {
+        if (!HasContestAccess($_POST['c'],$ur['UID'],1))
+            die;
         QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ? WHERE ID = ? ",array(
            $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['c']
         ));
@@ -105,10 +107,15 @@ if (array_key_exists("c",$_POST))
 
 function ViewOrEdit($cid)
 {
-    global $ur;
+    global $ur,$superadmin;
     $items = array();
     if ($cid)
-        $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
+        {
+            if ($superadmin)
+                $items = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+            else
+                $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
+        }
     if (!$items)
         $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '');
 

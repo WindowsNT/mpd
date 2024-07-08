@@ -9,7 +9,7 @@ if (array_key_exists("target_id",$_SESSION))
   unset($_SESSION['target_id']);
 if ($afm && $ur)
     {
-        printf(' %s %s - %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm);
+        printf(' %s %s - %s - ID %s<hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID']);
         printf('<button class="button is-danger autobutton" href="auth.php?redirect=index.php&logout=1">Logout</button><hr>');
         printf('<button class="button autobutton is-link" href="proson.php">Προσόντα</button> ');
         printf('<button class="button autobutton is-success" href="applications.php">Αιτήσεις</button> ');
@@ -40,6 +40,10 @@ if ($afm && $ur)
           {
             printf('<button class="button autobutton  is-link block" href="editkena.php">Διόρθωση Κενών</button> ');
           }
+          if ($r1['ROLE'] == ROLE_ROLEEDITOR || $r1['ROLE'] == ROLE_SUPERADMIN)
+          {
+            printf('<button class="button autobutton  is-primary block" href="roleeditor.php">Role Editor</button> ');
+          }
           if ($superadmin)
             break;
       }
@@ -49,8 +53,8 @@ if ($afm && $ur)
       if (1)
       {
         echo '<hr>';
-        Push3_ShowScripts($ur['ID'],0);
-        echo Push3_ShowOptions($ur['ID'],0,0);
+        Push3_ShowScripts($ur['CLSID'],0);
+        echo Push3_ShowOptions($ur['CLSID'],0,0);
 
       }
 
@@ -79,6 +83,7 @@ else
           <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης ΑΦΜ 1001001004 Διόρθωση Γενικών Προσόντων<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία ΑΦΜ 1001001005 Διόρθωση Κενών Μουσικού Αλίμου<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001007">Πασχαλίδης Ορέστης ΑΦΜ 1001001006 Διόρθωση Ρόλων<hr></a>
         </p>
       </div>
       <div class="dropdown-item">
