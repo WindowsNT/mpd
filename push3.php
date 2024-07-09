@@ -279,7 +279,7 @@ self.addEventListener('push', function(event) {
   const options = {
     body: event.data.text(),
     icon: 'icon.png',
-    badge: 'i9.png'chec
+    badge: 'i9.png'
 
   };
   event.waitUntil(self.registration.showNotification(title, options));
