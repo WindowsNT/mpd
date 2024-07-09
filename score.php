@@ -108,7 +108,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
                 if (strstr($sp,'$values'))
                     $sp = 0;
                 else
-                    $sp = eval($sp);
+                        $sp = eval2($sp);
             }
 
         if ($debug)

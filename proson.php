@@ -217,6 +217,24 @@ function ViewOrEdit($pid,$items)
 
                 }
                 else
+                if (strlen($pa['list']))
+                {
+                    printf('<label for="param_%s">%s</label><br><select class="input" name="param_%s">',$pa['id'],$pa['n'],$pa['id']);
+                    $vv = explode(",",$pa['list']);
+                    $mi = (int)$pa['min'];
+                    foreach($vv as $v)
+                    {
+                        $s = '';
+                        $si = (int)$parval;
+                        if ($si == $mi)
+                            $s = 'selected';
+                        printf('<option value="%s" %s>%s</option>',$mi,$s,$v);
+                        $mi++;
+                    }
+                    printf('</select><br><br>');
+
+                }
+                else
                 {
                     if ($pa['v'] && strlen($pa['v']))
                         printf('<label for="param_%s">%s</label><input class="input" type="number" step="1" min="%s" max="%s" name="param_%s" value="%s"  readonly/><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$pa['v']);

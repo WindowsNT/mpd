@@ -57,7 +57,7 @@ $def_xml_proson = <<<XML
         <c n="2" t="Ξένη Γλώσσα" >
             <params>
                     <p n="Γλώσσα" id="1" unique="1" />
-                    <p n="Επίπεδο (1 - Β1, 2 - Β2, 3 - C1, 4 - C2)" id="2" t="1" min="1" max="4"/>
+                    <p n="Επίπεδο" id="2" t="1" min="1" max="4" list="B1,B2,C1,C2"/>
             </params>
         </c>
 
@@ -94,7 +94,7 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="408" t="Πτυχίο Ανώτερων Θεωρητικών" unique="1">
                     <params>
-                        <p n="Επίπεδο (1 - Ωδικής, 2 - Αρμονίας, 3 - Αντίστιξης, 4 - Φούγκας, 5 - Σύνθεσης)" id="3" t="1" min="1" max="5"/>
+                        <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας,Πτυχίο Σύνθεσης"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
@@ -130,7 +130,7 @@ $def_xml_proson = <<<XML
                 <c n="601" t="Υπηρεσία" unique="1">
                     <params>
                         <p n="Κλάδος" id="1" t="0" />
-                        <p n="ΑΜ" id="2" t="2" />
+                        <p n="Αριθμός Μητρώου" id="2" t="2" />
                         <p n="Μουσική Ειδίκευση" id="8" t="0" />
                         <p n="Εκπαιδευτική Προϋπηρεσία" id="3" t="3" />
                         <p n="Προϋπηρεσία στα Μουσικά" id="4" t="3" />
@@ -147,7 +147,7 @@ $def_xml_proson = <<<XML
             <classes>
                 <c n="701" t="Επιμόρφωση" unique="1">
                 <params>
-                        <p n="Επίπεδο (1 - Α, 2 - Β1, 3 - Β2, 4 - Επιμορφωτής Β Επιπέδου)" id="1" t="1" min="1" max="4"/>
+                        <p n="Επίπεδο" id="1" t="1" min="1" max="4" list="A,B1,B2,Επιμορφωτής B Επιπέδου"/>
                     </params>
                 </c>
             </classes>
@@ -478,6 +478,17 @@ function HasPlaceAccessForKena($pid,$uid)
     return false;
 }
 
+function eval2($e)
+{
+    try {
+        return eval($e);
+    } 
+    catch (ParseError $t) 
+    {
+        return false;
+    }
+}
+
 function HasContestAccess($cid,$uid,$wr = 0) 
 {
     global $superadmin; if ($superadmin) return true;
@@ -799,6 +810,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
 
         $parnames = array();
         $partypes = array();
+        $parlist = array();
         $pars = array();
         $croot = RootForClassId($xmlp->classes,$r1['CLASSID'],$pars);
         $attr = $croot->attributes();
@@ -818,6 +830,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             $pa = $param->attributes();                              
             $parnames[(int)$pa['id']] = $pa['n'];                       
             $partypes[(int)$pa['id']] = $pa['t'];                       
+            $parlist[(int)$pa['id']] = (string)$pa['list'];                       
         }    
 
         $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞');
@@ -839,8 +852,16 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
                     $vvv = FromActualTo360($a1);
                 }
             }
+            // Check list
+            $vvv2 = '';
+            if ($parlist[(int)$r2['PIDX']])
+            {
+                $ch = explode(",",$parlist[(int)$r2['PIDX']]);
+                $vvv2 = ' - '.$ch[((int)$vvv) - 1];
+
+            }
             
-            $s .= sprintf('<b>%s</b><br>%s<br>',$parnames[$r2['PIDX']],$vvv);
+            $s .= sprintf('<b>%s</b><br>%s %s<br>',$parnames[$r2['PIDX']],$vvv,$vvv2);
         }
         $s .= sprintf('</td>');
 
@@ -983,7 +1004,7 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
                         $x = str_replace('$value',$pv,$rex3[1]);
                         try
                         {
-                        $res = eval($x);
+                        $res = eval2($x);
                         if ($res == true)
                             {
                                 $fail = 0;
