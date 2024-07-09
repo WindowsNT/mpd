@@ -12,7 +12,7 @@ if (!$afm || !$ur)
     }
 
 $rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
-if ($rolerow['UID'] != $ur['ID'])
+if ($rolerow['UID'] != $ur['ID'] && !$superadmin)
 {
     redirect("index.php");
     die;

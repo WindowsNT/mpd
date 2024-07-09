@@ -10,7 +10,10 @@ if (!$afm || !$ur)
         die;
     }
 
-$role = QQ("SELECT * FROM ROLES WHERE ID = ? AND UID = ?",array($_GET['t'],$ur['ID']))->fetchArray();
+if ($superadmin)
+    $role = QQ("SELECT * FROM ROLES WHERE ID = ?",array($_GET['t']))->fetchArray();
+else
+    $role = QQ("SELECT * FROM ROLES WHERE ID = ? AND UID = ?",array($_GET['t'],$ur['ID']))->fetchArray();
 if (!$role)
 {
     redirect("index.php");
@@ -22,21 +25,28 @@ if (array_key_exists("approve",$_GET))
     $prr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($_GET['approve']))->fetchArray();
     $acc = HasProsonAccess($prr['UID'],$ur['ID']);
     if ($acc)
-        QQ("UPDATE PROSON SET STATE = 1 WHERE ID = ?",array($prr['ID']));
+        {
+            QQ("UPDATE PROSON SET STATE = 1,FAILREASON = '' WHERE ID = ?",array($prr['ID']));
+            PushProsonState($prr['ID']);
+        }
     redirect(sprintf("check.php?t=%s",$_GET['t']));
     die;
 }
 if (array_key_exists("reject",$_GET))
 {
-    $prr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($_GET['reject']))->fetchArray();
+    $prr = Single("PROSON","ID",$_GET['reject']);
     $acc = HasProsonAccess($prr['UID'],$ur['ID']);
     if ($acc)
-        QQ("UPDATE PROSON SET STATE = -1 WHERE ID = ?",array($prr['ID']));
+        {
+            QQ("UPDATE PROSON SET STATE = -1,FAILREASON = ? WHERE ID = ?",array($req['reason'],$prr['ID']));
+            PushProsonState($prr['ID']);
+        }
     redirect(sprintf("check.php?t=%s",$_GET['t']));
     die;
 }
 
 echo '<div class="content" style="margin: 20px">';
+echo '<button href="index.php" class="autobutton button is-danger">Πίσω</button> <br><br>';
 echo 'Έλεγχος Προσόντων<hr>';
 
 $params = json_decode($role['ROLEPARAMS'],true);

@@ -39,6 +39,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
+                        <p n="Integrated Master" id="7" t="1" min="0" max="1" />
                     </params>
                 </c>
                 <c n="103" t="Διδακτορικό" el="8" >
@@ -320,7 +321,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT)",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FAILREASON TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
@@ -460,6 +461,9 @@ function Single($table,$column,$id)
 // Access functions
 function HasPlaceAccessForKena($pid,$uid)
 {
+    global $superadmin;
+    if ($superadmin)
+        return true;
     $j = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($uid,ROLE_FOREASSETPLACES));
     while($r = $j->fetchArray())
     {
@@ -848,7 +852,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
         if ($r1['STATE'] == 0) $s .= 'Αναμονή';
-        if ($r1['STATE'] < 0) $s .= 'Απόρριψη';
+        if ($r1['STATE'] < 0) $s .= sprintf('Απόρριψη<br>%s',$r1['FAILREASON']);
         if ($r1['STATE'] >= 1) $s .= sprintf('Έγκριση Επίπεδο %s',$r1['STATE']);
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
@@ -858,7 +862,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
             if ($r1['STATE'] == 0) 
             {
                 $s .= sprintf('<button class="block sureautobutton button is-small is-success" href="check.php?t=%s&approve=%s">Έγκριση</button> ',$rolerow['ID'],$r1['ID']);
-                $s .= sprintf('<button class="block sureautobutton button is-small is-danger" href="check.php?t=%s&reject=%s">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
+                $s .= sprintf('<button class="block button is-small is-danger" onclick="rejectproson(%s,%s);">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
             }
         }
         else
@@ -876,7 +880,10 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
     return $s;
 }
 
-
+function ApplicationProtocol($row)
+{
+    return  sprintf("%s%04s",date("YmdHis",$row['DATE']),$row['ID']);
+}
 function DeleteProsonFile($id,$uid = 0)
 {
     if ($uid)
@@ -1310,6 +1317,34 @@ function PrintProsontaForThesi($cid,$placeid,$posid)
     $s .= '</div>';
 
     return $s;
+}
+
+function PushProsonState($prid)
+{
+    $r = Single("PROSON","ID",$prid);
+    if (!$r) return;
+
+    $u = Single("USERS","ID",$r['UID']);
+    if (!$u)
+        return;
+
+    if ($r['STATE'] < 0)
+        Push3_Send(sprintf("To προσόν %s δεν έγινε δεκτό! [%s]",$r['DESCRIPTION'],$r['FAILREASON']),array($u['CLSID']));
+    if ($r['STATE'] > 0)
+        Push3_Send(sprintf("To προσόν %s έγινε δεκτό!",$r['DESCRIPTION']),array($u['CLSID']));
+
+}
+
+function PushAithsiCompleted($appid)
+{
+    $r = Single("APPLICATIONS","ID",$appid);
+    if (!$r) return;
+
+    $u = Single("USERS","ID",$r['UID']);
+    if (!$u)
+        return;
+
+    Push3_Send("Έγινε η αίτηση!",array($u['CLSID']));
 }
 
 function Kill($cid,$placeid,$posid,$appid)

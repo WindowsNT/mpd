@@ -12,14 +12,19 @@ if (!$afm || !$ur)
     }
 
 $rolerow = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($ur['ID'],ROLE_FOREASSETPLACES))->fetchArray();
-if (!$rolerow)
+if (!$rolerow && !$superadmin)
 {
     redirect("index.php");
     die;
 }
 
-$params = json_decode($rolerow['ROLEPARAMS'],true);
-$places = $params['places'];
+if ($superadmin)
+    $places = array();
+else
+{
+    $params = json_decode($rolerow['ROLEPARAMS'],true);
+    $places = $params['places'];
+}
 
 $t = time();
 $t = 0;
@@ -29,8 +34,8 @@ while($r1 = $q1->fetchArray())
     $q2 = QQ("SELECT * FROM PLACES WHERE CID = ?",array($r1['ID']));
     while($r2 = $q2->fetchArray())
     {
-        if (!in_array($r2['ID'],$places))
+        if (!in_array($r2['ID'],$places) && !$superadmin)
             continue;
-        printf('Διαγωνισμός: %s<br><a href="positions.php?t=%s&cid=%s&pid=%s">%s</a>',$r1['DESCRIPTION'],$rolerow['ID'],$r1['ID'],$r2['ID'],$r2['DESCRIPTION']);
+        printf('Διαγωνισμός: %s<br><a href="positions.php?cid=%s&pid=%s">%s</a><br>',$r1['DESCRIPTION'],$r1['ID'],$r2['ID'],$r2['DESCRIPTION']);
     }   
 }

@@ -9,8 +9,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@vizuaalog/bulmajs@0.12.2/dist/bulma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/fh-3.1.4/r-2.2.2/datatables.min.css"/>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+
+
+<link href="https://cdn.datatables.net/v/bm/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/bm/jszip-3.10.1/dt-2.0.8/af-2.7.0/b-3.0.2/b-colvis-3.0.2/b-html5-3.0.2/b-print-3.0.2/date-1.5.2/fc-5.0.1/fh-4.0.1/kt-2.12.1/r-3.0.2/sc-2.4.3/sb-1.7.1/sp-2.3.1/sl-2.0.3/sr-1.4.1/datatables.min.js"></script>
 
 <script>
 
@@ -32,17 +36,22 @@ function datatab(resp = true,fi = false)
 			if (dt)
 		    	{
 			    dt.dataTable({
-			        dom: 'Bfrt',
+            layout: {
+              topStart: {
+              buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+              }
+            },
+			        dom: 'frtB',
 			        paging: false,
 			        bInfo: false,
-					fixedHeader: true,
+    					fixedHeader: true,
 			        responsive: resp,
-                    fixedHeader: fi,
-					xScroll: true,
-                    bFilter: true,
+              fixedHeader: fi,
+		    			xScroll: true,
+              bFilter: true,
 			        aaSorting: []
-			    });
-                }
+  			    });
+          }
 }
 
 
@@ -140,6 +149,19 @@ else
             }
             }
         );
+}
+
+
+// $s .= sprintf('<button class="block button is-small is-danger" href="check.php?t=%s&reject=%s">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
+
+function rejectproson(role,prid)
+{
+  var v = prompt('Λόγος απόρριψης:');
+  if (v == null)
+    return;
+
+  var url = 'check.php?t=' + role + '&reject=' + prid + '&reason=' + v;
+  window.location = url;
 }
 
 $(document).ready(function()

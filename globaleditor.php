@@ -12,7 +12,7 @@ if (!$afm || !$ur)
     }
 
 $rolerow = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($ur['ID'],ROLE_GLOBALPROSONEDITOR))->fetchArray();
-if (!$rolerow)
+if (!$rolerow && !$superadmin)
 {
     redirect("index.php");
     die;

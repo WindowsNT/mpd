@@ -48,7 +48,7 @@ if (!array_key_exists("cid",$req))
         {
             $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($r2['PID']))->fetchArray();
             $posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($r2['POS']))->fetchArray();
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>%s<br>%s</br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r2['ID']));
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),ApplicationProtocol($r2),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r2['ID']));
         }
         printf('</td>');
         printf('</tr>');
@@ -146,6 +146,7 @@ if (array_key_exists("aid",$req))
         QQ("INSERT INTO APPLICATIONS (UID,CID,PID,POS,DATE) VALUES (?,?,?,?,?)",array(
             $ur['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],time()
         ));
+        PushAithsiCompleted($lastRowID);
     }
     else
         QQ("DELETE FROM APPLICATIONS WHERE ID = ? AND UID = ?",array($req['aid'],$ur['ID']));
@@ -172,7 +173,7 @@ if (!array_key_exists("aid",$req))
         }
     else
     {
-        printf('Έγινε αίτηση (%s)<br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        printf('Έγινε αίτηση (%s)<br>Α.Π. %s<br><br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
         $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],true);
         printf("Σύνολο μορίων: %s<br>",$sc);
         if (AppPreference($app['ID']) == 1)
