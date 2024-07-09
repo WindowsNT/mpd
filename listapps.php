@@ -44,6 +44,12 @@ if(array_key_exists("score",$req))
         redirect(sprintf("listapps.php?cid=%s",$req['cid']));
         die;
     }
+if(array_key_exists("result",$req))
+    {
+        QQ("UPDATE APPLICATIONS SET FORCERESULT = ? WHERE CID = ? AND ID = ?",array($req['result'],$req['cid'],$req['aid']));
+        redirect(sprintf("listapps.php?cid=%s",$req['cid']));
+        die;
+    }
 
     
 printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσω</button> ');
@@ -81,9 +87,13 @@ while($r1 = $q1->fetchArray())
     else
         printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$r1['ID']);
     if ($r1['FORCEDMORIA'] == 0)
-        printf('<button class="is-link is-small button block" onclick="changescore(%s,%s);">Αλλαγή Σκορ</button>',$req['cid'],$r1['ID']);
+        printf('<button class="is-link is-small button block" onclick="changescore(%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$r1['ID']);
     else
-        printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s);">%s</button>',$req['cid'],$r1['ID'],$r1['FORCEDMORIA']);
+        printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s);">%s</button> ',$req['cid'],$r1['ID'],$r1['FORCEDMORIA']);
+    if ($r1['FORCERESULT'] == 0)
+        printf('<button class="is-link is-small button block" onclick="changeresult(%s,%s);">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$r1['ID']);
+    else
+        printf('<button class="is-danger is-small button block" onclick="resetresult(%s,%s);">%s</button> ',$req['cid'],$r1['ID'],$r1['FORCERESULT']);
     printf('</td>');
     printf('</tr>');
 
@@ -98,10 +108,22 @@ while($r1 = $q1->fetchArray())
             return;
         window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&score=" + sc;
     }
+    function changeresult(cid,aid)
+    {
+        var sc = prompt("Νέο ID από τον πίνακα POSITIONS:");
+        if (!sc)
+            return;
+        window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&result=" + sc;
+    }
     function resetscore(cid,aid)
     {
         var sc = 0;
         window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&score=" + sc;
+    }
+    function resetresult(cid,aid)
+    {
+        var sc = 0;
+        window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&result=" + sc;
     }
 </script>
 <?php

@@ -99,21 +99,21 @@ else
   </div>
   <div class="dropdown-menu" id="dropdown-menu4" role="menu">
     <div class="dropdown-content">
-      <div class="dropdown-item">
+    <div class="dropdown-item">
         <p>
-          <a href="auth.php?redirect=index.php&afm2=1001001001">Παπαδόπουλος Νίκος ΑΦΜ 1001001001 Υποψήφιος<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος ΑΦΜ 1001001002 Ελεγτής Επ 1<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001008">Φουρής Αγαμέμνων ΑΦΜ 1001001008 Ελεγτής Επ 2<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης ΑΦΜ 1001001004 Πανεπιστήμιο που καταχωρεί προσόντα<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης ΑΦΜ 1001001004 Διόρθωση Γενικών Προσόντων<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία ΑΦΜ 1001001005 Διόρθωση Κενών Μουσικού Αλίμου<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001007">Πασχαλίδης Ορέστης ΑΦΜ 1001001006 Διόρθωση Ρόλων<hr></a>
+          <a href="https://www.msa-apps.com/taxis.php">Taxis Login<hr></a>
         </p>
       </div>
       <div class="dropdown-item">
         <p>
-          <a href="https://www.msa-apps.com/taxis.php">Taxis Login<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001001">Παπαδόπουλος Νίκος Υποψήφιος<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος Ελεγτής Επ 1<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001008">Φουρής Αγαμέμνων  Ελεγτής Επ 2<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης Πανεπιστήμιο που καταχωρεί προσόντα<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης  Κατασκευή Διαγωνισμού<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης  Διόρθωση Γενικών Προσόντων<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία Διόρθωση Κενών Μουσικού Αλίμου<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001007">Πασχαλίδης Ορέστης Διόρθωση Ρόλων<br><br></a>
         </p>
       </div>
       

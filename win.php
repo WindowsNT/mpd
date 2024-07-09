@@ -44,9 +44,13 @@ while ($co = $completed->fetchArray())
 
 
 $changed = 0;
+
+
 $place_query = QQ("SELECT * FROM PLACES WHERE CID = ?",array($req['cid']));
 while($place = $place_query->fetchArray())
 {
+    if (!array_key_exists("run",$req))
+        break;
     $position_query = QQ("SELECT * FROM POSITIONS WHERE CID = ? AND PLACEID = ?",array($req['cid'],$place['ID']));
     while($position = $position_query->fetchArray())
     {
@@ -57,7 +61,7 @@ while($place = $place_query->fetchArray())
 
         // collect aithseis
         $apps = array();
-        $app_query = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$place['ID'],$position['ID']));
+        $app_query = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ? ORDER BY FORCERESULT DESC",array($req['cid'],$place['ID'],$position['ID']));
         while($app = $app_query->fetchArray())
         {
             if ($app['INACTIVE'] == 1)
@@ -71,13 +75,25 @@ while($place = $place_query->fetchArray())
             if ($pref == 0)
                 continue; // duh
 
-            if ($pref < $checking_prefefence)
+            if ($pref < $checking_prefefence && $app['FORCERESULT'] == 0)
                 continue;
+
+            if ($app['FORCERESULT'] == $position['ID'])
+            {
+                // Run now
+                QQ("INSERT INTO WINTABLE (CID,PID,POS,UID,AID) VALUES(?,?,?,?,?)",array(
+                    $req['cid'],$place['ID'],$position['ID'],$app['UID'],$app['ID']
+                ));
+                $changed++;
+                $exu[] = $app['UID'];
+                $apps = array();
+                break;
+            }
 
             $apps [] = array("uid" => $app['UID'],"app" => $app,"appid" => $app['ID'],"pref" => $pref,"score" => ScoreForAitisi($app['ID']));            
         }
 
-        // sort by moria
+          // sort by moria
           if (count($apps) == 0) continue;
           usort($apps, "moria_sort");
           $app = $apps[0];
@@ -88,7 +104,8 @@ while($place = $place_query->fetchArray())
                 $req['cid'],$place['ID'],$position['ID'],$app['uid'],$app['appid']
             ));
             $changed++;
-          }
+            $exu[] = $app['uid'];
+        }
     }
     
 }
@@ -124,9 +141,9 @@ while($place = $place_query->fetchArray())
     echo '</tbody></table>';
     printf("Εκτελέστηκαν: %s<br>",$changed);
 
-    if ($changed == 0)
+    if ($changed == 0 && array_key_exists("run",$req))
         $checking_prefefence++;
-    printf('<button class="autobutton is-primary button" href="win.php?&cid=%s&pref=%s">Continue</button> ',$req['cid'],$checking_prefefence);
+    printf('<button class="autobutton is-primary button" href="win.php?&cid=%s&pref=%s&run=1">Continue PREF = %s</button> ',$req['cid'],$checking_prefefence,$checking_prefefence);
     printf('<button class="sureautobutton is-danger button" href="win.php?&cid=%s&reset=1">Reset</button>',$req['cid']);
 
 ?>
