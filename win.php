@@ -78,7 +78,11 @@ while($place = $place_query->fetchArray())
             if ($pref < $checking_prefefence && $app['FORCERESULT'] == 0)
                 continue;
 
-            if ($app['FORCERESULT'] == $position['ID'])
+            if ($app['FORCERESULT'] == -1)
+                continue;
+
+
+            if ($app['FORCERESULT'] == 1)
             {
                 // Run now
                 QQ("INSERT INTO WINTABLE (CID,PID,POS,UID,AID) VALUES(?,?,?,?,?)",array(

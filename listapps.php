@@ -90,10 +90,14 @@ while($r1 = $q1->fetchArray())
         printf('<button class="is-link is-small button block" onclick="changescore(%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$r1['ID']);
     else
         printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s);">%s</button> ',$req['cid'],$r1['ID'],$r1['FORCEDMORIA']);
-    if ($r1['FORCERESULT'] == 0)
-        printf('<button class="is-link is-small button block" onclick="changeresult(%s,%s);">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$r1['ID']);
+
+    if ($r1['FORCERESULT'] == 1)
+        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&aid=%s&result=-1">Ναι</button> ',$req['cid'],$r1['ID']);
     else
-        printf('<button class="is-danger is-small button block" onclick="resetresult(%s,%s);">%s</button> ',$req['cid'],$r1['ID'],$r1['FORCERESULT']);
+    if ($r1['FORCERESULT'] == -1)
+        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$r1['ID']);
+    else
+        printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$r1['ID']);
     printf('</td>');
     printf('</tr>');
 
