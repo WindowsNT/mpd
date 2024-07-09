@@ -44,6 +44,17 @@ if (array_key_exists("backup",$req))
     die;
 }
 
+
+function get_dir_size($directory){
+    $size = 0;
+    $files = glob($directory.'/*');
+    foreach($files as $path){
+        is_file($path) && $size += filesize($path);
+        is_dir($path)  && $size += get_dir_size($path);
+    }
+    return $size;
+} 
+
 if (array_key_exists("backupfiles",$req))
 {
     try
@@ -55,7 +66,7 @@ if (array_key_exists("backupfiles",$req))
         $f = scandir("./files");
         foreach($f as $file)
         {
-            if ($file == "." || $file == "..")
+            if (is_dir(($file)))
                 continue;
             $zip->addFile("./files/".$file,$file);
         }
@@ -80,7 +91,7 @@ if (array_key_exists("fileclean",$req))
     $f = scandir("./files");
     foreach($f as $file)
     {
-        if ($file == "." || $file == "..")
+        if (is_dir(($file)))
             continue;
         $q1 = Single("PROSONFILE","CLSID",$file);
         if (!$q1)
@@ -98,6 +109,6 @@ printf('<button class="button autobutton  is-danger block" href="index.php">Πί
 printf('<hr>');
 
 printf('<a class="button  is-primary block" href="superadmin.php?backup=1">Backup</a> ');
-printf('<a class="button  is-primary block" href="superadmin.php?backupfiles=1">Backup Προσόντων</a> ');
+printf('<a class="button  is-primary block" href="superadmin.php?backupfiles=1">Backup Προσόντων [%.2f MB]</a> ',get_dir_size("./files")/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?vacuum=1">Vacuum [%.2f MB]</button> ',filesize($dbxx)/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?fileclean=1">File Cleanup</button> ');
