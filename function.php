@@ -770,7 +770,7 @@ function PrintContests($uid)
 
 function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
 {
-    global $xmlp;
+    global $xmlp,$required_check_level;
     EnsureProsonLoaded();
 
 
@@ -858,7 +858,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         $s .= sprintf('<td>');
         if ($r1['STATE'] == 0) $s .= 'Αναμονή';
         if ($r1['STATE'] < 0) $s .= sprintf('Απόρριψη<br>%s',$r1['FAILREASON']);
-        if ($r1['STATE'] >= 1) $s .= sprintf('Έγκριση Επίπεδο %s',$r1['STATE']);
+        if ($r1['STATE'] >= 1) $s .= sprintf('Έγκριση<br>Επίπεδο %s %s',$r1['STATE'],$r1['STATE'] < $required_check_level ? "<br><br>[Απαιτείται επίπεδο έγκρισης $required_check_level" : '');
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
         if ($veruid)
@@ -874,7 +874,10 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         }
         else
         {
-            $s .= sprintf('<button class="autobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
+            if ($r1['STATE'] > 0)
+                $s .= sprintf('<button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
+            else
+                $s .= sprintf('<button class="autobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
         }
         $s .= sprintf('</td>');
 
@@ -975,6 +978,8 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 
                     if (strstr($rex3[1],'$value'))
                     {
+                        if ($pv == '')
+                            $pv = 0;
                         $x = str_replace('$value',$pv,$rex3[1]);
                         try
                         {

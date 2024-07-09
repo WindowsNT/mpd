@@ -302,6 +302,7 @@ while($r1 = $q1->fetchArray())
     printf('</td>');
     printf('<td>');
 
+    
     printf('<button class="is-small is-primary button" onclick="editx(%s,%s,%s,\'%s\',%s,%s,\'%s\');">Επεξεργασία</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$r1['PROSONTYPE'],$r1['SCORE']);
     printf('<button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID']);
     printf('</td>');

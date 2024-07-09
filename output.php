@@ -83,7 +83,7 @@ function goblank(q)
   win.focus();
   }
 
-  function AutoBu()
+function AutoBu()
 {
   
   $(".sureautobutton").click(function()
