@@ -68,7 +68,7 @@ if (!$contestrow)
 
 if (!array_key_exists("pid",$req))
     {
-    echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <hr>';
+    echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>';
     printf("%s<hr>Επιλέξτε φορέα που σας ενδιαφέρει:",$contestrow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -103,7 +103,7 @@ if (!$placerow)
 
 if (!array_key_exists("pos",$req))
     {
-    printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <hr>',$contestrow['ID']);
+    printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>',$contestrow['ID']);
     printf("%s<br>%s<hr>Επιλέξτε θέση που σας ενδιαφέρει:",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -156,7 +156,7 @@ if (array_key_exists("aid",$req))
 
 if (!array_key_exists("aid",$req))
     {
-        printf('<button href="applications.php?cid=%s&pid=%s" class="autobutton button is-danger">Πίσω</button> <hr>',$contestrow['ID'],$placerow['ID']);
+        printf('<button href="applications.php?cid=%s&pid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>',$contestrow['ID'],$placerow['ID']);
         printf("%s<br>%s<br>%s<hr>",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION'],$posrow['DESCRIPTION']);
 
     $app = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? AND CID = ? AND PID = ? AND POS = ?",array(

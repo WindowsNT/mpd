@@ -188,7 +188,6 @@ XML;
 
 $xmlp = null;
 $xml_proson = '';
-$first_pref_score = 2;
 
 function QQZ_SQLite($dbs,$q,$arr = array(),$stmtx = null)
 {
@@ -360,6 +359,9 @@ function PrepareDatabase($msql = 0)
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,ROLE_GLOBALPROSONEDITOR)");
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
     $u4Id = $lastRowID;
+
+    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u8@example.org','1001001008','ΦΟΥΡΗΣ','ΑΓΑΜΕΜΝΩΝ',?)",array(guidv4()));
+
     $rparam1 = '<root>
     <classes>
         <c n="1" t="Πτυχία Πανεπιστημίου" >
@@ -766,7 +768,7 @@ function PrintContests($uid)
     return $s;
 }
 
-function PrintProsonta($uid,$veruid = 0,$rolerow = null)
+function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
 {
     global $xmlp;
     EnsureProsonLoaded();
@@ -786,6 +788,9 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
 
             
     $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ",array($uid));
+    if ($rolerow)
+        $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ORDER BY STATE",array($uid));
+
     while($r1 = $q1->fetchArray())
     {
         $s .= sprintf('<tr>');
@@ -858,8 +863,10 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null)
         $s .= sprintf('<td>');
         if ($veruid)
         {
-
-            if ($r1['STATE'] == 0) 
+            $CanModify = 0;
+            if ($r1['STATE'] == ($level - 1))
+               $CanModify = 1;
+            if ($CanModify) 
             {
                 $s .= sprintf('<button class="block sureautobutton button is-small is-success" href="check.php?t=%s&approve=%s">Έγκριση</button> ',$rolerow['ID'],$r1['ID']);
                 $s .= sprintf('<button class="block button is-small is-danger" onclick="rejectproson(%s,%s);">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
@@ -938,13 +945,14 @@ $rejr = '';
 
 function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 {
+    global $required_check_level;
     $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($reqid))->fetchArray();
     if (!$reqrow)
         return -1;
 
 
     $rex = explode("|||",$reqrow['REGEXRESTRICTIONS'] ? $reqrow['REGEXRESTRICTIONS'] : '');
-    $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$reqrow['PROSONTYPE']));
+    $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$reqrow['PROSONTYPE'],$required_check_level));
     while($r = $q->fetchArray())
     {
         $fail = 0;
@@ -1091,112 +1099,6 @@ require_once "push3.php";
 function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
 {
     return CalculateScore($uid,$cid,$placeid,$posid,$debug);
-/*    global $rejr,$xmlp;
-    EnsureProsonLoaded();
-    $pr = QQ("SELECT * FROM USERS WHERE ID = ?",array($uid))->fetchArray();
-    if (!$pr)
-        return -1;
-    $contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
-    if (!$contestrow)
-        return -1;
-    $posr = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($posid))->fetchArray();
-    $score = 0;
-
-    // Has general contest
-    $thesiname = '';
-    if ($posr)
-        $thesiname = $posr['DESCRIPTION'];
-    $CountGeneral = QQ("SELECT COUNT(*) FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname))->fetchArray()[0];
-    if ($CountGeneral && $thesiname != '')
-        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname));
-    else
-        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
-    while($r1 = $q1->fetchArray())
-    {
-        $sp = $r1['SCORE'];
-        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-
-        if ($rootc)
-            $params_root = $rootc->params;
-        if ($params_root)
-            {
-                foreach($params_root->p as $param)
-                {
-                    $pa = $param->attributes();                              
-                    $partypes[(int)$pa['id']] = $pa['t'];                       
-                }    
-            }
-        $wouldeval = 0;
-        if (strstr($sp,'$values'))
-        {
-            $wouldeval = 1;
-            $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$r1['PROSONTYPE']));
-            while($rpr = $qpr->fetchArray())
-            {
-                $pars = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($rpr['ID']));
-                while($par = $pars->fetchArray())
-                {
-                    $p_idx = $par['PIDX'];
-                    $p_val = $par['PVALUE'];
-
-                    // Check if it's date
-
-                    if ($partypes[$p_idx] == 3)
-                    {
-                        $startwhen = $rpr['STARTDATE'];
-                        $now = time();
-                        if ($now > $startwhen)
-                        {
-                            $a1 = From360ToActual($p_val);
-                            $a1 += ($now - $startwhen);
-                            $p_val = FromActualTo360($a1);
-                        }
-                    }
-                    if ($p_val == '') $p_val = 0;
-                    $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
-                }
-            }
-            if (strstr($sp,'$values'))
-                $sp = 0;
-            else
-                $sp = eval($sp);
-        }
-        $has = ProsonResolutAndOrNot($uid,$r1['ID']);
-        if ($has == 1)
-            {
-                if ($debug)
-                    {
-                        if ($sp > 0)
-                            printf("%s: %s<br>",$rootc->attributes()['t'],$sp);
-                    }
-                $score += $sp;
-                continue;
-            }
-        if ($sp > 0 || $wouldeval == 1)
-            continue; // not required
-        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-        $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s',$rootc->attributes()['t']);
-        return -1;
-    }
-
-
-    if ($posid)
-    {
-        $v = ScoreForThesi($uid,$cid,$placeid,0,$debug);;
-        if ($v == -1)
-            return -1;
-        $score += $v;
-    }
-    else
-    if ($placeid)
-    {
-        $v =  ScoreForThesi($uid,$cid,0,0,$debug);
-        if ($v == -1)
-            return -1;
-        $score += $v;
-    }
-
-    return $score;*/
 }   
 
 

@@ -35,7 +35,7 @@ if (array_key_exists("c",$_POST))
         die;
 
     if ($_POST['ROLE'] == ROLE_CHECKER)
-        $params = sprintf('{"afms":[%s]}',$_POST['ROLEPARAMS']);
+        $params = sprintf('{"afms":[%s],"level":%s}',$_POST['ROLEPARAMS'],$_POST['LEVEL']);
     if ($_POST['ROLE'] == ROLE_CREATOR)
         $params = sprintf('{"contests":[%s]}',$_POST['ROLEPARAMS']);
     if ($_POST['ROLE'] == ROLE_FOREASSETPLACES)
@@ -72,7 +72,7 @@ function ViewOrEdit($cid,$t = 0)
 {
     $items = QQ("SELECT * FROM ROLES WHERE ID = ?",array($cid))->fetchArray();
     $defp = '';
-    if ($t == ROLE_CHECKER) $defp = '{"afms":[]}';
+    if ($t == ROLE_CHECKER) $defp = '{"afms":[],"level":1}';
     if ($t == ROLE_CREATOR) $defp = '{"contests":[]}';
     if ($t == ROLE_UNI) $defp = '{"restriction":""}';
     if ($t == ROLE_GLOBALPROSONEDITOR) $defp = '';
@@ -84,6 +84,7 @@ function ViewOrEdit($cid,$t = 0)
     $jitems = array();
     if ($items['ROLEPARAMS'])
         $jitems = json_decode($items['ROLEPARAMS']);
+
     ?>
     <br><br><br>
     <form method="POST" action="roleeditor.php">
@@ -110,6 +111,7 @@ function ViewOrEdit($cid,$t = 0)
         if($items['ROLE'] == ROLE_CHECKER)
         {
             printf('<label for="ROLEPARAMS">Λίστα ΑΦΜ χωρισμένα με κόμμα:</label><input type="text" class="input" id="ROLEPARAMS" name="ROLEPARAMS" value="%s" />',implode(",",$jitems->afms));
+            printf('<label for="LEVEL">Επίπεδο ελέγχου:</label><input type="number" class="input" id="LEVEL" name="LEVEL" value="%s" />',$jitems->level);
         }
         if($items['ROLE'] == ROLE_CREATOR)
         {

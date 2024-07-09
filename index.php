@@ -100,7 +100,8 @@ else
       <div class="dropdown-item">
         <p>
           <a href="auth.php?redirect=index.php&afm2=1001001001">Παπαδόπουλος Νίκος ΑΦΜ 1001001001 Υποψήφιος<hr></a>
-          <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος Νίκος ΑΦΜ 1001001002 Ελεγτής<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001002">Γεωργίου Βασίλειος ΑΦΜ 1001001002 Ελεγτής Επ 1<hr></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001008">Φουρής Αγαμέμνων ΑΦΜ 1001001008 Ελεγτής Επ 2<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001004">Παπάζογλου Μιχάλης ΑΦΜ 1001001004 Πανεπιστήμιο που καταχωρεί προσόντα<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001003">Νικολάου Παναγιώτης ΑΦΜ 1001001003 Κατασκευή Διαγωνισμού<hr></a>
           <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης ΑΦΜ 1001001004 Διόρθωση Γενικών Προσόντων<hr></a>

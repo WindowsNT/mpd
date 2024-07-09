@@ -2,7 +2,7 @@
 
 function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
 {
-    global $rejr,$xmlp;
+    global $rejr,$xmlp,$required_check_level;
     EnsureProsonLoaded();
     $pr = QQ("SELECT * FROM USERS WHERE ID = ?",array($uid))->fetchArray();
     if (!$pr)
@@ -75,7 +75,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
             {
                 $sp = $r1['SCORE'];
                 $deeps = $deep;
-                $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE > 0",array($uid,$r1['PROSONTYPE']));
+                $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$r1['PROSONTYPE'],$required_check_level));
                 while($rpr = $qpr->fetchArray())
                 {
                     if ($deeps > 0)
