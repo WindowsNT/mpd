@@ -410,7 +410,7 @@ else
 
 
 
-$xml_proson_row = QQ("SELECT * FROM GLOBALXML WHERE ID = 1")->fetchArray();
+$xml_proson_row = Single("GLOBALXML","ID",1);
 if ($xml_proson_row)
  $xml_proson = $xml_proson_row['XML'];
 else
@@ -478,21 +478,24 @@ function HasPlaceAccessForKena($pid,$uid)
     return false;
 }
 
-function eval2($e)
+
+function eval2($e,$uid = 0,$cid = 0,$placeid = 0,$posid = 0)
 {
     try {
         return eval($e);
     } 
     catch (ParseError $t) 
     {
+        echo '<i>'.$t->getMessage().'</i><br>';
         return false;
     }
 }
 
+
 function HasContestAccess($cid,$uid,$wr = 0) 
 {
     global $superadmin; if ($superadmin) return true;
-    $crow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+    $crow = Single("CONTESTS","ID",$cid);
     if (!$crow)
         return false;
     $j = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($uid,ROLE_CREATOR));
@@ -549,7 +552,7 @@ function From360ToActual($v)
 function HasProsonAccess($pid,$uid,$wr = 0)
 {
     global $superadmin; if ($superadmin) return true;
-    $pr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($pid))->fetchArray();
+    $pr = Single("PROSON","ID",$pid);
     if (!$pr)
         return false;
     if ($pr['UID'] == $uid)
@@ -557,7 +560,7 @@ function HasProsonAccess($pid,$uid,$wr = 0)
     if ($wr == 1)
         return false;
 
-    $belongsto = QQ("SELECT * FROM USERS WHERE ID = ?",array($pr['UID']))->fetchArray();
+    $belongsto = Single("USERS","ID",$pr['UID']);
     if (!$belongsto)
         return false;
 
@@ -633,7 +636,7 @@ function HasProsonAccess($pid,$uid,$wr = 0)
 
 function HasFileAccess($fid,$uid,$wr = 0)
 {
-    $pr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($fid))->fetchArray();
+    $pr = Single("PROSONFILE","ID",$fid);
     if (!$pr)
         return false;
     return HasProsonAccess($pr['PID'],$uid,$wr);
@@ -920,7 +923,7 @@ function DeleteProsonFile($id,$uid = 0)
     if ($uid)
         $e = QQ("SELECT * FROM PROSONFILE WHERE ID = ? AND UID = ?",array($id,$uid))->fetchArray();
     else
-        $e = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($id))->fetchArray();
+        $e = Single("PROSONFILE","ID",$id);
     if (!$e)
         return false;
 
@@ -934,11 +937,11 @@ function DeleteProson($id,$uid = 0)
     if ($uid)
         $e = QQ("SELECT * FROM PROSON WHERE ID = ? AND UID = ?",array($id,$uid))->fetchArray();
     else
-        $e = QQ("SELECT * FROM PROSON WHERE ID = ?",array($id))->fetchArray();
+        $e = Single("PROSON","ID",$id);
     if (!$e)
         return;
 
-    $q1 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($id));
+    $q1 = Single("PROSONFILE","PID",$id); 
     while($r1 = $q1->fetchArray())
     {
         DeleteProsonFile($r1['ID'],$uid);
@@ -970,7 +973,7 @@ $rejr = '';
 function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 {
     global $required_check_level;
-    $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($reqid))->fetchArray();
+    $reqrow = Single("REQS2","ID",$reqid);
     if (!$reqrow)
         return -1;
 
@@ -1004,14 +1007,14 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
                         $x = str_replace('$value',$pv,$rex3[1]);
                         try
                         {
-                        $res = eval2($x);
-                        if ($res == true)
+                            $res = eval2($x,$uid);
+                            if ($res == true)
                             {
                                 $fail = 0;
                                 break;
                             }
                             else
-                            $reason = $x;
+                                $reason = $x;
                         }
                         catch(Exception $e)
                         {
@@ -1046,7 +1049,7 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 
 function AppPreference($apid)
 {
-    $apr = QQ("SELECT * FROM APPLICATIONS WHERE ID = ?",array($apid))->fetchArray();
+    $apr = Single("APPLICATIONS","ID",$apid);
     if (!$apr)
         return 0;
     $e = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? ORDER BY DATE ASC",array($apr['UID']));
@@ -1064,7 +1067,7 @@ function ScoreForAitisi($apid)
 {
     global $first_pref_score;
     $score = 0;
-    $apr = QQ("SELECT * FROM APPLICATIONS WHERE ID = ?",array($apid))->fetchArray();
+    $apr = Single("APPLICATIONS","ID",$apid);
     if (!$apr)
         return -1;
 
@@ -1118,7 +1121,149 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason 
 
 }
 
-require_once "score.php";
+function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
+{
+    global $rejr,$xmlp,$required_check_level;
+    EnsureProsonLoaded();
+    $pr = Single("USERS","ID",$uid);
+    if (!$pr)
+        return -1;
+    $contestrow = Single("CONTESTS","ID",$cid); 
+    if (!$contestrow)
+        return -1;
+    $posr = Single("POSITIONS","ID",$posid); 
+    $score = 0;
+
+
+
+    // If we have a posid, search for generic by thesi name
+    // else we search for generic
+    $thesiname = '';
+    if ($posr)
+        $thesiname = $posr['DESCRIPTION'];
+    $CountGeneral = QQ("SELECT COUNT(*) FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname))->fetchArray()[0];
+    if ($CountGeneral && $thesiname != '')
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND FORTHESI = ?",array($cid,$thesiname));
+    else
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
+    while($r1 = $q1->fetchArray())
+    {
+        $sp = $r1['SCORE'];
+        $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+        if ($rootc)
+            $params_root = $rootc->params;
+        if ($params_root)
+            {
+                foreach($params_root->p as $param)
+                {
+                    $pa = $param->attributes();                              
+                    $partypes[(int)$pa['id']] = $pa['t'];                       
+                }    
+            }
+        $wouldeval = 0;
+        if (strstr($sp,'$values'))
+        {
+            $wouldeval = 1;
+        }
+
+        $min_needed = 1;
+        if ((int)$r1['MINX'] > 0)
+            $min_needed = (int)$r1['MINX'];
+        $max_needed = 0;
+        if ((int)$r1['MAXX'] > 0)
+            $max_needed = (int)$r1['MAXX'];
+
+        for($deep = 0 ; ; $deep++)
+        {
+            if ($deep > 0 && $max_needed > 0 && $deep >= $max_needed)
+                break;
+            $checked = array();
+            $reason = '';
+
+            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason);
+
+            if ($has != 1)
+            {
+                if ($sp > 0 || $wouldeval == 1 || $deep >= $min_needed)
+                    break; // not required
+                $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
+                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s x%s',$rootc->attributes()['t'],$reason,$min_needed);
+                return -1;    
+            }
+
+            // He has it, 
+            if ($wouldeval)
+            {
+                $sp = $r1['SCORE'];
+                $deeps = $deep;
+                $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$r1['PROSONTYPE'],$required_check_level));
+                while($rpr = $qpr->fetchArray())
+                {
+                    if ($deeps > 0)
+                    {
+                        $deeps--;
+                        continue;
+                    }
+                    $pars = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($rpr['ID']));
+                    while($par = $pars->fetchArray())
+                    {
+                        $p_idx = $par['PIDX'];
+                        $p_val = $par['PVALUE'];
+
+                        // Check if it's date
+                        if ($partypes[$p_idx] == 3)
+                        {
+                            $startwhen = $rpr['STARTDATE'];
+                            $now = time();
+                            if ($now > $startwhen)
+                            {
+                                $a1 = From360ToActual($p_val);
+                                $a1 += ($now - $startwhen);
+                                $p_val = FromActualTo360($a1);
+                            }
+                        }
+                        if ($p_val == '') $p_val = 0;
+                        $sp = str_replace(sprintf('$values[%s]',$p_idx),$p_val,$sp);
+                    }
+                }
+                if (strstr($sp,'$values'))
+                    $sp = 0;
+                else
+                    $sp = eval2($sp,$uid,$cid,$placeid,$posid);
+            }
+
+        if ($debug)
+            {
+                if ($sp > 0)
+                    printf("%s: %s<br>",$rootc->attributes()['t'],$sp);
+            }
+        $score += $sp;
+        }
+
+        
+    }
+
+
+    if ($posid)
+    {
+        $v = CalculateScore($uid,$cid,$placeid,0,$debug);;
+        if ($v == -1)
+            return -1;
+        $score += $v;
+    }
+    else
+    if ($placeid)
+    {
+        $v =  CalculateScore($uid,$cid,0,0,$debug);
+        if ($v == -1)
+            return -1;
+        $score += $v;
+    }
+
+    return $score;
+
+}
+
 $push3_admin = 1;
 require_once "push3.php";
 

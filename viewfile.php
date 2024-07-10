@@ -19,7 +19,7 @@ if (!array_key_exists("f",$_GET))
 $uid = $ur['ID'];
 if (!HasFileAccess($req['f'],$uid,0))
     die;
-$fr = QQ("SELECT * FROM PROSONFILE WHERE ID = ?",array($req['f']))->fetchArray();
+$fr = Single("PROSONFILE","ID",$req['f']);
 
 
 $d = file_get_contents("files/{$fr['CLSID']}");

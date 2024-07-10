@@ -11,7 +11,7 @@ if (!$afm || !$ur)
         die;
     }
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
+$rolerow = Single("ROLES","ID",$req['t']);
 if ($rolerow['UID'] != $ur['ID'])
 {
     redirect("index.php");

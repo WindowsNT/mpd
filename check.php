@@ -11,7 +11,7 @@ if (!$afm || !$ur)
     }
 
 if ($superadmin)
-    $role = QQ("SELECT * FROM ROLES WHERE ID = ?",array($_GET['t']))->fetchArray();
+    $role = Single("ROLE","ID",$_GET['t']);
 else
     $role = QQ("SELECT * FROM ROLES WHERE ID = ? AND UID = ?",array($_GET['t'],$ur['ID']))->fetchArray();
 if (!$role)
@@ -29,7 +29,7 @@ if (array_key_exists("level",$params))
 
 if (array_key_exists("approve",$_GET))
 {
-    $prr = QQ("SELECT * FROM PROSON WHERE ID = ?",array($_GET['approve']))->fetchArray();
+    $prr = Single("PROSON","ID",$_GET['approve']);
     $acc = HasProsonAccess($prr['UID'],$ur['ID']);
     if ($acc)
         {

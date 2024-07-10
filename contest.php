@@ -62,7 +62,7 @@ if (array_key_exists("editplace",$_POST))
 
 if (array_key_exists("editplace",$_GET))
 {
-    $pr = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+    $pr = Single("PLACES","ID",$req['pid']);
     ?>
 
     <form method="POST" action="contest.php">
@@ -112,7 +112,7 @@ function ViewOrEdit($cid)
     if ($cid)
         {
             if ($superadmin)
-                $items = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray();
+                $items = Single("CONTESTS","ID",$cid);
             else
                 $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
         }

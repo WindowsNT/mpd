@@ -26,7 +26,7 @@ if (!HasContestAccess($req['cid'],$ur['ID'],1))
 
 //*
 
-$placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($req['pid']))->fetchArray();
+$placerow = Single("PLACES","ID",$req['pid']);
 if (!$placerow)
 {
     redirect("index.php");
@@ -42,7 +42,7 @@ if (array_key_exists("movefromglobal",$_GET))
 {
     // cid contest, pid place, movefromglobal pos
     QQ("BEGIN TRANSACTION");
-    $prosonrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($_GET['movefromglobal']))->fetchArray();
+    $prosonrow = Single("POSITIONS","ID",$req['movefromglobal']); 
     if ($prosonrow)
     {
         $globalrow = QQ("SELECT * FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$prosonrow['DESCRIPTION']));
@@ -55,7 +55,7 @@ if (array_key_exists("movefromglobal",$_GET))
 
         foreach($dups as $k => $newid)
         {
-            $old_row = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($k))->fetchArray();
+            $old_row = Single("REQS","ID",$k);
 
             if (!$old_row || !$newid)
                 continue;
@@ -176,7 +176,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 
         <label for="DESCRIPTION">Θέση:</label>
         <?php
-        $grouprow = QQ("SELECT * FROM POSITIONGROUPS WHERE CID = ?",array($req['cid']))->fetchArray();
+        $grouprow = Single("POSITIONGROUPS","CID",$req['cid']); 
         if ($grouprow)
         {
             echo '<select name="DESCRIPTION" class="input">';

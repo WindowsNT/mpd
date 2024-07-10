@@ -46,8 +46,8 @@ if (!array_key_exists("cid",$req))
         $q2 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']));
         while($r2 = $q2->fetchArray())
         {
-            $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($r2['PID']))->fetchArray();
-            $posrow = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($r2['POS']))->fetchArray();
+            $placerow = Single("PLACES","ID",$r2['PID']);
+            $posrow = Single("POSITIONS","ID",$r2['POS']);
             printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),ApplicationProtocol($r2),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r2['ID']));
         }
         printf('</td>');

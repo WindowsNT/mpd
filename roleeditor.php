@@ -70,7 +70,7 @@ printf('<button href="index.php" class="autobutton button  is-danger">Πίσω</
 
 function ViewOrEdit($cid,$t = 0)
 {
-    $items = QQ("SELECT * FROM ROLES WHERE ID = ?",array($cid))->fetchArray();
+    $items = Single("ROLES","ID",$cid);
     $defp = '';
     if ($t == ROLE_CHECKER) $defp = '{"afms":[],"level":1}';
     if ($t == ROLE_CREATOR) $defp = '{"contests":[]}';
@@ -192,7 +192,7 @@ while($r2 = $q2->fetchArray())
     printf('<tr>');
     printf('<td>%s</td>',$r2['ID']);
     printf('<td>%s</td>',$r2['UID']);
-    $urr = QQ("SELECT * FROM USERS WHERE ID = ?",array($r2['UID']))->fetchArray();
+    $urr = Single("USERS","ID",$r2['UID']);
     printf('<td>%s %s</td>',$urr['LASTNAME'],$urr['FIRSTNAME']);
     printf('<td>%s %s</td>',$r2['ROLE'],RoleToText($r2['ROLE']));
     printf('<td>%s</td>',substr($r2['ROLEPARAMS'] ? $r2['ROLEPARAMS'] : '',0,50));

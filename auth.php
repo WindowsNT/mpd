@@ -40,13 +40,13 @@ if (array_key_exists("oauth2_results",$_SESSION))
 
 
 
-$ur = QQ("SELECT * FROM USERS WHERE AFM = ?",array($afm))->fetchArray();
+$ur = Single("USERS","AFM",$afm);
 if (!$ur && $afm != 0)
     {
         QQ("INSERT INTO USERS (AFM,LASTNAME,FIRSTNAME,CLSID) VALUES(?,?,?,?)",array(
             $afm,$taxis_ln,$taxis_fn,guidv4(),
         ));
-        $ur = QQ("SELECT * FROM USERS WHERE AFM = ?",array($afm))->fetchArray();
+        $ur = Single("USERS","AFM",$afm);
     }
 $superadmin = 0;
 if ($afm == "114789033")

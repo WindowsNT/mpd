@@ -13,7 +13,7 @@ if (!$afm || !$ur)
     }
 
 
-$cidrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
+$cidrow = Single("CONTESTS","ID",$req['cid']);
 if (!$cidrow)
 {
     redirect("index.php");
@@ -70,11 +70,11 @@ EnsureProsonLoaded();
 $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ?",array($req['cid']));
 while($r1 = $q1->fetchArray())
 {
-    $ur = QQ("SELECT * FROM USERS WHERE ID = ?",array($r1['UID']))->fetchArray();
+    $ur = Single("USERS","ID",$r1['UID']);
     if (!$ur)
         continue;
-    $fr = QQ("SELECT * FROM PLACES WHERE ID = ?",array($r1['PID']))->fetchArray();
-    $pr = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($r1['POS']))->fetchArray();
+    $fr = Single("PLACES","ID",$r1['PID']);
+    $pr = Single("POSITIONS","ID",$r1['POS']);
     printf('<tr>');
     printf('<td>%s</td>',$r1['ID']);
     printf('<td>%s %s</td>',$ur['LASTNAME'],$ur['FIRSTNAME']);

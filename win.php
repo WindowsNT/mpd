@@ -24,7 +24,7 @@ if (array_key_exists("reset",$req))
     redirect(sprintf("contest.php",$req['cid']));
     die;
 }
-$cr = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
+$cr = Single("CONTESTS","ID",$req['cid']);
 
 function moria_sort($a, $b) {
     if ($a['score'] == $b['score']) return 0;
@@ -131,11 +131,11 @@ while($place = $place_query->fetchArray())
     {
         printf('<tr>');
         printf('<td>%s</td>',$r1['ID']);
-        $place = QQ("SELECT * FROM PLACES WHERE ID = ?",array($r1['PID']))->fetchArray();
+        $place = Single("PLACES","ID",$r1['PID']);
         printf('<td>%s</td>',$place['DESCRIPTION']);
-        $position = QQ("SELECT * FROM POSITIONS WHERE ID = ?",array($r1['POS']))->fetchArray();
+        $position = Single("POSITIONS","ID",$r1['POS']); 
         printf('<td>%s</td>',$position['DESCRIPTION']);
-        $person = QQ("SELECT * FROM USERS WHERE ID = ?",array($r1['UID']))->fetchArray();
+        $person = Single("USERS","ID",$r1['UID']);
         printf('<td>%s %s</td>',$person['LASTNAME'],$person['FIRSTNAME']);
         printf('<td>%s</td>',$r1['AID']);
         printf('<td>%s</td>',AppPreference($r1['AID']));

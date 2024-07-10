@@ -11,7 +11,7 @@ if (!$afm || !$ur)
         die;
     }
 
-$rolerow = QQ("SELECT * FROM ROLES WHERE ID = ?",array($req['t']))->fetchArray();
+$rolerow = Single("ROLES","ID",$req['t']);
 if ($rolerow['UID'] != $ur['ID'] && !$superadmin)
 {
     redirect("index.php");
@@ -59,7 +59,7 @@ function PrintList()
             continue;
 
 
-        $ur2 = QQ("SELECT * FROM USERS WHERE ID = ?",array($r1['UID']))->fetchArray();
+        $ur2 = Single("USERS","ID",$r1['UID']);
         if (!$ur2)
             continue;
 
