@@ -175,7 +175,7 @@ if (array_key_exists("regexedit",$req))
             printf('<td>%s</td>',$attrs2['id']);
             printf('<td>%s</td>',$attrs2['n']);
             printf('<td>
-                <textarea type="text" class="input" cols="100" name="reg%s" id="reg%s" >%s</textarea>
+                <textarea type="text" class="textarea" cols="100" rows="3" name="reg%s" id="reg%s" >%s</textarea>
             </td>',$attrs2['id'],$attrs2['id'],$val);
             printf('</tr>');
         }
@@ -373,6 +373,7 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
         $("#e").val(0);
         $("#proson").val(0);
         $("#score").val('');
+        $("#proson").focus();
     }
     function toggleadd2()
     {
@@ -380,8 +381,8 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
         $("#addpos").hide();
     }
 </script>
-
-<div id="addpos1">
+<br>
+<div id="addpos1">    
 <button class="button is-primary" onclick="toggleadd();">Προσθήκη</button>
 </div>
 

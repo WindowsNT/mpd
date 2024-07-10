@@ -217,7 +217,7 @@ function ViewOrEdit($pid,$items)
 
                 }
                 else
-                if (strlen($pa['list']))
+                if ($pa['list'] && strlen($pa['list']))
                 {
                     printf('<label for="param_%s">%s</label><br><select class="input" name="param_%s">',$pa['id'],$pa['n'],$pa['id']);
                     $vv = explode(",",$pa['list']);
