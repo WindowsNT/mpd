@@ -101,7 +101,8 @@ else
     <div class="dropdown-content">
     <div class="dropdown-item">
         <p>
-          <a href="https://www.msa-apps.com/taxis.php">Taxis Login<hr></a>
+          <a href="https://www.msa-apps.com/taxis.php" class="button is-small is-primary block" >Taxis Login</a><br>
+          <a href="bio.php?login" class="button is-small is-link block">Biometric Login<hr></a>
         </p>
       </div>
       <div class="dropdown-item">

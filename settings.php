@@ -20,3 +20,7 @@ if (1)
     Push3_ShowScripts($ur['CLSID'],0);
     echo Push3_ShowOptions($ur['CLSID'],0,0);
 }
+
+?>
+
+<button class="autobutton is-danger button block" href="bio.php">Biometric Login</button>

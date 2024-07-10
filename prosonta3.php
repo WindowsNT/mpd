@@ -293,7 +293,7 @@ while($r1 = $q1->fetchArray())
                     continue;
                 $parname = $ch->attributes()['n'];
                 if ($parname)
-                    $sfinal .= sprintf("%s<br>%s",$parname,$ss3[1]);
+                    $sfinal .= sprintf("%s<br>%s<br><br>",$parname,$ss3[1]);
                 break;
             }
         }
