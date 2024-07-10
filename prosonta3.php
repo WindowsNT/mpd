@@ -21,6 +21,22 @@ $cidrow = null;
 $placerow = null;
 $posrow = null;
 
+if (0)
+{
+    $q1 = QQ("SELECT * FROM REQS2");
+    while($r1 = $q1->fetchArray())
+    {
+        if (!$r1['REGEXRESTRICTIONS'])
+            continue;
+        if (strstr($r1['REGEXRESTRICTIONS'],"##"))
+            continue;
+        $re = explode("||",$r1['REGEXRESTRICTIONS']);
+        $re2 = implode("##",$re);
+        QQ("UPDATE REQS2 SET REGEXRESTRICTIONS = ? WHERE ID = ?",array($re2,$r1['ID']));
+    }
+    die;
+}
+
 
 if (array_key_exists("cid",$req)) { $cid = $req['cid']; $cidrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($cid))->fetchArray(); }
 if (array_key_exists("placeid",$req)) { $placeid = $req['placeid']; $placerow = QQ("SELECT * FROM PLACES WHERE ID = ?",array($placeid))->fetchArray(); }
@@ -161,10 +177,10 @@ if (array_key_exists("regexedit",$req))
 
             $alls = array();
             if ($reqrow['REGEXRESTRICTIONS'] && strlen($reqrow['REGEXRESTRICTIONS']))
-                $alls = explode("|||",$reqrow['REGEXRESTRICTIONS']);
+                $alls = explode("###",$reqrow['REGEXRESTRICTIONS']);
             foreach($alls as $all)
             {
-                $it1 = explode("||",$all);
+                $it1 = explode("##",$all);
                 if ($attrs2['id'] == $it1[0])
                 {
                     $val = $it1[1];
@@ -202,9 +218,9 @@ if (array_key_exists("rexapply",$_POST))
             if (!strlen($v))
                 continue;
             if (strlen($rest))
-                $rest .= '|||';
+                $rest .= '###';
             $rest .= $id;
-            $rest .= '||';
+            $rest .= '##';
             $rest .= $v;
         }
     }
@@ -265,10 +281,10 @@ while($r1 = $q1->fetchArray())
     printf('<td>%s</td>',$s);
 
     $sfinal = '';
-    $s2 = explode("|||",$r1['REGEXRESTRICTIONS'] ? $r1['REGEXRESTRICTIONS'] : '');
+    $s2 = explode("###",$r1['REGEXRESTRICTIONS'] ? $r1['REGEXRESTRICTIONS'] : '');
     foreach($s2 as $ss2)
     {
-        $ss3 = explode("||",$ss2);
+        $ss3 = explode("##",$ss2);
         if (count($ss3) == 2)
         {
             foreach($croot->params->children() as $ch)
@@ -290,7 +306,7 @@ while($r1 = $q1->fetchArray())
     printf('<td>');
     $RexCount = 0;
     if ($r1['REGEXRESTRICTIONS'] && strlen($r1['REGEXRESTRICTIONS']))   
-        $RexCount = count(explode("|||",$r1['REGEXRESTRICTIONS']));
+        $RexCount = count(explode("###",$r1['REGEXRESTRICTIONS']));
 
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Eval %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
     printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
@@ -399,7 +415,7 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
                 <?php echo PrintOptionsProson($xmlp,0,$row['PARAMID']); ?>
             </select><br><br>
             Σκορ (0 = Προαπαιτούμενο):
-            <textarea class="input" id="score" name="SCORE" required></textarea><br><br>
+            <textarea class="textarea" id="score" name="SCORE" required></textarea><br><br>
 
         <button class="button is-success">Υποβολή<button>
     </form>

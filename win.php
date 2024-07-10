@@ -143,7 +143,7 @@ while($place = $place_query->fetchArray())
         printf('</tr>');
     }
     echo '</tbody></table>';
-    printf("Εκτελέστηκαν: %s<br>",$changed);
+    printf("<br><br>Εκτελέστηκαν: %s<br><br>",$changed);
 
     if ($changed == 0 && array_key_exists("run",$req))
         $checking_prefefence++;

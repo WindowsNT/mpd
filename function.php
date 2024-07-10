@@ -987,14 +987,14 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
         return -1;
 
 
-    $rex = explode("|||",$reqrow['REGEXRESTRICTIONS'] ? $reqrow['REGEXRESTRICTIONS'] : '');
+    $rex = explode("###",$reqrow['REGEXRESTRICTIONS'] ? $reqrow['REGEXRESTRICTIONS'] : '');
     $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$reqrow['PROSONTYPE'],$required_check_level));
     while($r = $q->fetchArray())
     {
         $fail = 0;
         foreach($rex as $rex2)
         {
-            $rex3 = explode("||",$rex2);
+            $rex3 = explode("##",$rex2);
             if (count($rex3) != 2)
                 continue;
 
@@ -1342,10 +1342,10 @@ function ProsonDescription($id)
     $s .= sprintf('%s<br>',$attr['t']);
 
 
-    $regex = explode("|||",$r['REGEXRESTRICTIONS']? $r['REGEXRESTRICTIONS'] : '');
+    $regex = explode("###",$r['REGEXRESTRICTIONS']? $r['REGEXRESTRICTIONS'] : '');
     foreach($regex as $r2)
     {
-        $x = explode("||",$r2);
+        $x = explode("##",$r2);
         if (count($x) == 2)
         {
             foreach($croot->params->children() as $ch)
