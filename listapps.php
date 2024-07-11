@@ -59,6 +59,7 @@ printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσ�
 <thead>
     <th class="all">#</th>
     <th class="all">Όνομα</th>
+    <th class="all">Προτίμηση</th>
     <th class="all">Φορέας</th>
     <th class="all">Θέση</th>
     <th class="all">Σκορ</th>
@@ -67,7 +68,7 @@ printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσ�
 <tbody>
 <?php
 EnsureProsonLoaded();
-$q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ?",array($req['cid']));
+$q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? ORDER BY DATE",array($req['cid']));
 while($r1 = $q1->fetchArray())
 {
     $ur = Single("USERS","ID",$r1['UID']);
@@ -78,6 +79,7 @@ while($r1 = $q1->fetchArray())
     printf('<tr>');
     printf('<td>%s</td>',$r1['ID']);
     printf('<td>%s %s</td>',$ur['LASTNAME'],$ur['FIRSTNAME']);
+    printf('<td>%d</td>',AppPreference($r1['ID']));
     printf('<td>%s</td>',$fr['DESCRIPTION']);
     printf('<td>%s</td>',$pr['DESCRIPTION']);
     printf('<td>%s</td>',ScoreForThesi($ur['ID'],$req['cid'],$r1['PID'],$r1['POS']));

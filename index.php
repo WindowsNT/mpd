@@ -84,17 +84,34 @@ if ($afm && $ur)
     }
 else
 {
-  printf('Μητρώο Προσόντων και Διαγωνισμών');
+ 
   $_SESSION['return_msa'] = 'mpd';
     ?>
-  <br>
-  <div class="dropdown is-hoverable">
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+
+  <div class="navbar-brand">
+    <div class="navbar-item">
+      <img src="../shde/icon.svg" />
+  </div>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+
+    <div class="navbar-item">
+
+    <div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
-    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
+    <button class="button is-danger" aria-haspopup="true" aria-controls="dropdown-menu4">
       <span>Login</span>
-      <span class="icon is-small">
-        <i class="fas fa-angle-down" aria-hidden="true"></i>
-      </span>
     </button>
   </div>
   <div class="dropdown-menu" id="dropdown-menu4" role="menu">
@@ -117,11 +134,28 @@ else
           <a href="auth.php?redirect=index.php&afm2=1001001007">Πασχαλίδης Ορέστης Διόρθωση Ρόλων<br><br></a>
         </p>
       </div>
-      
+</div>
     </div>
   </div>
 </div>
-    
+<a class="navbar-item" href="videodemo.php">
+        <button class="button is-link">Video Demo</button>
+      </a>
+
+      <div class="navbar-item" >
+        Μητρώο Προσόντων και Διαγωνισμών
+    </div>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        
+
+      
+      </div>
+    </div>
+  </div>
+</nav>
 <?php
 }
 echo '</div>';

@@ -892,7 +892,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         $s .= sprintf('<td>');
         if ($r1['STATE'] == 0) $s .= 'Αναμονή';
         if ($r1['STATE'] < 0) $s .= sprintf('Απόρριψη<br>%s',$r1['FAILREASON']);
-        if ($r1['STATE'] >= 1) $s .= sprintf('Έγκριση<br>Επίπεδο %s %s',$r1['STATE'],$r1['STATE'] < $required_check_level ? "<br><br>[Απαιτείται επίπεδο έγκρισης $required_check_level" : '');
+        if ($r1['STATE'] >= 1) $s .= sprintf('Έγκριση<br>Επίπεδο %s %s',$r1['STATE'],$r1['STATE'] < $required_check_level ? "<br><br>[Απαιτείται επίπεδο έγκρισης $required_check_level]" : '');
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
         if ($veruid)
