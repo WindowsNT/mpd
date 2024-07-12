@@ -88,7 +88,42 @@ else
   $_SESSION['return_msa'] = 'mpd';
     ?>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
+
+<script src="https://xemantic.github.io/shader-web-background/dist/shader-web-background.min.js"></script>
+<?php
+echo'
+<script type="x-shader/x-fragment" id="Image" >
+precision highp float;
+uniform vec2  iResolution;
+uniform float iTime;
+// ... other needed uniforms
+
+// -- Paste your Shadertoy code here:
+';
+echo file_get_contents("shader.glsl");
+echo '
+// -- End of Shadertoy code
+void main() {
+mainImage(gl_FragColor, gl_FragCoord.xy);
+}
+  </script>';
+?>
+  <script>
+shaderWebBackground.shade({
+shaders: {
+  Image: {
+    uniforms: {
+      iResolution: (gl, loc, ctx) => gl.uniform2f(loc, ctx.width, ctx.height),
+      iTime:       (gl, loc) => gl.uniform1f(loc, performance.now() / 1000),
+    }
+  }
+}
+});
+
+</script>
+
+
+<nav class="navbar" role="navigation" aria-label="main navigation" style="background-color: transparent !important">
 
   <div class="navbar-brand">
     <div class="navbar-item">
@@ -142,9 +177,6 @@ else
         <button class="button is-link">Video Demo</button>
       </a>
 
-      <div class="navbar-item" >
-        Μητρώο Προσόντων και Διαγωνισμών
-    </div>
     </div>
 
     <div class="navbar-end">
@@ -156,6 +188,11 @@ else
     </div>
   </div>
 </nav>
+
+        Μητρώο Προσόντων και Διαγωνισμών
+
 <?php
 }
+
+
 echo '</div>';
