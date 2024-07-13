@@ -846,7 +846,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             $parlist[(int)$pa['id']] = (string)$pa['list'];                       
         }    
 
-        $s .= sprintf('<td>%s - %s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞');
+        $s .= sprintf('<td>%s<br>%s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞');
 
         // Parameters
         $s .= sprintf('<td>');
@@ -951,7 +951,7 @@ function DeleteProson($id,$uid = 0)
     if (!$e)
         return;
 
-    $q1 = Single("PROSONFILE","PID",$id); 
+    $q1 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($id)); 
     while($r1 = $q1->fetchArray())
     {
         DeleteProsonFile($r1['ID'],$uid);
@@ -989,7 +989,8 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
 
 
     $rex = explode("###",$reqrow['REGEXRESTRICTIONS'] ? $reqrow['REGEXRESTRICTIONS'] : '');
-    $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$reqrow['PROSONTYPE'],$required_check_level));
+    $time = time();
+    $q = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ? AND STARTDATE < ? AND (ENDDATE > ? OR ENDDATE = 0)",array($uid,$reqrow['PROSONTYPE'],$required_check_level,$time,$time));
     while($r = $q->fetchArray())
     {
         $fail = 0;
@@ -1206,7 +1207,8 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
             {
                 $sp = $r1['SCORE'];
                 $deeps = $deep;
-                $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ?",array($uid,$r1['PROSONTYPE'],$required_check_level));
+                $time = time();
+                $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ? AND STARTDATE < ? AND (ENDDATE > ? OR ENDDATE = 0)",array($uid,$r1['PROSONTYPE'],$required_check_level,$time,$time));
                 while($rpr = $qpr->fetchArray())
                 {
                     if ($deeps > 0)

@@ -1,9 +1,9 @@
 #define pi 3.14
 #define tao 6.28
 
-#define overbright 0.2
+#define overbright 0.05
 
-#define armCount 3.0
+#define armCount 2.0
 #define armRot 1.9
 
 #define innerColor vec4(2.0,0.5,0.1,1.0)

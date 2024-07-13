@@ -40,17 +40,20 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['STARTDATE']));
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
-        printf('<button class="button is-small is-link autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
         printf('</td>');
+
         printf('<td>');
-        $q2 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']));
-        while($r2 = $q2->fetchArray())
+        $q44 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']));
+        while($r44 = $q44->fetchArray())
         {
-            $placerow = Single("PLACES","ID",$r2['PID']);
-            $posrow = Single("POSITIONS","ID",$r2['POS']);
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r2['CID'],$r2['PID'],$r2['POS'],date("d/m/Y H:i",$r2['DATE']),ApplicationProtocol($r2),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r2['ID']));
+            $placerow = Single("PLACES","ID",$r44['PID']);
+            $posrow = Single("POSITIONS","ID",$r44['POS']);
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
         }
         printf('</td>');
+
+
         printf('</tr>');
 
     }
@@ -68,7 +71,7 @@ if (!$contestrow)
 
 if (!array_key_exists("pid",$req))
     {
-    echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>';
+    echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>';
     printf("%s<hr>Επιλέξτε φορέα που σας ενδιαφέρει:",$contestrow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -76,6 +79,7 @@ if (!array_key_exists("pid",$req))
                 <th class="all">#</th>
                 <th class="all">Περιγραφή</th>
                 <th class="all">Επιλογές</th>
+                <th class="all">Αιτήσεις</th>
             </thead><tbody>';
 
     $q2 = QQ("SELECT * FROM PLACES  WHERE CID = ?",array($contestrow['ID']));
@@ -85,8 +89,19 @@ if (!array_key_exists("pid",$req))
         printf('<td>%s</td>',$r2['ID']);
         printf('<td>%s</td>',$r2['DESCRIPTION']);
         printf('<td>');
-        printf('<button class="button is-small is-link autobutton" href="applications.php?cid=%s&pid=%s">Προβολή</a>',$contestrow['ID'],$r2['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s">Προβολή</a>',$contestrow['ID'],$r2['ID']);
         printf('</td>');
+
+        printf('<td>');
+        $q44 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ? AND PID = ?",array($contestrow['ID'],$ur['ID'],$r2['ID']));
+        while($r44 = $q44->fetchArray())
+        {
+            $placerow = Single("PLACES","ID",$r44['PID']);
+            $posrow = Single("POSITIONS","ID",$r44['POS']);
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
+        }
+        printf('</td>');
+
         printf('</tr>');
     }
 
@@ -103,7 +118,7 @@ if (!$placerow)
 
 if (!array_key_exists("pos",$req))
     {
-    printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>',$contestrow['ID']);
+    printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>',$contestrow['ID']);
     printf("%s<br>%s<hr>Επιλέξτε θέση που σας ενδιαφέρει:",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -112,6 +127,7 @@ if (!array_key_exists("pos",$req))
                 <th class="all">Περιγραφή</th>
                 <th class="all">Θέσεις</th>
                 <th class="all">Επιλογές</th>
+                <th class="all">Αιτήσεις</th>
             </thead><tbody>';
 
     $q3 = QQ("SELECT * FROM POSITIONS  WHERE CID = ? AND PLACEID = ?",array($contestrow['ID'],$placerow['ID']));
@@ -121,9 +137,22 @@ if (!array_key_exists("pos",$req))
         printf('<td>%s</td>',$r3['ID']);
         printf('<td>%s</td>',$r3['DESCRIPTION']);
         printf('<td>%s</td>',$r3['COUNT']);
+
         printf('<td>');
-        printf('<button class="button is-small is-link autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
         printf('</td>');
+
+        printf('<td>');
+        $q44 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ? AND PID = ? AND POS = ?",array($contestrow['ID'],$ur['ID'],$placerow['ID'],$r3['ID']));
+        while($r44 = $q44->fetchArray())
+        {
+            $placerow = Single("PLACES","ID",$r44['PID']);
+            $posrow = Single("POSITIONS","ID",$r44['POS']);
+            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
+        }
+        printf('</td>');
+
+
         printf('</tr>');
     }
 
@@ -156,7 +185,7 @@ if (array_key_exists("aid",$req))
 
 if (!array_key_exists("aid",$req))
     {
-        printf('<button href="applications.php?cid=%s&pid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-danger">Αρχική</button> <hr>',$contestrow['ID'],$placerow['ID']);
+        printf('<button href="applications.php?cid=%s&pid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>',$contestrow['ID'],$placerow['ID']);
         printf("%s<br>%s<br>%s<hr>",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION'],$posrow['DESCRIPTION']);
 
     $app = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? AND CID = ? AND PID = ? AND POS = ?",array(
@@ -164,11 +193,11 @@ if (!array_key_exists("aid",$req))
     ))->fetchArray();
     if (!$app)
     {
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID']);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],true);
         if ($sc >= 0)
-            printf('Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+            printf('<br>Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
         else
-            printf('Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <b>%s</b>',$rejr);
+            printf('<br>Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <br><b>%s</b>',$rejr);
 //            echo PrintProsontaForThesi($req['cid'],$req['pid'],$req['pos']);
         }
     else
