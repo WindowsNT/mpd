@@ -11,7 +11,7 @@ if (!$afm || !$ur)
     }
 
 if ($superadmin)
-    $role = Single("ROLE","ID",$_GET['t']);
+    $role = Single("ROLES","ID",$_GET['t']);
 else
     $role = QQ("SELECT * FROM ROLES WHERE ID = ? AND UID = ?",array($_GET['t'],$ur['ID']))->fetchArray();
 if (!$role)
@@ -103,7 +103,7 @@ if (!in_array($req['afm'],$afms) && !in_array(0,$afms))
 
 $cr = Single("USERS","AFM",$req['afm']);
 printf('<tr>');
-printf('<td>%s</td>',$afm);
+printf('<td>%s</td>',$cr['AFM']);
 printf('<td>%s %s</td>',$cr['LASTNAME'],$cr['FIRSTNAME']);
 printf('<td>');
 

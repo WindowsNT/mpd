@@ -120,7 +120,7 @@ if (array_key_exists("e",$_POST))
 echo '<div class="content" style="margin: 20px">';
 
 
-function ViewOrEdit($pid,$items)
+function ViewOrEdit($pid,$items,$fcid = 0)
 {
     global $xmlp,$_SESSION,$uid,$req;
     EnsureProsonLoaded();
@@ -135,6 +135,9 @@ function ViewOrEdit($pid,$items)
 
     if ($items['CLASSID'] == 0 && array_key_exists("CLASSID",$_GET))
         $items['CLASSID'] = $_GET['CLASSID'];
+
+    if ($fcid)
+        $items['CLASSID'] = $fcid;
 
     // Find root
     $croot = RootForClassId($xx->classes,$items['CLASSID']);
@@ -256,10 +259,14 @@ function ViewOrEdit($pid,$items)
     <?php
 }
 
+$fcid = 0;
+if (array_key_exists("fcid",$_GET))
+    $fcid = $_GET['fcid'];
+
 
 if (array_key_exists("e",$_GET))
 {
-    ViewOrEdit($_GET['e'],null);
+    ViewOrEdit($_GET['e'],null,$fcid);
     echo '<button class="button is-danger autobutton" href="proson.php">Πίσω</button>';
     die;
 }

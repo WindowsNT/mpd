@@ -102,6 +102,18 @@ if (array_key_exists("fileclean",$req))
     redirect("superadmin.php");
 }
 
+
+if (array_key_exists("userclean",$req))
+{
+    $q1 = QQ("SELECT * FROM USERS");
+    while($r1 = $q1->fetchArray())
+    {
+    }
+    redirect("superadmin.php");
+    die;
+}
+
+
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
 
@@ -112,3 +124,4 @@ printf('<a class="button  is-primary block" href="superadmin.php?backup=1">Backu
 printf('<a class="button  is-primary block" href="superadmin.php?backupfiles=1">Backup Προσόντων [%.2f MB]</a> ',get_dir_size("./files")/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?vacuum=1">Vacuum [%.2f MB]</button> ',filesize($dbxx)/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?fileclean=1">File Cleanup</button> ');
+printf('<button class="button autobutton  is-primary block" href="superadmin.php?userclean=1">User Cleanup</button> ');

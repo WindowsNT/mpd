@@ -644,4 +644,54 @@ AITS;
 */
 if ($f == 5)
 {
+    $now = time();
+    $lines = explode("\n",$aits);
+    $newusers = 0;
+    QQ("BEGIN TRANSACTION");
+    foreach($lines as $line)
+    {
+         $items = str_getcsv($line, ",", "\"");
+        // [5] AM, [6] LN , [7] FN
+        $r = Single("USERS","AFM",$items[5]);
+        $nuid = 0;
+        if ($r)
+            $nuid = $r['ID'];
+        else
+        {
+            QQ("INSERT INTO USERS (AFM,LASTNAME,FIRSTNAME,CLSID,TYPE) VALUES(?,?,?,?,?)",array(
+                $items[5],$items[6],$items[7],guidv4(),1
+            ));
+            $newusers++;
+            $nuid = $lastRowID;
+        }
+
+        // PYM
+        $pym = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = 601",array($nuid))->fetchArray();
+        if (!$pym)
+        {
+            QQ("INSERT INTO PROSON (UID,CLSID,DESCRIPTION,CLASSID,STARTDATE,ENDDATE,STATE) VALUES(?,?,?,?,?,?,?)",array(
+                $nuid,guidv4(),"ΠΥΜ",601,$now,0,$required_check_level
+            ));
+            $pymid = $lastRowID;
+//            ,157,Ενεργοποιημένη,11-118/2024,45396.50443,720730,ΧΕΤΖΑΚΗ,ΕΛΕΝΗ,ΕΜΜΑΝΟΥΗΛ,ΠΕ79.01,ΜΟΥΣΙΚΗΣ ΕΠΙΣΤΗΜΗΣ,Πιάνο,ΠΕ79,ΜΟΥΣΙΚΗΣ,40201,ΑΡΓΟΛΙΔΑ,ΑΡΓΟΛΙΔΑΣ (Δ.Ε.),Μουσικό Σχολείο,ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΠΡΟΣΥΜΝΗ - ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΑΡΓΟΛΙΔΑΣ,ΠΕΛΟΠΟΝΝΗΣΟΥ,ΔΙΕΥΘΥΝΣΗ Δ.Ε. ΑΡΓΟΛΙΔΑΣ,1817,2021,Πιάνο,ΟΧΙ,ΟΧΙ,,ΟΧΙ,,,ΟΧΙ,,,ΟΧΙ,,,,,,,,,,"1. Ημερίδα Ε.Ε.Μ.Ε ""Η διδασκαλία των μουσικών οργάνων στα μουσικά σχολέια"" (2/4/2023) 2. Workshop ΕΚΠΑ ""Analysis-Synthesis of the singing Voice"" (14-15/12/2022) 3. Ενδοσχολική επιμόρφωση ""Διαχειριση συγκρούσεων και επικοινωνία στο σχολικό πλαίσιο"" (22/11/2022) 4. Masterclass Φωνιατρικής (1/10/2022) 5. ΙΕΠ Επιμόρφωση των εκπαιδευτικών στα Προγράμματα Σπουδών και το εκπαιδευτικό υλικό Πρωτοβάθμιας και Δευτεροβάθμιας Εκπαίδευσης 13/3-5/05 2023",,ECDL Office Essentials 29/03/2023,,ΝΑΙ,http://opsyd-files.sch.gr/opsydprod/2024/04/14/a0b27ad2-f9a2-40e9-9b60-534e9c409c80.zip,Μουσικό Σχολείο Ίλιου - Πιάνο,Μουσικό Γυμνάσιο Παλλήνης - Πιάνο,Μουσικό Σχολείο Αλίμου - Πιάνο,,,ΟΧΙ,14,7,29,6,1,24,0,0,0,0,0,0,6,1,24,3,0,0,6,1,18,ΝΑΙ,Συνυποβαλλω τα εξης δικαιολογητικά: Πιστοποιητικό οικ. καταστασης Βεβαιωση συνυπηρετησης Βεβαιωσεις σεμιναριων και επιμορφωσεων και ημεριδων Πιστοποιητικό γνωσης Η/Υ - ECDL,,"ΒΛ. ΦΑΚΕΛΟ ΔΙΚΑΙΟΛ. Η ΕΚΠΑΙΔΕΥΤΙΚΟΣ ΔΕΝ ΕΧΕΙ ΣΥΜΠΛΗΡΩΣΕΙ ΟΛΑ ΤΑ ΠΕΔΙΑ ΣΤΗΝ ΑΙΤΗΣΗ ΤΗΣ/ΜΟΝΟ ΣΕΜΙΝΑΡΙΑ ΚΑΙ Η/Υ ΠΑΝΕΠΙΣΤΗΜΙΑΚΟ ΠΤΥΧΙΟ ΠΙΑΝΟΥ ΠΑΝΕΠΙΣΤΗΜΙΟ ΜΑΚΕΔΟΝΙΑΣ ΜΕΤΑΠΤΥΧΙΑΚΟ ΕΑΠ - ΔΙΟΙΚΗΣΗ ΠΟΛΙΤΙΣΜΙΚΩΝ ΜΟΝΑΔΩΝ ΑΛΛΟ ΠΤΥΧΙΟ ΒΛ. ΜΟΥΣΙΚΗ ΠΑΙΔΕΙΑ ΠΤΥΧΙΟ ΑΝΤΙΣΤΙΞΗΣ, ΠΤΥΧΙΟ ΑΝΩΤΕΡΩΝ ΘΕΩΡΗΤΙΚΩΝ, ΣΠΟΥΔΑΣΤΡΙΑ ΜΟΝΩΔΙΑΣ ΣΥΝΑΥΛΙΕΣ ,ΕΚΔΗΛΩΣΕΙΣ ΔΙΔΑΚΤΙΚΗ ΣΕ ΜΟΥΣΙΚΑ ΣΧΟΛΕΙΑ ΒΛ. ΣΧΕΤΙΚΟ ΠΕΔΙΟ ΣΕΜΙΝΑΡΙΑ, ΣΥΝΕΔΡΙΑ, ΕΠΙΜΟΡΦΏΣΕΙΣ,ΚΛΠ ΑΓΓΛΙΚΑ ΑΡΙΣΤΗ ΓΝΩΣΗ - ECPE, ΙΤΑΛΙΚΑ ΠΟΛΥ ΚΑΛΗ ΓΝΩΣΗ - CELI 3 Η/Υ ECDL",ΝΑΙ,ΟΧΙ,,ΝΑΙ
+
+        
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,1,$items[9])); // ΠΕ79.01
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,2,$items[5])); // 720730
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,5,$items[16])); // ΑΡΤΑΣ (Δ.Ε.)
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,6,$items[17])); // Μουσικό Σχολείο
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,7,$items[18])); // Οργ 
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,8,$items[23])); // Πιάνο
+
+            // proyp:  ekp, proyp mousi, synolik
+            $pr1 = $items[55] * 360 + $items[56] * 30 + $items[57];
+            $pr2 = $items[73] * 360 + $items[74] * 30 + $items[75];
+            $pr3 = $pr1;
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,3,$pr1));
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,4,$pr2));
+            QQ("INSERT INTO PROSONPAR (PID,PIDX,PVALUE) VALUES(?,?,?)",array($pymid,9,$pr2));
+        }
+    }
+    QQ("COMMIT");
+    printf("%s users added",$newusers);
 }

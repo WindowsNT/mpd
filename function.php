@@ -322,6 +322,19 @@ function RoleToText($r)
     return '';
 }
 
+function printr($v)
+{
+    printf("<xmp>");
+    print_r($v);
+    printf("</xmp>");
+}
+
+function printdie($v)
+{
+    printr($v);
+    die;
+}
+
 function PrepareDatabase($msql = 0)
 {
     $j = 'AUTO_INCREMENT';
@@ -330,7 +343,7 @@ function PrepareDatabase($msql = 0)
         $j = '';
     QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY,XML TEXT)");
     QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT)",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT,TYPE INTEGER)",$j));
     QQ("CREATE TABLE IF NOT EXISTS BIO_INFO (ID INTEGER PRIMARY KEY,UID INTEGER,T1 TEXT,T2 TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))");
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
 
@@ -865,7 +878,7 @@ function PrintContests($uid)
         <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
     </div>
     <div class="dropdown-item">
-        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Αιτήσεων από CSV ΟΠΣΥΔ</button>
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Ατόμων από CSV ΟΠΣΥΔ</button>
     </div>
 </div>
 </div>
