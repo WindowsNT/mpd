@@ -191,6 +191,9 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
+        <c n="999" t="Άλλα προσόντα" >
+        </c>
+
     </classes>
 </root>
 XML;
@@ -305,6 +308,7 @@ define('ROLE_UNI',3);
 define('ROLE_GLOBALPROSONEDITOR',4);
 define('ROLE_FOREASSETPLACES',5);
 define('ROLE_ROLEEDITOR',6);
+define('ROLE_CONTESTVIEWER',7);
 define('ROLE_SUPERADMIN',99);
 
 function RoleToText($r)
@@ -527,6 +531,29 @@ function HasContestAccess($cid,$uid,$wr = 0)
         return false;
     }
 
+    if ($wr == 0)
+    {
+        $j = QQ("SELECT * FROM ROLES WHERE UID = ? AND ROLE = ?",array($uid,ROLE_CONTESTVIEWER));
+        while($r = $j->fetchArray())
+        {
+            $params = json_decode($r['ROLEPARAMS'],true);
+            $contests = $params['contests'];
+            if (in_array(0,$contests))
+                return true;
+            if (in_array($cid,$contests))
+                return true;
+        }
+    }
+
+    if ($wr == 0) 
+    {
+        $t = time();
+        if ($t >= $crow['STARTDATE'] && $t <= $crow['ENDDATE'])           
+            return true;
+        return false;
+    }
+
+
     return false;
 }
 
@@ -594,6 +621,26 @@ function HasProsonAccess($pid,$uid,$wr = 0)
         }
     }
         
+      // Check if it is a viewer
+      $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
+      while($r1 = $roles->fetchArray())
+      {
+          if ($r1['ROLE'] != ROLE_CONTESTVIEWER)
+              continue;
+          $params = json_decode($r1['ROLEPARAMS'],true);
+          if (count($params['contests']) == 1 && $params['contests'][0] == 0)
+              return true;
+          foreach($params['contests'] as $coid)
+          {
+              $zq1 = QQ("SELECT * FROM REQS2 WHERE CID = ?",array($coid));
+              while($zr1 = $zq1->fetchArray())
+              {
+                  if ($zr1['PROSONTYPE'] == $pr['CLASSID'])
+                      return true;
+              }        
+          }
+      }
+          
     // Check if it is a checker
     $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
     while($r1 = $roles->fetchArray())
@@ -724,18 +771,34 @@ function deepx($de)
     return $s;
 }
 
-function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
+function PrintForeisContest($uid,$cid,$rootfor = 0,$deep = 0)
 {
     $s = '';
+    $ra = HasContestAccess($cid,$uid,0);
+    $wa = HasContestAccess($cid,$uid,1);
+    if (!$ra)
+        return $s;
+
     $q1 = QQ("SELECT * FROM PLACES WHERE CID = ? AND PARENTPLACEID = ?",array($cid,$rootfor));
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
         $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND PID = ?",array($cid,$r1['ID']))->fetchArray()[0];
 
-        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button block" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s">Λίστα Αιτήσεων (%s)</button> <button class="block sureautobutton is-small is-danger button  block" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$aitcount,$r1['ID']);
+        $s .= sprintf('<b>%s</b><br>',$r1['DESCRIPTION']);
+        if ($wa)
+            $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> ',$r1['ID']);
+        $s .= sprintf('<button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> ',$cid,$r1['ID']);
+        if ($wa)
+            $s .= sprintf('<button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> ',$cid,$r1['ID'],$cid,$r1['ID'],$aitcount,$r1['ID']);
+        $s .= sprintf('<button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> ',$cid,$r1['ID']);
+
+        $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s">Λίστα Αιτήσεων (%s)</button> ',$cid,$r1['ID'],$aitcount);
+        if ($wa)
+            $s .= sprintf('<button class="block sureautobutton is-small is-danger button  block" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button>',$r1['ID']);
+        $s .= '<br>';
         $s .= deepx($deep);
-        $s .= PrintForeisContest($cid,$r1['ID'],$deep + 1);
+        $s .= PrintForeisContest($uid,$cid,$r1['ID'],$deep + 1);
     }
     if ($deep == 0)
         $s .= sprintf('<hr><button class="button is-primary is-small autobutton" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη</button><br>',$cid,$rootfor);
@@ -756,9 +819,7 @@ function PrintContests($uid)
                 <th class="all">Ενέργειες</th>
             </thead><tbody>';
 
-    $q1 = QQ("SELECT * FROM CONTESTS WHERE UID = ?",array($uid));
-    if ($superadmin)
-        $q1 = QQ("SELECT * FROM CONTESTS");
+    $q1 = QQ("SELECT * FROM CONTESTS");
     while($r1 = $q1->fetchArray())
     {
         $ra = HasContestAccess($r1['ID'],$uid,0);
@@ -772,47 +833,47 @@ function PrintContests($uid)
         $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
         $s .= sprintf('<td>%s &mdash; %s</td>',date("d/m/Y",$r1['STARTDATE']),date("d/m/Y",$r1['ENDDATE']));
         $s .= sprintf('<td>');
-        $s .= PrintForeisContest($r1['ID']);
+        $s .= PrintForeisContest($uid,$r1['ID']);
         $s .= sprintf('</td>');
         // printf('',$req['t']);
         $s .= '<td>';
-        if ($wa == 1)
-        {
-            $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ?",array($r1['ID']))->fetchArray()[0];
+        $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ?",array($r1['ID']))->fetchArray()[0];
+        if ($wa)
             $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων (%s)</button> ',$r1['ID'],$aitcount);
-            $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
-            if ($r1['ID'] != 1)
-            $s .= sprintf('<div class="dropdown is-hoverable">
-  <div class="dropdown-trigger">
-    <button class="button is-secondary is-small block" aria-haspopup="true" aria-controls="dropdown-menu4">
-      <span>ΟΠΣΥΔ</span>
-    </button>
-  </div>
-  <div class="dropdown-menu" id="dropdown-menu4" role="menu">
-    <div class="dropdown-content">
-      <div class="dropdown-item">
-            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών από CSV ΟΠΣΥΔ</button>
-      </div>
-      <div class="dropdown-item">
-            <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</button>
-      </div>
-      <div class="dropdown-item">
-            <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</button>
-      </div>
-      <div class="dropdown-item">
-            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
-      </div>
-      <div class="dropdown-item">
-            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Αιτήσεων από CSV ΟΠΣΥΔ</button>
-      </div>
+        $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
+        $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων (%s)</button> ',$r1['ID'],$aitcount);
+        $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
+        if ($r1['ID'] != 1 && $wa)
+        $s .= sprintf('<div class="dropdown is-hoverable">
+<div class="dropdown-trigger">
+<button class="button is-secondary is-small block" aria-haspopup="true" aria-controls="dropdown-menu4">
+    <span>ΟΠΣΥΔ</span>
+</button>
+</div>
+<div class="dropdown-menu" id="dropdown-menu4" role="menu">
+<div class="dropdown-content">
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών από CSV ΟΠΣΥΔ</button>
     </div>
-  </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</button>
+    </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</button>
+    </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
+    </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Αιτήσεων από CSV ΟΠΣΥΔ</button>
+    </div>
+</div>
+</div>
 </div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
-           $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
-        }
+        $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
+        if ($wa)
+            $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
+    
         $s .= sprintf('</tr>');
     }           
 

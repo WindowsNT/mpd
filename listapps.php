@@ -20,7 +20,10 @@ if (!$cidrow)
     die;
 }
 
-if (!HasContestAccess($cidrow['ID'],$ur['ID'],1))
+$ra = HasContestAccess($cidrow['ID'],$ur['ID'],0);
+$wa = HasContestAccess($cidrow['ID'],$ur['ID'],1);
+
+if (!$ra)
 {
     redirect("index.php");
     die;
@@ -103,22 +106,33 @@ while($r1 = $q1->fetchArray())
     printf('</td>');
 
     printf('<td>');
-    if ($r1['INACTIVE'] == 0)
-        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&disable=%s">Ενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
-    else
-        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
-    if ($r1['FORCEDMORIA'] == 0)
-        printf('<button class="is-link is-small button block" onclick="changescore(%s,%s,%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
-    else
-        printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s,%s,%s);">%s</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID'],$r1['FORCEDMORIA']);
+    if ($wa)
+    {
+        if ($r1['INACTIVE'] == 0)
+            printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&disable=%s">Ενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        else
+            printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        if ($r1['FORCEDMORIA'] == 0)
+            printf('<button class="is-link is-small button block" onclick="changescore(%s,%s,%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        else
+            printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s,%s,%s);">%s</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID'],$r1['FORCEDMORIA']);
 
-    if ($r1['FORCERESULT'] == 1)
-        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=-1">Ναι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        if ($r1['FORCERESULT'] == 1)
+            printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=-1">Ναι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        else
+        if ($r1['FORCERESULT'] == -1)
+            printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+        else
+            printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+    }
     else
-    if ($r1['FORCERESULT'] == -1)
-        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
-    else
-        printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+    {
+        if ($r1['INACTIVE'] == 0) printf('Ενεργή<br>'); else printf('Ανενεργή<br>');
+        if ($r1['FORCEDMORIA'] != 0) printf('%s<br>',$r1['FORCEDMORIA']);
+        if ($r1['FORCERESULT'] == 1) printf('Ναι<br>');
+        if ($r1['FORCERESULT'] == -1) printf('Όχι<br>');
+
+    }
     printf('</td>');
     printf('</tr>');
 

@@ -13,7 +13,9 @@ if (!$afm || !$ur)
     }
 
 $is_foreas_editing = 0;
-if (!HasContestAccess($req['cid'],$ur['ID'],1))
+$ra = HasContestAccess($req['cid'],$ur['ID'],0);
+$wa = HasContestAccess($req['cid'],$ur['ID'],1);
+if (!$ra)
 {
     // Check place access
     if (!HasPlaceAccessForKena($req['pid'],$ur['ID']))
@@ -38,7 +40,7 @@ function ViewOrEditPos($posid)
 
 }
 
-if (array_key_exists("movefromglobal",$_GET))
+if (array_key_exists("movefromglobal",$_GET) && $wa)
 {
     // cid contest, pid place, movefromglobal pos
     QQ("BEGIN TRANSACTION");
@@ -80,7 +82,7 @@ if (array_key_exists("movefromglobal",$_GET))
    
 }
 
-if (array_key_exists("delete",$_GET))
+if (array_key_exists("delete",$_GET) && $wa)
 {
     QQ("DELETE FROM POSITIONS WHERE ID = ?",array(
         $req['delete']
@@ -89,7 +91,7 @@ if (array_key_exists("delete",$_GET))
     die;
 }
 
-if (array_key_exists("addposition",$_POST))
+if (array_key_exists("addposition",$_POST) && $wa)
 {
     QQ("INSERT INTO POSITIONS (CID,PLACEID,DESCRIPTION,COUNT) VALUES(?,?,?,?)",array(
         $req['cid'],$req['pid'],$req['DESCRIPTION'],$req['COUNT']
@@ -131,8 +133,11 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
                     printf('Προσόντα Κοινά από τον Διαγωνισμό &nbsp;');
                 else
                 {
-                $CountX = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND POSID = ?",array($req['cid'],$r4['ID']))->fetchArray()[0];
-                printf('<button class="is-small autobutton is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountX);
+                    if ($wa)
+                    {
+                        $CountX = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND POSID = ?",array($req['cid'],$r4['ID']))->fetchArray()[0];
+                        printf('<button class="is-small autobutton is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountX);
+                    }
 /*                if ($CountX == 0)   
                     {
                         if ($CountY)+
@@ -149,7 +154,8 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
             $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$req['pid'],$r4['ID']))->fetchArray()[0];
             printf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s&pos=%s">Λίστα Αιτήσεων (%s)</button> ',$req['cid'],$req['pid'],$r4['ID'],$aitcount);
         }
-        printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button>',$req['cid'],$req['pid'],$r4['ID']);
+        if ($wa)
+            printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button>',$req['cid'],$req['pid'],$r4['ID']);
         printf('</td>');
         printf('</tr>');
     }
@@ -171,9 +177,16 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         $("#addpos").hide();
     }
 </script>
+<?php
+if ($wa)
+{
+?>
 <div id="addpos1">
 <button class="button is-primary" onclick="toggleadd();">Προσθήκη θέσης</button>
 </div>
+<?php
+}
+?>
 <div id="addpos" style="display:none">
 Προσθήκη Θέσης<hr>
         <form method="POST" action="positions.php">

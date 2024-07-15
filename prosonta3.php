@@ -46,13 +46,16 @@ if (array_key_exists("forthesi",$req)) $forthesi = $req['forthesi'];
 if ($cid == 0)
     die; // atm
 
-if (!HasContestAccess($req['cid'],$ur['ID'],1))
+
+$ra = HasContestAccess($req['cid'],$ur['ID'],0);
+$wa = HasContestAccess($req['cid'],$ur['ID'],1);
+if (!$ra)
 {
     redirect("index.php");
     die;
 }
 
-if (array_key_exists("e",$_POST))
+if (array_key_exists("e",$_POST) && $wa)
 {
     if ($req['e'] == 0)
         QQ("INSERT INTO REQS2 (CID,PLACEID,POSID,FORTHESI,PROSONTYPE,SCORE) VALUES(?,?,?,?,?,?)",array(
@@ -68,7 +71,7 @@ if (array_key_exists("e",$_POST))
 }
 
 
-if (array_key_exists("delete",$req))
+if (array_key_exists("delete",$req) && $wa)
 {
     QQ("DELETE FROM REQS2 WHERE ID = ?",array($req['delete']));
     $a = sprintf("prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s",$cid,$placeid,$posid,$forthesi);
@@ -77,7 +80,7 @@ if (array_key_exists("delete",$req))
 }
 
 
-if (array_key_exists("setmin",$req))
+if (array_key_exists("setmin",$req) && $wa)
 {
     QQ("UPDATE REQS2 SET MINX = ? WHERE ID = ?",array($req['value'],$req['setmin']));
     $si = Single("REQS2","ID",$req['setmin']);
@@ -88,7 +91,7 @@ if (array_key_exists("setmin",$req))
     die;
 }
 
-if (array_key_exists("setmax",$req))
+if (array_key_exists("setmax",$req) && $wa)
 {
     QQ("UPDATE REQS2 SET MAXX = ? WHERE ID = ?",array($req['value'],$req['setmax']));
     $si = Single("REQS2","ID",$req['setmax']);
@@ -99,7 +102,7 @@ if (array_key_exists("setmax",$req))
     die;
 }
 
-if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array_key_exists("andedit",$req) )
+if ($wa && (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array_key_exists("andedit",$req)) )
 {
     $which = 0;
     if (array_key_exists("andedit",$req) )
@@ -140,7 +143,7 @@ if (array_key_exists("oredit",$req) || array_key_exists("notedit",$req) || array
     die;
 }
 
-if (array_key_exists("regexedit",$req))
+if (array_key_exists("regexedit",$req) && $wa)
 {
     $what = $req['regexedit'];
     $reqrow = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($what))->fetchArray();
@@ -207,7 +210,7 @@ if (array_key_exists("regexedit",$req))
     die;
 }
 
-if (array_key_exists("rexapply",$_POST))
+if (array_key_exists("rexapply",$_POST) && $wa)
 {
     $rest = '';
     foreach($_POST as $k=>$v)
@@ -308,19 +311,24 @@ while($r1 = $q1->fetchArray())
     if ($r1['REGEXRESTRICTIONS'] && strlen($r1['REGEXRESTRICTIONS']))   
         $RexCount = count(explode("###",$r1['REGEXRESTRICTIONS']));
 
-    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Eval %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
-    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
-    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',(int)$r1['ORLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
-    printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',(int)$r1['NOTLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
-    printf('<button class="is-small %s button block" onclick="askmin(%s,%s,%s,%s,\'%s\');">MIN %s</button> ',(int)$r1['MINX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MINX'] > 0 ? $r1['MINX'] : '');
-    printf('<button class="is-small %s button block" onclick="askmax(%s,%s,%s,%s,\'%s\');">MAX %s</button> ',(int)$r1['MAXX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MAXX'] > 0 ? $r1['MAXX'] : '');
-
+    if ($wa)
+    {
+        printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&regexedit=%s">Eval %s</button> ',$RexCount ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],$RexCount);
+        printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&andedit=%s">AND %s</button> ',(int)$r1['ANDLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ANDLINK']);
+        printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&oredit=%s">OR %s</button> ',(int)$r1['ORLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['ORLINK']);
+        printf('<button class="autobutton is-small %s button block" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&notedit=%s">NOT %s</button> ',(int)$r1['NOTLINK'] ? 'is-success' : 'is-link',$cid,$placeid,$posid,$forthesi,$r1['ID'],(int)$r1['NOTLINK']);
+        printf('<button class="is-small %s button block" onclick="askmin(%s,%s,%s,%s,\'%s\');">MIN %s</button> ',(int)$r1['MINX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MINX'] > 0 ? $r1['MINX'] : '');
+        printf('<button class="is-small %s button block" onclick="askmax(%s,%s,%s,%s,\'%s\');">MAX %s</button> ',(int)$r1['MAXX'] > 0 ? 'is-success' : 'is-link',$r1['ID'],$cid,$placeid,$posid,$forthesi,(int)$r1['MAXX'] > 0 ? $r1['MAXX'] : '');
+    }
     printf('</td>');
     printf('<td>');
 
     
-    printf('<button class="is-small is-primary button" onclick="editx(%s,%s,%s,\'%s\',%s,%s,\'%s\');">Επεξεργασία</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$r1['PROSONTYPE'],$r1['SCORE']);
-    printf('<button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID']);
+    if ($wa)
+    {
+        printf('<button class="is-small is-primary button" onclick="editx(%s,%s,%s,\'%s\',%s,%s,\'%s\');">Επεξεργασία</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID'],$r1['PROSONTYPE'],$r1['SCORE']);
+        printf('<button class="sureautobutton is-small is-danger button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s&forthesi=%s&delete=%s">Διαγραφή</button> ',$cid,$placeid,$posid,$forthesi,$r1['ID']);
+    }
     printf('</td>');
 
     printf('</tr>');
@@ -398,9 +406,16 @@ function PrintOptionsProson($x,$deep = 0,$sel = 0)
     }
 </script>
 <br>
+<?php
+if ($wa)
+{
+?>
 <div id="addpos1">    
 <button class="button is-primary" onclick="toggleadd();">Προσθήκη</button>
 </div>
+<?php
+}
+?>
 
 <div id="addpos" style="display:none;">
         <form method="POST" action="prosonta3.php">

@@ -62,17 +62,32 @@ printf('Έλεγχος Προσόντων (Eπίπεδο: %s)<hr>',$level);
 
 if (!array_key_exists("afm",$req))
 {
-    foreach($afms as $afm)
+    
+    if (in_array(0,$afms))
     {
-        $cr = Single("USERS","AFM",$afm);
-        if (!$cr)
-            continue;
-        printf('<a href="check.php?t=%s&afm=%s">%s %s</a><br>',$req['t'],$afm,$cr['LASTNAME'],$cr['FIRSTNAME']);
+        // all of them
+        $q1 = QQ("SELECT * FROM USERS");
+        while($cr = $q1->fetchArray())
+        {
+            printf('<a href="check.php?t=%s&afm=%s">%s %s</a><br>',$req['t'],$cr['AFM'],$cr['LASTNAME'],$cr['FIRSTNAME']);
+
+        }
+    }
+    else
+    {
+        foreach($afms as $afm)
+        {
+            $cr = Single("USERS","AFM",$afm);
+            if (!$cr)
+                continue;
+            printf('<a href="check.php?t=%s&afm=%s">%s %s</a><br>',$req['t'],$afm,$cr['LASTNAME'],$cr['FIRSTNAME']);
+        }
     }
     die;
 }
 
-if (!in_array($req['afm'],$afms))
+
+if (!in_array($req['afm'],$afms) && !in_array(0,$afms))
     die;
 
 ?>

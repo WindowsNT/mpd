@@ -38,6 +38,10 @@ if ($afm && $ur)
           {
             printf('<button class="button autobutton  is-primary block" href="roleeditor.php">Role Editor</button> ');
           }
+          if ($r1['ROLE'] == ROLE_CONTESTVIEWER || $r1['ROLE'] == ROLE_SUPERADMIN)
+          {
+            printf('<button class="button autobutton  is-primary block" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+          }
           if ($superadmin)
             break;
       }
@@ -52,6 +56,10 @@ if ($afm && $ur)
             printf('<button class="button autobutton  is-info block" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_CREATOR)
+          {
+            printf('<button class="button autobutton  is-primary block" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+          }
+          if ($r1['ROLE'] == ROLE_CONTESTVIEWER)
           {
             printf('<button class="button autobutton  is-primary block" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
@@ -167,6 +175,7 @@ shaders: {
           <a href="auth.php?redirect=index.php&afm2=1001001005">Μαρής Φώτης  Διόρθωση Γενικών Προσόντων<br><br></a>
           <a href="auth.php?redirect=index.php&afm2=1001001006">Μαρίνου Ευτυχία Διόρθωση Κενών Μουσικού Αλίμου<br><br></a>
           <a href="auth.php?redirect=index.php&afm2=1001001007">Πασχαλίδης Ορέστης Διόρθωση Ρόλων<br><br></a>
+          <a href="auth.php?redirect=index.php&afm2=1001001009">Ζάζου Γεώργιος Προβολή Διαγωνισμού<br><br></a>
         </p>
       </div>
 </div>

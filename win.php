@@ -15,10 +15,12 @@ if (!$afm || !$ur)
 
 
 
-if (!HasContestAccess($req['cid'],$ur['ID'],1))
+$ra = HasContestAccess($req['cid'],$ur['ID'],0);
+$wa = HasContestAccess($req['cid'],$ur['ID'],1);
+if (!$ra)
     die;
 
-if (array_key_exists("reset",$req))
+if (array_key_exists("reset",$req) && $wa)
 {
     QQ("DELETE FROM WINTABLE WHERE CID = ?",array($req['cid']));
     redirect(sprintf("contest.php",$req['cid']));
@@ -50,6 +52,8 @@ $place_query = QQ("SELECT * FROM PLACES WHERE CID = ?",array($req['cid']));
 while($place = $place_query->fetchArray())
 {
     if (!array_key_exists("run",$req))
+        break;
+    if (!$wa)
         break;
     $position_query = QQ("SELECT * FROM POSITIONS WHERE CID = ? AND PLACEID = ?",array($req['cid'],$place['ID']));
     while($position = $position_query->fetchArray())
@@ -147,7 +151,10 @@ while($place = $place_query->fetchArray())
 
     if ($changed == 0 && array_key_exists("run",$req))
         $checking_prefefence++;
-    printf('<button class="autobutton is-primary button" href="win.php?&cid=%s&pref=%s&run=1">Continue PREF = %s</button> ',$req['cid'],$checking_prefefence,$checking_prefefence);
-    printf('<button class="sureautobutton is-danger button" href="win.php?&cid=%s&reset=1">Reset</button>',$req['cid']);
+    if ($wa)
+    {
+        printf('<button class="autobutton is-primary button" href="win.php?&cid=%s&pref=%s&run=1">Continue PREF = %s</button> ',$req['cid'],$checking_prefefence,$checking_prefefence);
+        printf('<button class="sureautobutton is-danger button" href="win.php?&cid=%s&reset=1">Reset</button>',$req['cid']);
+    }
 
 ?>
