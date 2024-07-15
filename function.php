@@ -760,6 +760,7 @@ function PrintContests($uid)
             $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων</button> ',$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
+            if ($r1['ID'] != 1)
             $s .= sprintf('<div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
     <button class="button is-secondary is-small block" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -769,16 +770,16 @@ function PrintContests($uid)
   <div class="dropdown-menu" id="dropdown-menu4" role="menu">
     <div class="dropdown-content">
       <div class="dropdown-item">
-            <a href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών</a>
+            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών από CSV ΟΠΣΥΔ</button>
       </div>
       <div class="dropdown-item">
-            <a href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</a>
+            <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</button>
       </div>
       <div class="dropdown-item">
-            <a href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</a>
+            <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</button>
       </div>
       <div class="dropdown-item">
-            <a href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</a>
+            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
       </div>
     </div>
   </div>
@@ -883,11 +884,16 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         $q3 = QQ("SELECT * FROM PROSONFILE WHERE PID = ? ",array($r1['ID']));
         while($r3 = $q3->fetchArray())
         {
-            $s .= sprintf('<b><a href="viewfile.php?f=%s" target="_blank">%s</a><br>',$r3['ID'],$r3['FNAME']);
+            $s .= sprintf('<b><a href="viewfile.php?f=%s" target="_blank">%s</a><br>',$r3['ID'],$r3['DESCRIPTION']);
         }
 
         if ($veruid == 0)
-            $s .= sprintf('<br><br><button class="autobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
+            {
+                if ($r1['STATE'] > 0)
+                    $s .= sprintf('<br><br><button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
+                else
+                    $s .= sprintf('<br><br><button class="autobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
+            }
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
         if ($r1['STATE'] == 0) $s .= 'Αναμονή';
@@ -939,6 +945,7 @@ function DeleteProsonFile($id,$uid = 0)
 
     unlink(sprintf("./files/%s",$e['CLSID']));
     QQ("DELETE FROM PROSONFILE WHERE ID = ?",array($id));
+    QQ("UPDATE PROSON SET STATE = 0 WHERE ID = ? AND STATE != 0",array($e['PID']));
     return true;
 }
 

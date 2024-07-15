@@ -173,7 +173,7 @@ shaders: {
     </div>
   </div>
 </div>
-<a class="navbar-item" href="videodemo.php">
+<a class="navbar-item" href="https://www.youtube.com/watch?v=0U2-Xbg2xMY">
         <button class="button is-link">Video Demo</button>
       </a>
 

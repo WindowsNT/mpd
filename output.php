@@ -31,6 +31,11 @@ if (dt)
 
 }
 
+function gotop(url)
+{
+  window.location = url;
+}
+
 var datatabe = 0;
 function datatab(resp = true,fi = false)
 {

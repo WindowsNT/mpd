@@ -39,6 +39,11 @@ if (array_key_exists("f1",$_FILES))
 
     QQ("INSERT INTO PROSONFILE (PID,UID,CLSID,DESCRIPTION,FNAME,TYPE) VALUES(?,?,?,?,?,?)",
         array($_POST['e'],$uid,$g,$_POST['f0'],$fn,$extension));
+
+    if ($lastRowID != 0)
+    {
+        QQ("UPDATE PROSON SET STATE = 0 WHERE ID = ? AND STATE != 0",array($_POST['e']));
+    }
     if (array_key_exists("force_user",$req))
         redirect("provider.php");
     else
