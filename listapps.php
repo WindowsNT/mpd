@@ -26,28 +26,34 @@ if (!HasContestAccess($cidrow['ID'],$ur['ID'],1))
     die;
 }
 
+if (!array_key_exists("pid",$req))
+    $req['pid'] = 0;
+if (!array_key_exists("pos",$req))
+    $req['pos'] = 0;
+
+
 if(array_key_exists("disable",$req))
     {
         QQ("UPDATE APPLICATIONS SET INACTIVE = 1 WHERE CID = ? AND ID = ?",array($req['cid'],$req['disable']));
-        redirect(sprintf("listapps.php?cid=%s",$req['cid']));
+        redirect(sprintf("listapps.php?cid=%s&pid=%s&pos=%s",$req['cid'],$req['pid'],$req['pos']));
         die;
     }
 if(array_key_exists("enable",$req))
     {
         QQ("UPDATE APPLICATIONS SET INACTIVE = 0 WHERE CID = ? AND ID = ?",array($req['cid'],$req['enable']));
-        redirect(sprintf("listapps.php?cid=%s",$req['cid']));
+        redirect(sprintf("listapps.php?cid=%s&pid=%s&pos=%s",$req['cid'],$req['pid'],$req['pos']));
         die;
     }
 if(array_key_exists("score",$req))
     {
         QQ("UPDATE APPLICATIONS SET FORCEDMORIA = ? WHERE CID = ? AND ID = ?",array($req['score'],$req['cid'],$req['aid']));
-        redirect(sprintf("listapps.php?cid=%s",$req['cid']));
+        redirect(sprintf("listapps.php?cid=%s&pid=%s&pos=%s",$req['cid'],$req['pid'],$req['pos']));
         die;
     }
 if(array_key_exists("result",$req))
     {
         QQ("UPDATE APPLICATIONS SET FORCERESULT = ? WHERE CID = ? AND ID = ?",array($req['result'],$req['cid'],$req['aid']));
-        redirect(sprintf("listapps.php?cid=%s",$req['cid']));
+        redirect(sprintf("listapps.php?cid=%s&pid=%s&pos=%s",$req['cid'],$req['pid'],$req['pos']));
         die;
     }
 
@@ -63,6 +69,7 @@ printf('<button href="contest.php?" class="autobutton button  is-danger">Πίσ�
     <th class="all">Φορέας</th>
     <th class="all">Θέση</th>
     <th class="all">Σκορ</th>
+    <th class="all">Προσόντα</th>
     <th class="all">Επιλογές</th>
 </thead>
 <tbody>
@@ -71,6 +78,10 @@ EnsureProsonLoaded();
 $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? ORDER BY DATE",array($req['cid']));
 while($r1 = $q1->fetchArray())
 {
+    if (array_key_exists("pid",$req) && $req['pid'] != 0 && $req['pid'] != $r1['PID'])
+        continue;
+    if (array_key_exists("pos",$req) && $req['pos'] != 0 && $req['pos'] != $r1['POS'])
+        continue;
     $ur = Single("USERS","ID",$r1['UID']);
     if (!$ur)
         continue;
@@ -82,24 +93,32 @@ while($r1 = $q1->fetchArray())
     printf('<td>%d</td>',AppPreference($r1['ID']));
     printf('<td>%s</td>',$fr['DESCRIPTION']);
     printf('<td>%s</td>',$pr['DESCRIPTION']);
-    printf('<td>%s</td>',ScoreForThesi($ur['ID'],$req['cid'],$r1['PID'],$r1['POS']));
+    $a = array();
+    printf('<td>%s</td>',CalculateScore($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],0,$a));
+
+    // Prosonta
+    printf('<td>');
+//    echo PrintProsontaForThesi($req['cid'],$fr['ID'],$pr['ID'],1);
+    echo ViewUserProsontaForContest($ur['ID'],$req['cid']);
+    printf('</td>');
+
     printf('<td>');
     if ($r1['INACTIVE'] == 0)
-        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&disable=%s">Ενεργή</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&disable=%s">Ενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     else
-        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     if ($r1['FORCEDMORIA'] == 0)
-        printf('<button class="is-link is-small button block" onclick="changescore(%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="is-link is-small button block" onclick="changescore(%s,%s,%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     else
-        printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s);">%s</button> ',$req['cid'],$r1['ID'],$r1['FORCEDMORIA']);
+        printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s,%s,%s);">%s</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID'],$r1['FORCEDMORIA']);
 
     if ($r1['FORCERESULT'] == 1)
-        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&aid=%s&result=-1">Ναι</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=-1">Ναι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     else
     if ($r1['FORCERESULT'] == -1)
-        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     else
-        printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$r1['ID']);
+        printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     printf('</td>');
     printf('</tr>');
 
@@ -107,26 +126,26 @@ while($r1 = $q1->fetchArray())
 ?>
 </tbody></table>
 <script>
-    function changescore(cid,aid)
+    function changescore(cid,pid,pos,aid)
     {
         var sc = prompt("Νέο Σκορ:");
         if (!sc)
             return;
-        window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&score=" + sc;
+        window.location = "listapps.php?cid=" + cid + "&pid=" + pid + "&pos=" + pos + "&aid=" + aid + "&score=" + sc;
     }
-    function changeresult(cid,aid)
+    function changeresult(cid,pid,pos,aid)
     {
         var sc = prompt("Νέο ID από τον πίνακα POSITIONS:");
         if (!sc)
             return;
         window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&result=" + sc;
     }
-    function resetscore(cid,aid)
+    function resetscore(cid,pid,pos,aid)
     {
         var sc = 0;
-        window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&score=" + sc;
+        window.location = "listapps.php?cid=" + cid + "&pid=" + pid + "&pos=" + pos + "&aid=" + aid + "&score=" + sc;
     }
-    function resetresult(cid,aid)
+    function resetresult(cid,pid,pos,aid)
     {
         var sc = 0;
         window.location = "listapps.php?cid=" + cid + "&aid=" + aid + "&result=" + sc;

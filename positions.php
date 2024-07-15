@@ -135,7 +135,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
                 printf('<button class="is-small autobutton is-link button" href="prosonta3.php?cid=%s&placeid=%s&posid=%s">Προσόντα %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountX);
 /*                if ($CountX == 0)   
                     {
-                        if ($CountY)
+                        if ($CountY)+
                             printf('<button class="is-small autobutton is-warning button" href="positions.php?cid=%s&pid=%s&movefromglobal=%s">Μεταφορά από Global %s</button> ',$req['cid'],$req['pid'],$r4['ID'],$CountY);
                     }
 */
@@ -143,7 +143,14 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
 
             }
         printf('</td>');
-        printf('<td><button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button></td>',$req['cid'],$req['pid'],$r4['ID']);
+        printf('<td>');
+        if (!$is_foreas_editing)
+        {
+            $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$req['pid'],$r4['ID']))->fetchArray()[0];
+            printf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s&pos=%s">Λίστα Αιτήσεων (%s)</button> ',$req['cid'],$req['pid'],$r4['ID'],$aitcount);
+        }
+        printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button>',$req['cid'],$req['pid'],$r4['ID']);
+        printf('</td>');
         printf('</tr>');
     }
     ?>

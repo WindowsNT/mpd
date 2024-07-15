@@ -574,6 +574,26 @@ function HasProsonAccess($pid,$uid,$wr = 0)
     if (!$belongsto)
         return false;
 
+    // Check if it is a creator
+    $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
+    while($r1 = $roles->fetchArray())
+    {
+        if ($r1['ROLE'] != ROLE_CREATOR)
+            continue;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        if (count($params['contests']) == 1 && $params['contests'][0] == 0)
+            return true;
+        foreach($params['contests'] as $coid)
+        {
+            $zq1 = QQ("SELECT * FROM REQS2 WHERE CID = ?",array($coid));
+            while($zr1 = $zq1->fetchArray())
+            {
+                if ($zr1['PROSONTYPE'] == $pr['CLASSID'])
+                    return true;
+            }        
+        }
+    }
+        
     // Check if it is a checker
     $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
     while($r1 = $roles->fetchArray())
@@ -711,7 +731,9 @@ function PrintForeisContest($cid,$rootfor = 0,$deep = 0)
     while($r1 = $q1->fetchArray())
     {
         $s .= deepx($deep);
-        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button block" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="block sureautobutton is-small is-danger button  block" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$r1['ID']);
+        $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND PID = ?",array($cid,$r1['ID']))->fetchArray()[0];
+
+        $s .= sprintf('<b>%s</b><br> <button class="is-small is-info autobutton button block" href="contest.php?editplace=1&pid=%s">Επεξεργασία</button> <button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> <button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> <button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> <button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s">Λίστα Αιτήσεων (%s)</button> <button class="block sureautobutton is-small is-danger button  block" href="contest.php?deleteplace=1&pid=%s">Διαγραφή</button><br>',$r1['DESCRIPTION'],$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$cid,$r1['ID'],$aitcount,$r1['ID']);
         $s .= deepx($deep);
         $s .= PrintForeisContest($cid,$r1['ID'],$deep + 1);
     }
@@ -756,9 +778,10 @@ function PrintContests($uid)
         $s .= '<td>';
         if ($wa == 1)
         {
+            $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ?",array($r1['ID']))->fetchArray()[0];
             $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
-            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων</button> ',$r1['ID']);
+            $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων (%s)</button> ',$r1['ID'],$aitcount);
             $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
             if ($r1['ID'] != 1)
             $s .= sprintf('<div class="dropdown is-hoverable">
@@ -781,9 +804,12 @@ function PrintContests($uid)
       <div class="dropdown-item">
             <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
       </div>
+      <div class="dropdown-item">
+            <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Αιτήσεων από CSV ΟΠΣΥΔ</button>
+      </div>
     </div>
   </div>
-</div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
+</div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
             $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
            $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
         }
@@ -1139,7 +1165,7 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason 
 
 }
 
-function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
+function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array())
 {
     global $rejr,$xmlp,$required_check_level;
     EnsureProsonLoaded();
@@ -1207,7 +1233,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0)
                 $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
                 $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s x%s',$rootc->attributes()['t'],$reason,$min_needed);
                 return -1;    
-            }
+            }   
 
             // He has it, 
             if ($wouldeval)
@@ -1335,7 +1361,33 @@ function WinTable($cid)
         //printf("<xmp>");        print_r($positions); die;
 }
 
-function ProsonDescription($id)
+function ViewUserProsontaForContest($uid,$cid,$pid = 0,$pos = 0)
+{
+    $s = '';
+    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ?",array($cid,$pid,$pos));
+    $viewed = array();
+    while($r1 = $q1->fetchArray())
+    {
+        $q2 = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($uid,$r1['PROSONTYPE']));
+        while($r2 = $q2->fetchArray())
+        {
+            if (in_array($r2['ID'],$viewed))
+                continue;
+            $viewed [] = $r2['ID'];
+
+            $q3 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($r2['ID']));
+            $s .= sprintf('%s. %s<br>',$r2['ID'],$r2['DESCRIPTION']);
+            while($r3 = $q3->fetchArray())
+            {
+                $s .= sprintf('<a href="viewfile.php?f=%s" target="_blank">%s</a><br>',$r3['ID'],$r3['DESCRIPTION']);
+            }    
+            $s .= '<br>';
+        }
+    }
+    return $s;
+}
+
+function ProsonDescription($id,$showr = 1,$link = 0)
 {
     $r = QQ("SELECT * FROM REQS2 WHERE ID = ?",array($id))->fetchArray();
     global $xmlp,$xml_proson;
@@ -1363,51 +1415,64 @@ function ProsonDescription($id)
                 if ($ch->attributes()->id == $x[0])
                 {
                     $parx = $ch;
-                    $s .= $ch->attributes()->n.' '.$x[1].'<br>';
+                    if ($showr)
+                        $s .= $ch->attributes()->n.' '.$x[1].'<br>';
                 }
             }
         }
     }   
-    if ($r['SCORE'] == 0)
-        $s .= '[Προαπαιτούμενο]<br>';
-    else
-        $s .= sprintf('[Μόρια %s]',$r['SCORE']);
+    if ($showr)
+    {
+        if ($r['SCORE'] == 0)
+            $s .= '[Προαπαιτούμενο]<br>';
+        else
+            $s .= sprintf('[Μόρια %s]',$r['SCORE']);
+    }
 
     if ($r['ORLINK'] != 0)
         $s .= sprintf(' [Εναλλακτικό %s]',$r['ORLINK']);
+    if ($r['ANDLINK'] != 0)
+        $s .= sprintf(' [Συνδυαστικό %s]',$r['ANDLINK']);
     $s .= '<br><br>';
     return $s;
 }
 
-function PrintProsontaForThesi($cid,$placeid,$posid)
+function PrintProsontaForThesi($cid,$placeid,$posid,$what = 0)
 {
     // Contest-only
-    $s = '<div class="notification is-info">
-    <b>Προσόντα επιπέδου διαγωνισμού</b><br><br>';
-    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid));
-    while ($r1 = $q1->fetchArray())
+    if ($cid != 0)
     {
-        $s .= ProsonDescription($r1['ID']);
+        $s = '<div class="notification is-info">
+        <b>Προσόντα επιπέδου διαγωνισμού</b><br><br>';
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = 0 AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid));
+        while ($r1 = $q1->fetchArray())
+        {
+            $s .= ProsonDescription($r1['ID'],$what == 1 ? 0 : 1);
+        }
+        $s .= '</div>';
     }
-    $s .= '</div>';
-    $s .= '<div class="notification is-info">
-    <b>Προσόντα επιπέδου φορέα</b><br><br>';
-    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid));
-    while ($r1 = $q1->fetchArray())
+    if ($placeid != 0)
     {
-        $s .= ProsonDescription($r1['ID']);
+        $s .= '<div class="notification is-info">
+        <b>Προσόντα επιπέδου φορέα</b><br><br>';
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = 0 AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid));
+        while ($r1 = $q1->fetchArray())
+        {
+            $s .= ProsonDescription($r1['ID'],$what == 1 ? 0 : 1);
+        }
+        $s .= '</div>';
     }
-    $s .= '</div>';
-
-    $s .= '<div class="notification is-info">
-    <b>Προσόντα επιπέδου θέσης</b><br><br>';
-    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
-    while ($r1 = $q1->fetchArray())
+    if ($posid != 0)
     {
-        $s .= ProsonDescription($r1['ID']);
+        $s .= '<div class="notification is-info">
+        <b>Προσόντα επιπέδου θέσης</b><br><br>';
+        $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
+        while ($r1 = $q1->fetchArray())
+        {
+            $s .= ProsonDescription($r1['ID'],$what == 1 ? 0 : 1);
+        }
+        $s .= '</div>';
     }
-    $s .= '</div>';
-
     return $s;
 }
 
