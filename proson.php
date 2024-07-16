@@ -145,7 +145,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
     if ($pid)
         $items = QQ("SELECT * FROM PROSON WHERE ID = ? AND UID = ?",array($pid,$uid))->fetchArray();
     if (!$items)
-        $items = array('ID' => '0','UID' => $uid,'CLSID' => guidv4(),'DESCRIPTION' => '','CLASSID' => 0,'STARTDATE' => '0','ENDDATE' => '0');
+        $items = array('ID' => '0','UID' => $uid,'CLSID' => guidv4(),'DESCRIPTION' => '','CLASSID' => 0,'STARTDATE' => '0','ENDDATE' => '0',"DIORISMOS" => 0);
 
     if ($items['CLASSID'] == 0 && array_key_exists("CLASSID",$_GET))
         $items['CLASSID'] = $_GET['CLASSID'];
@@ -212,6 +212,13 @@ function ViewOrEdit($pid,$items,$fcid = 0)
 
         <label for="STARTDATE">Ημερομηνία Λήξης</label>
         <input type="date" name="ENDDATE" class="input" value="<?= $items['ENDDATE'] > 0 ? date("Y-m-d",$items['ENDDATE']) : "" ?>"/>
+        <br><br>
+
+        <label for="STARTDATE">Είναι προσόν διορισμού;</label>
+        <select name="DIORISMOS" class="input">
+            <option value="0">Όχι</option>
+            <option value="1" <?= (int)$items['DIORISMOS'] ? "selected" : "" ?>>Ναι</option>
+        </select>
         <br><br>
 
         <?php

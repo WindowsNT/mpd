@@ -15,7 +15,9 @@ if (!$afm || !$ur)
 if (!HasContestAccess($req['cid'],$ur['ID'],1))
     die;
 
-$f = $req['f'];
+$f = 0;
+if (array_key_exists("f",$req))
+    $f = $req['f'];
 
 $kena = <<<LEIT
 ΠΕ79.01 / ΤΕ16,Μουσικό Γυμνάσιο Παλλήνης,Βιολοντσέλο,1
@@ -312,6 +314,33 @@ $kena = <<<LEIT
 ΠΕ79.01 / ΤΕ16,Μουσικό Σχολείο Χίου,Ταμπουράς,1
 ΠΕ79.01 / ΤΕ16,Μουσικό Σχολείο Χίου,Τρομπέτα,1
 LEIT;
+
+
+// Put all to CID 1
+if (0)
+{
+    $lines = explode("\n",$kena);
+    QQ("BEGIN TRANSACTION");
+    foreach($lines as $line)
+    {
+         $items = str_getcsv($line, ",", "\"");
+         if (count($items) != 4)
+            continue;
+        $placeid = QQ("SELECT * FROM PLACES WHERE CID = ? AND DESCRIPTION = ?",array(1,$items[1]))->fetchArray();
+        $pid = 0;
+        if (!$placeid)
+        {
+            QQ("INSERT INTO PLACES (CID,PARENTPLACEID,DESCRIPTION) VALUES(?,?,?)",array(
+                1,0,$items[1]
+            ));
+            printf("Added %s <br>",$items[1]);
+        }
+    }
+    QQ("COMMIT");
+    die;
+}
+
+
 
 if ($f == 1)
 {
