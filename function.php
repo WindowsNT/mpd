@@ -870,20 +870,26 @@ function PrintContests($uid)
         <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=1">Εισαγωγή Κενών από CSV ΟΠΣΥΔ</button>
     </div>
     <div class="dropdown-item">
-        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως</button>
+        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=2&from=1">Αντιγραφή Προσόντων Θέσεως από Διαγωνισμό 1</button>
     </div>
     <div class="dropdown-item">
-        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού</button>
+        <button class="sureautobutton button is-small is-danger"  href="opsyd.php?cid=%s&f=3&from=1">Αντιγραφή Προσόντων Διαγωνισμού από Διαγωνισμό 1</button>
     </div>
     <div class="dropdown-item">
-        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων</button>
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=4&from=1">Αντιγραφή Προσόντων Φορέων από Διαγωνισμό 1</button>
     </div>
     <div class="dropdown-item">
-        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5&from=1">Δημιουργία Ατόμων από CSV ΟΠΣΥΔ</button>
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=5">Δημιουργία Ατόμων</button>
+    </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=6">Δημιουργία ΠΥΜ και Αιτήσεων από CSV ΟΠΣΥΔ</button>
+    </div>
+    <div class="dropdown-item">
+        <button class="sureautobutton button is-small is-danger" href="opsyd.php?cid=%s&f=7">Ανέβασμα προσόντων Ατόμων από φάκελο /DDD</button>
     </div>
 </div>
 </div>
-</div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
+</div> ',$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID'],$r1['ID']);
         $s .= sprintf('<button class="autobutton button is-small is-success block" href="win.php?cid=%s">Αποτελέσματα</button> ',$r1['ID']);
         if ($wa)
             $s .= sprintf('<button class="sureautobutton button is-small is-danger block" href="kill.php?cid=%s">Διαγραφή</button></td>',$r1['ID']);
@@ -1581,13 +1587,31 @@ function PushAithsiCompleted($appid)
     Push3_Send("Έγινε η αίτηση!",array($u['CLSID']));
 }
 
-function KillUser($uid)
+function scanAllDir($dir,$dirs = false) {
+    $result = [];
+    foreach(scandir($dir) as $filename) {
+      if ($filename[0] === '.') continue;
+      $filePath = $dir . '/' . $filename;
+      if (is_dir($filePath)) {
+        if ($dirs) $result[] = $filename;
+        foreach (scanAllDir($filePath,$dirs) as $childFilename) {
+          $result[] = $filename . '/' . $childFilename;
+        }
+      } else {
+        $result[] = $filename;
+      }
+    }
+    return $result;
+  }
+  
+function KillUser($uid,$trs = 0)
 {
     $ur = Single("USERS","ID",$uid);
     if (!$ur)
         return;
-    QQ("BEGIN TRANSACTION");
-    QQ("DELETE FROM APPLICATIONS WHERE IID = ?",array($uid));
+    if ($trs == 0)
+        QQ("BEGIN TRANSACTION");
+    QQ("DELETE FROM APPLICATIONS WHERE UID = ?",array($uid));
     $q1 = QQ("SELECT * FROM PROSON WHERE UID = ?",array($uid));
     while($r1 = $q1->fetchArray())
     {
@@ -1596,9 +1620,26 @@ function KillUser($uid)
     QQ("DELETE FROM PUSHING WHERE CLSID = ?",array($ur['CLSID']));
     QQ("DELETE FROM ROLES WHERE UID = ?",array($uid));
     QQ("DELETE FROM WINTABLE WHERE UID = ?",array($uid));
-    QQ("COMMIT");
+    QQ("DELETE FROM USERS WHERE ID = ?",array($uid));
+    if ($trs == 0)
+        QQ("COMMIT");
 }
 
+
+function KillUsersType1()
+{
+    $uids = array();
+    $q1 = QQ("SELECT * FROM USERS WHERE TYPE = 1");
+    while($r1 = $q1->fetchArray())
+    {
+        $uids[] = $r1['ID'];
+    }
+    QQ("BEGIN TRANSACTION");
+    foreach($uids as $u)
+        KillUser($u, true);
+    QQ("COMMIT");
+    QQ("VACUUM");
+}
 
 function Kill($cid,$placeid,$posid,$appid)
 {

@@ -114,6 +114,14 @@ if (array_key_exists("userclean",$req))
 }
 
 
+if (array_key_exists("killtype1",$req))
+{
+    KillUsersType1();
+    redirect("superadmin.php");
+    die;
+}
+
+
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
 
@@ -125,3 +133,4 @@ printf('<a class="button  is-primary block" href="superadmin.php?backupfiles=1">
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?vacuum=1">Vacuum [%.2f MB]</button> ',filesize($dbxx)/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?fileclean=1">File Cleanup</button> ');
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?userclean=1">User Cleanup</button> ');
+printf('<button class="button autobutton  is-primary block" href="superadmin.php?killtype1=1">Kill Type 1 Users</button> ');
