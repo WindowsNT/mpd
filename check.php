@@ -27,6 +27,7 @@ if (array_key_exists("level",$params))
     $level = $params['level'];
 
 
+
 if (array_key_exists("approve",$_GET))
 {
     $prr = Single("PROSON","ID",$_GET['approve']);
@@ -69,7 +70,7 @@ if (!array_key_exists("afm",$req))
         $q1 = QQ("SELECT * FROM USERS");
         while($cr = $q1->fetchArray())
         {
-            printf('<a href="check.php?t=%s&afm=%s">%s %s</a><br>',$req['t'],$cr['AFM'],$cr['LASTNAME'],$cr['FIRSTNAME']);
+            printf('<a href="check.php?t=%s&afm=%s">%s. %s %s</a><br>',$req['t'],$cr['AFM'],$cr['ID'],$cr['LASTNAME'],$cr['FIRSTNAME']);
 
         }
     }

@@ -183,7 +183,7 @@ $def_xml_proson = <<<XML
                 <c n="803" t="Βιβλίο" >
                     <params>
                         <p n="Τίτλος" id="1" t="0" unique="1"/>
-                        <p n="Εκδτοικός Οίκος" id="2" t="0"/>
+                        <p n="Εκδοτικός Οίκος" id="2" t="0"/>
                         <p n="Διεθνής" id="3" t="1" min="0" max="1" />
                         <p n="ISSN" id="4" />
                     </params>
@@ -607,11 +607,24 @@ function HasProsonAccess($pid,$uid,$wr = 0)
         return false;
     if ($pr['UID'] == $uid)
         return true;
-    if ($wr == 1)
-        return false;
 
     $belongsto = Single("USERS","ID",$pr['UID']);
     if (!$belongsto)
+        return false;
+
+    // Check if it is a checker
+    $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
+    while($r1 = $roles->fetchArray())
+    {
+        if ($r1['ROLE'] != ROLE_CHECKER)
+            continue;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        $afms = $params['afms'];
+        if (in_array($belongsto['AFM'],$afms) || in_array(  0,$afms))
+            return true;
+    }
+
+    if ($wr == 1)
         return false;
 
     // Check if it is a creator
@@ -654,18 +667,6 @@ function HasProsonAccess($pid,$uid,$wr = 0)
           }
       }
           
-    // Check if it is a checker
-    $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
-    while($r1 = $roles->fetchArray())
-    {
-        if ($r1['ROLE'] != ROLE_CHECKER)
-            continue;
-        $params = json_decode($r1['ROLEPARAMS'],true);
-        $afms = $params['afms'];
-        if (in_array($belongsto['AFM'],$afms))
-            return true;
-    }
-
     // Check if it is a university
     $roles = QQ("SELECT * FROM ROLES WHERE UID = ?",array($uid));
     while($r1 = $roles->fetchArray())
@@ -1008,6 +1009,8 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
                $CanModify = 1;
             if ($CanModify) 
             {
+                $_SESSION['proson_fcid'] = $r1['ID'];
+                $s .= sprintf('<button class="block autobutton button is-small is-link" href="proson.php?e=0">Αλλαγή Κατηγορίας</button> ');
                 $s .= sprintf('<button class="block sureautobutton button is-small is-success" href="check.php?t=%s&approve=%s">Έγκριση</button> ',$rolerow['ID'],$r1['ID']);
                 $s .= sprintf('<button class="block button is-small is-danger" onclick="rejectproson(%s,%s);">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
             }

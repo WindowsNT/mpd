@@ -18,6 +18,15 @@ if (array_key_exists("force_user",$req))
 if (array_key_exists("e",$_POST))
 {
     // Unique Parameters
+    if ($_POST['e'] > 0 && array_key_exists("proson_fcid_run_uid",$_SESSION) && !HasProsonAccess($_POST['e'],$uid,1))
+        die;
+    $whoimp = $uid;
+    if (array_key_exists("proson_fcid_run_uid",$_SESSION))
+        {
+            $whoimp = $_SESSION['proson_fcid_run_uid'];
+            unset($_SESSION['proson_fcid_run_uid']);
+        }
+
     EnsureProsonLoaded();
     $rootc = RootForClassId($xmlp->classes,$_POST['CLASSID']);
     if ($rootc->params)
@@ -32,7 +41,7 @@ if (array_key_exists("e",$_POST))
             $parid = $ch->attributes()['id'];
             $val = $_POST[sprintf("param_%s",$parid)];
             
-            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($ur['ID'],$_POST['CLASSID']));
+            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($whoimp,$_POST['CLASSID']));
             while($other = $others->fetchArray())
             {
                 $que = QQ("SELECT * FROM PROSONPAR WHERE PID = ? AND PIDX = ? AND PVALUE = ?",array($other['ID'],$parid,$val))->fetchArray();
@@ -52,7 +61,7 @@ if (array_key_exists("e",$_POST))
         $uni = $rootc->attributes()['unique'];
         if ($uni == 1)
         {
-            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($ur['ID'],$_POST['CLASSID']));
+            $others = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($whoimp,$_POST['CLASSID']));
             while($other = $others->fetchArray())
             {
                 if ($other['ID'] != $_POST['e'])
@@ -113,7 +122,12 @@ if (array_key_exists("e",$_POST))
     if ($newly)
         redirect(sprintf("files.php?e=%s&f=0",$pid));
     else
-        redirect("proson.php");
+        {
+            if ($whoimp != $uid)
+                redirect("index.php");
+            else
+                redirect("proson.php");
+        }
     die;
 }
 
@@ -166,6 +180,18 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         return;
     }
     
+    if (array_key_exists("proson_fcid",$_SESSION))
+    {
+        if (HasProsonAccess($_SESSION['proson_fcid'],$uid,1))
+        {
+            $pid = $_SESSION['proson_fcid'];
+            $items = QQ("SELECT * FROM PROSON WHERE ID = ?",array($pid))->fetchArray();
+            $items['CLASSID'] = $req['CLASSID'];
+            $_SESSION['proson_fcid_run_uid'] = $items['UID'];
+        }
+        unset($_SESSION['proson_fcid']);
+    }
+
     ?>
     <form method="POST" action="proson.php">
     <input type="hidden" name="e" value="<?= $items['ID'] ?>" />
