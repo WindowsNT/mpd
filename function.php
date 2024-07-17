@@ -350,6 +350,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FAILREASON TEXT,DIORISMOS INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFORCE (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PLACEID INTEGER,POS INTEGER,PIDCLASS INTEGER,SCORE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
 //      QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
@@ -1024,7 +1025,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         else
         {
             if ($r1['STATE'] > 0)
-                $s .= sprintf('<button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
+                $s .= sprintf('<button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button block is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
             else
                 $s .= sprintf('<button class="autobutton button is-small is-link block" href="proson.php?e=%s">Διόρθωση</button> <button class="sureautobutton button is-small is-danger" href="proson.php?delete=%s">Διαγραφή</button>',$r1['ID'],$r1['ID']);
         }
@@ -1096,7 +1097,7 @@ function jpegrecompress($d)
 
 $rejr = '';
 
-function HasProson($uid,$reqid,$deep = 0,&$reason = '')
+function HasProson($uid,$reqid,$deep = 0,&$reason = '',&$haslist = array())
 {
     global $required_check_level;
     $reqrow = Single("REQS2","ID",$reqid);
@@ -1169,6 +1170,7 @@ function HasProson($uid,$reqid,$deep = 0,&$reason = '')
             $deep--;
             continue;
         }
+        $haslist[] = $r;
         return 1;
     }
     return -1;
@@ -1211,7 +1213,7 @@ function ScoreForAitisi($apid)
     return $score;
 }
 
-function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason = '')
+function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason = '',&$haslist = array())
 {
     if (array_key_exists($pid,$checked))
         return -1;
@@ -1219,21 +1221,21 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason 
     if (!$prow)
         return -1;
     $checked[] = $pid;
-    $y = HasProson($uid,$pid,$deep,$reason);
+    $y = HasProson($uid,$pid,$deep,$reason,$haslist);
     if ($y == -1)
     {
         if ($prow['ANDLINK'] != 0)
             return -1; // we don't have it, so entire chain fails
         if ($prow['ORLINK'] == 0)
             return -1; // nothing more to search
-        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked,$deep,$reason);
+        return ProsonResolutAndOrNot($uid,$prow['ORLINK'],$checked,$deep,$reason,$haslist);
     }
     else
     {
         // We have it
         if ($prow['NOTLINK'] != 0)   
         {
-            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked,$deep,$reason) == 1)            
+            if (ProsonResolutAndOrNot($uid,$prow['NOTLINK'],$checked,$deep,$reason,$haslist) == 1)            
                 {
                     return -1; // XOR fail
                 }
@@ -1241,14 +1243,14 @@ function ProsonResolutAndOrNot($uid,$pid,&$checked = array(),$deep = 0,&$reason 
 
         if ($prow['ANDLINK'] != 0)
         {
-            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked,$deep,$reason);
+            return ProsonResolutAndOrNot($uid,$prow['ANDLINK'],$checked,$deep,$reason,$haslist);
         }
         return 1;
     }
 
 }
 
-function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array())
+function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0)
 {
     global $rejr,$xmlp,$required_check_level;
     EnsureProsonLoaded();
@@ -1275,6 +1277,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
         $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ? AND (FORTHESI IS NULL OR FORTHESI = '')",array($cid,$placeid,$posid));
     while($r1 = $q1->fetchArray())
     {
+        $desc2 = array();
         $sp = $r1['SCORE'];
         $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
         if ($rootc)
@@ -1307,7 +1310,8 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
             $checked = array();
             $reason = '';
 
-            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason);
+            $haslist = array();
+            $has = ProsonResolutAndOrNot($uid,$r1['ID'],$checked,$deep,$reason,$haslist);
 
             if ($has != 1)
             {
@@ -1319,15 +1323,16 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
             }   
 
             // He has it, 
-            if ($wouldeval)
+            if ($wouldeval || $prosononly)
             {
                 $sp = $r1['SCORE'];
                 $deeps = $deep;
                 $time = time();
                 $qpr = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ? AND STATE >= ? AND STARTDATE < ? AND (ENDDATE > ? OR ENDDATE = 0)",array($uid,$r1['PROSONTYPE'],$required_check_level,$time,$time));
+        
                 while($rpr = $qpr->fetchArray())
                 {
-                    if ($deeps > 0)
+                   if ($deeps > 0)
                     {
                         $deeps--;
                         continue;
@@ -1365,6 +1370,20 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
                 if ($sp > 0)
                     printf("%s: %s<br>",$rootc->attributes()['t'],$sp);
             }
+
+
+        //  Forced
+        $forcedscore = QQ("SELECT * FROM PROSONFORCE WHERE (UID = ? OR UID = 0) AND (CID = ? OR CID = 0) AND (PLACEID = ? OR PLACEID = ? OR PLACEID = 0) AND (POS = ? OR POS = ? OR POS = 0) AND (PIDCLASS = ? OR PIDCLASS = 0)",array($uid,$cid,$placeid,$forwhichplace,$posid,$forwhichpos,$r1['PROSONTYPE']))->fetchArray();
+        if ($forcedscore)
+            {
+                $sp = $forcedscore['SCORE'];
+            }
+
+
+        $desc2['s'] = $sp;
+        $desc2['h'] = $haslist;
+        
+        $desc[] = $desc2;
         $score += $sp;
         }
 
@@ -1374,7 +1393,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
 
     if ($posid)
     {
-        $v = CalculateScore($uid,$cid,$placeid,0,$debug);;
+        $v = CalculateScore($uid,$cid,$placeid,0,$debug,$linkssave,$prosononly,$desc,0,$posid);
         if ($v == -1)
             return -1;
         $score += $v;
@@ -1382,7 +1401,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
     else
     if ($placeid)
     {
-        $v =  CalculateScore($uid,$cid,0,0,$debug);
+        $v =  CalculateScore($uid,$cid,0,0,$debug,$linkssave,$prosononly,$desc,$placeid,$forwhichpos);
         if ($v == -1)
             return -1;
         $score += $v;
@@ -1447,10 +1466,15 @@ function WinTable($cid)
 function ViewUserProsontaForContest($uid,$cid,$pid = 0,$pos = 0)
 {
     $s = '';
-    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ?",array($cid,$pid,$pos));
+  //  $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ?",array($cid,$pid,$pos));
+    $q1 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND PLACEID = ? AND POSID = ?",array($cid,0,0));
     $viewed = array();
     while($r1 = $q1->fetchArray())
     {
+
+        $ar = array();
+//        if ($r1['PROSONTYPE'] == 2) xdebug_break();
+
         $q2 = QQ("SELECT * FROM PROSON WHERE UID = ? AND CLASSID = ?",array($uid,$r1['PROSONTYPE']));
         while($r2 = $q2->fetchArray())
         {
@@ -1458,12 +1482,15 @@ function ViewUserProsontaForContest($uid,$cid,$pid = 0,$pos = 0)
                 continue;
             $viewed [] = $r2['ID'];
 
+            $scoreforthis = CalculateScore($uid,$cid,$pid,$pos,0,$ar,$r2['ID']);
+
             $q3 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($r2['ID']));
             $s .= sprintf('%s. %s<br>',$r2['ID'],$r2['DESCRIPTION']);
             while($r3 = $q3->fetchArray())
             {
                 $s .= sprintf('<a href="viewfile.php?f=%s" target="_blank">%s</a><br>',$r3['ID'],$r3['DESCRIPTION']);
             }    
+            $s .= sprintf('%s<br>',$scoreforthis);
             $s .= '<br>';
         }
     }

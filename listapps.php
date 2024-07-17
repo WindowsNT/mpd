@@ -49,7 +49,18 @@ if(array_key_exists("enable",$req))
     }
 if(array_key_exists("score",$req))
     {
-        QQ("UPDATE APPLICATIONS SET FORCEDMORIA = ? WHERE CID = ? AND ID = ?",array($req['score'],$req['cid'],$req['aid']));
+        if (array_key_exists("prid",$req))
+        {
+            QQ("BEGIN TRANSACTION");
+            QQ("DELETE FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ?",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class']));
+            if ($req['score'] > 0)
+                QQ("INSERT INTO PROSONFORCE (UID,CID,PLACEID,POS,PIDCLASS,SCORE) VALUES(?,?,?,?,?,?)",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['score']));
+            QQ("COMMIT");
+        }
+        else
+        {
+            QQ("UPDATE APPLICATIONS SET FORCEDMORIA = ? WHERE CID = ? AND ID = ?",array($req['score'],$req['cid'],$req['aid']));
+        }
         redirect(sprintf("listapps.php?cid=%s&pid=%s&pos=%s",$req['cid'],$req['pid'],$req['pos']));
         die;
     }
@@ -97,12 +108,28 @@ while($r1 = $q1->fetchArray())
     printf('<td>%s</td>',$fr['DESCRIPTION']);
     printf('<td>%s</td>',$pr['DESCRIPTION']);
     $a = array();
-    printf('<td>%s</td>',CalculateScore($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],0,$a));
+    $desc = array();
+    $scx = CalculateScore($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],0,$a,0,$desc);
+    printf('<td>%s</td>',$scx);
+
 
     // Prosonta
     printf('<td>');
+    foreach($desc as $dd)
+    {
+        $prosontalist = $dd['h'];
+        foreach($prosontalist as $prosonrow)
+        {
+            $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID']))->fetchArray();
+            if ($exist)
+                printf('<button class="button is-small is-danger" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s,1);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$exist['SCORE'],$prosonrow['DESCRIPTION']);
+            else
+                printf('<button class="button is-small is-link" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$dd['s'],$prosonrow['DESCRIPTION']);
+        }
+        printf('<br>');
+    }
 //    echo PrintProsontaForThesi($req['cid'],$fr['ID'],$pr['ID'],1);
-    echo ViewUserProsontaForContest($ur['ID'],$req['cid']);
+//    echo ViewUserProsontaForContest($ur['ID'],$req['cid'],$fr['ID'],$pr['ID']);
     printf('</td>');
 
     printf('<td>');
@@ -140,6 +167,14 @@ while($r1 = $q1->fetchArray())
 ?>
 </tbody></table>
 <script>
+    function changeprosonscore(uid,cid,pid,pos,classid,prid,reset = 0)
+    {
+        var sc = reset == 1 ? 0 : prompt("Νέο Σκορ:");
+        if (!reset && !sc)
+            return;
+        window.location = "listapps.php?cid=" + cid + "&pid=" + pid + "&pos=" + pos + "&class=" + classid + "&prid=" + prid + "&score=" + sc + "&uid=" + uid;
+    }
+
     function changescore(cid,pid,pos,aid)
     {
         var sc = prompt("Νέο Σκορ:");

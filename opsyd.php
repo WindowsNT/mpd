@@ -315,6 +315,30 @@ $kena = <<<LEIT
 ΠΕ79.01 / ΤΕ16,Μουσικό Σχολείο Χίου,Τρομπέτα,1
 LEIT;
 
+// Alimos proson to all ms
+if (0)
+{
+    $s1 = Single("REQS2","ID","10");
+    QQ("BEGIN TRANSACTION");
+    $q1 = QQ("SELECT * FROM PLACES WHERE CID = 1");
+    $places = array();
+    while($r1 = $q1->fetchArray())
+    {
+        if ($r1['ID'] == $s1['PLACEID'])
+            continue;
+        $places[] = $r1['ID'];
+    }
+    foreach($places as $pid)
+    {
+        QQ("INSERT INTO REQS2 (CID,PLACEID,POSID,PROSONTYPE,SCORE,REGEXRESTRICTIONS) VALUES(?,?,?,?,?,?)",array(
+            1,$pid,0,$s1['PROSONTYPE'],$s1['SCORE'],$s1['REGEXRESTRICTIONS']
+        ));
+    }
+
+    QQ("COMMIT");
+    die;
+
+}
 
 // Put all to CID 1
 if (0)
