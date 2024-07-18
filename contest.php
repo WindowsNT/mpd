@@ -117,7 +117,7 @@ function ViewOrEdit($cid)
                 $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
         }
     if (!$items)
-        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '');
+        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '',"CLASSID" => 0);
 
     ?>
     <form method="POST" action="contest.php">
@@ -133,6 +133,12 @@ function ViewOrEdit($cid)
 
         <label for="DESCRIPTION">Περιγραφή</label>
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>
+        <br><br>
+
+        <label for="CLASSID">Class ID</label>
+        <select name="CLASSID" class="input">
+            <option value="0" <?= $items['CLASSID'] == 0 ? "selected" : "" ?>>Προεπιλογή</option>
+        </select>
         <br><br>
 
         <label for="STARTDATE">Ημερομηνία Έναρξης</label>

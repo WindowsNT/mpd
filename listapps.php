@@ -52,9 +52,9 @@ if(array_key_exists("score",$req))
         if (array_key_exists("prid",$req))
         {
             QQ("BEGIN TRANSACTION");
-            QQ("DELETE FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ?",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class']));
+            QQ("DELETE FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['prid']));
             if ($req['score'] > 0)
-                QQ("INSERT INTO PROSONFORCE (UID,CID,PLACEID,POS,PIDCLASS,SCORE) VALUES(?,?,?,?,?,?)",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['score']));
+                QQ("INSERT INTO PROSONFORCE (UID,CID,PLACEID,POS,PIDCLASS,PRID,SCORE) VALUES(?,?,?,?,?,?,?)",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['prid'],$req['score']));
             QQ("COMMIT");
         }
         else
@@ -120,7 +120,7 @@ while($r1 = $q1->fetchArray())
         $prosontalist = $dd['h'];
         foreach($prosontalist as $prosonrow)
         {
-            $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID']))->fetchArray();
+            $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID']))->fetchArray();
             if ($exist)
                 printf('<button class="button is-small is-danger" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s,1);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$exist['SCORE'],$prosonrow['DESCRIPTION']);
             else

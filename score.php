@@ -19,6 +19,10 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
     $contestrow = Single("CONTESTS","ID",$cid); 
     if (!$contestrow)
         return -1;
+    if ($contestrow['CLASSID'] != 0)
+    {
+
+    }
     $posr = Single("POSITIONS","ID",$posid); 
     $score = 0;
 
@@ -82,6 +86,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
             }   
 
             // He has it, 
+            $forced_proson_id = -1;
             if ($wouldeval || $prosononly)
             {
                 $sp = $r1['SCORE'];
@@ -96,6 +101,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
                         $deeps--;
                         continue;
                     }
+                    $forced_proson_id = $rpr['ID'];
                     $pars = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($rpr['ID']));
                     while($par = $pars->fetchArray())
                     {
@@ -132,7 +138,8 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
 
 
         //  Forced
-        $forcedscore = QQ("SELECT * FROM PROSONFORCE WHERE (UID = ? OR UID = 0) AND (CID = ? OR CID = 0) AND (PLACEID = ? OR PLACEID = ? OR PLACEID = 0) AND (POS = ? OR POS = ? OR POS = 0) AND (PIDCLASS = ? OR PIDCLASS = 0)",array($uid,$cid,$placeid,$forwhichplace,$posid,$forwhichpos,$r1['PROSONTYPE']))->fetchArray();
+        if ($r1['PROSONTYPE'] == 2) xdebug_break();
+        $forcedscore = QQ("SELECT * FROM PROSONFORCE WHERE (UID = ? OR UID = 0) AND (CID = ? OR CID = 0) AND (PLACEID = ? OR PLACEID = ? OR PLACEID = 0) AND (POS = ? OR POS = ? OR POS = 0) AND (PIDCLASS = ? OR PIDCLASS = 0) AND (PRID = ? OR PRID = 0)",array($uid,$cid,$placeid,$forwhichplace,$posid,$forwhichpos,$r1['PROSONTYPE'],$forced_proson_id))->fetchArray();
         if ($forcedscore)
             {
                 $sp = $forcedscore['SCORE'];
