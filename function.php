@@ -295,6 +295,15 @@ function QQ($q,$arr = array(),$stmt = null)
     return QQZ($db,$q,$arr,$stmt);
 }
 
+function BeginTransaction()
+{
+    global $mysqli;
+    if ($mysqli)
+        QQ("START TRANSACTION");
+    else    
+        QQ("BEGIN TRANSACTION");
+}
+
 
 function CountDB($q,$arr)
 {
@@ -430,7 +439,7 @@ function PrepareDatabaseMySQL()
 if (strstr($dbxx,':'))
 {
     // MySQL
-    $mysqli = new \mysqli($dbxx,"root","root","db1");
+    $mysqli = new \mysqli($dbxx,"umpd","e4ea15be-4dea-7754-bdde-c305a932bfa1","mpd");
     PrepareDatabaseMySQL();
 }
 else
@@ -1486,7 +1495,7 @@ function KillUser($uid,$trs = 0)
     if (!$ur)
         return;
     if ($trs == 0)
-        QQ("BEGIN TRANSACTION");
+        BeginTransaction();
     QQ("DELETE FROM APPLICATIONS WHERE UID = ?",array($uid));
     $q1 = QQ("SELECT * FROM PROSON WHERE UID = ?",array($uid));
     while($r1 = $q1->fetchArray())
@@ -1510,7 +1519,7 @@ function KillUsersType1()
     {
         $uids[] = $r1['ID'];
     }
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     foreach($uids as $u)
         KillUser($u, true);
     QQ("COMMIT");
@@ -1519,7 +1528,7 @@ function KillUsersType1()
 
 function Kill($cid,$placeid,$posid,$appid)
 {
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     if ($appid)
     {
         QQ("DELETE FROM APPLICATIONS WHERE ID = ?",array($appid));

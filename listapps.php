@@ -51,7 +51,7 @@ if(array_key_exists("score",$req))
     {
         if (array_key_exists("prid",$req))
         {
-            QQ("BEGIN TRANSACTION");
+            BeginTransaction();
             QQ("DELETE FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['prid']));
             if ($req['score'] > 0)
                 QQ("INSERT INTO PROSONFORCE (UID,CID,PLACEID,POS,PIDCLASS,PRID,SCORE) VALUES(?,?,?,?,?,?,?)",array($req['uid'],$req['cid'],$req['pid'],$req['pos'],$req['class'],$req['prid'],$req['score']));

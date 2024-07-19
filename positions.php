@@ -43,7 +43,7 @@ function ViewOrEditPos($posid)
 if (array_key_exists("movefromglobal",$_GET) && $wa)
 {
     // cid contest, pid place, movefromglobal pos
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     $prosonrow = Single("POSITIONS","ID",$req['movefromglobal']); 
     if ($prosonrow)
     {

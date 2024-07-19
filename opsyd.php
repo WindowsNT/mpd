@@ -319,7 +319,7 @@ LEIT;
 if (0)
 {
     $s1 = Single("REQS2","ID","10");
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     $q1 = QQ("SELECT * FROM PLACES WHERE CID = 1");
     $places = array();
     while($r1 = $q1->fetchArray())
@@ -344,7 +344,7 @@ if (0)
 if (0)
 {
     $lines = explode("\n",$kena);
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     foreach($lines as $line)
     {
          $items = str_getcsv($line, ",", "\"");
@@ -369,7 +369,7 @@ if (0)
 if ($f == 1)
 {
     $lines = explode("\n",$kena);
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     foreach($lines as $line)
     {
          $items = str_getcsv($line, ",", "\"");
@@ -411,7 +411,7 @@ if ($f == 2)
     if (!$r0)
         die("ERR");
 
-    QQ("BEGIN TRANSACTION");
+        BeginTransaction();
 
     // copy prosonta thesewn
     QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array(
@@ -451,7 +451,7 @@ if ($f == 2)
 // copy prosonta diagwnismou
 if ($f == 3)
 {
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     QQ("DELETE FROM REQS2 WHERE CID = ? AND POSID = 0 AND PLACEID = 0 AND (FORTHESI IS NULL OR FORTHESI == '')",array($req['cid']));
     $q2 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND POSID = 0 AND PLACEID = 0 AND (FORTHESI IS NULL OR FORTHESI == '')",array($req['from']));
     $dups = array();
@@ -486,7 +486,7 @@ if ($f == 3)
 // copy prosonta forewn
 if ($f == 4)
 {
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     QQ("DELETE FROM REQS2 WHERE CID = ? AND POSID = 0 AND PLACEID != 0 AND (FORTHESI IS NULL OR FORTHESI == '')",array($req['cid']));
     $q2 = QQ("SELECT * FROM REQS2 WHERE CID = ? AND POSID = 0 AND PLACEID != 0 AND (FORTHESI IS NULL OR FORTHESI == '')",array($req['from']));
     $dups = array();
@@ -700,7 +700,7 @@ if ($f == 5 || $f == 6)
     $lines = explode("\n",$aits);
     $newusers = 0;
     $numapps = 0;
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
     foreach($lines as $line)
     {
         $items = str_getcsv($line, ",", "\"");
@@ -806,7 +806,7 @@ if ($f == 7)
     $lines = explode("\n",$aits);
     $newusers = 0;
     $files = scanAllDir("/DDD",true);
-    QQ("BEGIN TRANSACTION");
+    BeginTransaction();
 
 
     $q1 = QQ("SELECT * FROM USERS WHERE TYPE = 1");
