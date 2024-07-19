@@ -206,14 +206,28 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Έναρξης</label>
+        <label for="STARTDATE">Ημερομηνία Απόκτησης Τίτλου</label>
         <input type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Λήξης</label>
-        <input type="date" name="ENDDATE" class="input" value="<?= $items['ENDDATE'] > 0 ? date("Y-m-d",$items['ENDDATE']) : "" ?>"/>
-        <br><br>
-
+        <?php
+            $canend = $croot->attributes()['canend'];
+            if ($canend == 0)
+            {
+                ?>
+                <input type="hidden" name="ENDDATE" class="input" />
+                <?php
+            }
+            else
+            {
+                ?>
+                <label for="STARTDATE">Ημερομηνία Λήξης Τίτλου </label>
+                <input type="date" name="ENDDATE" class="input" value="<?= $items['ENDDATE'] > 0 ? date("Y-m-d",$items['ENDDATE']) : "" ?>"/>
+                <br><br>
+                <?php
+        
+            }
+        ?>
         <label for="STARTDATE">Είναι προσόν διορισμού;</label>
         <select name="DIORISMOS" class="input">
             <option value="0">Όχι</option>
