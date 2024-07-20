@@ -3,12 +3,56 @@
 require_once "function.php";
 require_once "auth.php";
 require_once "output.php";
-echo '<div class="content" style="margin: 20px">';
 if (array_key_exists("target_id",$_SESSION))
   unset($_SESSION['target_id']);
 if ($afm && $ur)
     {
-        printf('<button class="button is-danger autobutton block" href="auth.php?redirect=index.php&logout=1">Logout %s %s - %s ID %s</button><hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID']);
+      $superdata = '';
+      if ($superadmin)
+        $superdata = sprintf('<a class="button is-primary" href="superadmin.php">Superadmin</a> <a class="button is-warning" href="update.php">Update</a> ');
+
+      printf('<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="https://bulma.io">
+
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="index.php">
+        <b>%s %s</b>&nbsp; &mdash; %s ID %s
+      </a>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+        %s
+          <a class="button is-warning" href="settings.php">
+            <strong>Ρυθμίσεις</strong>
+          </a>
+          <a class="button is-danger" href="auth.php?redirect=index.php&logout=1">
+            <strong>Logout</strong>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID'],$superdata);
+
+    
+        printf('<hr>');
+        echo '<div class="content" style="margin: 20px">';
+
+
         printf('<button class="button autobutton is-link block " href="proson.php">Προσόντα</button> ');
         printf('<button class="button autobutton is-success block " href="applications.php">Αιτήσεις</button> ');
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
@@ -84,16 +128,11 @@ if ($afm && $ur)
 
 
 
-      printf('<br><br><hr><button class="button autobutton  is-warning block" href="settings.php">Ρυθμίσεις</button> ');
-      if ($superadmin)
-        printf('<button class="button autobutton  is-danger block" href="superadmin.php">Superadmin</button> ');
-      if ($superadmin)
-        printf('<button class="button autobutton  is-success block" href="update.php">Update</button> ');
-      printf('<br>');
     }
 else
 {
  
+  echo '<div class="content" style="margin: 20px">';
   $_SESSION['return_msa'] = 'mpd';
     ?>
 

@@ -3,9 +3,9 @@
 
 // Scores for metathesi music schools algorithm for example
 
-function CalculateScoreFor101($uid,$cid,$placeid,$posid,&$desc = array())
+function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems = 0)
 {
-
+    // Music Schools Calculator
 }
 
 
