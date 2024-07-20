@@ -67,27 +67,32 @@ if (array_key_exists("delete",$_GET))
     die;
 }
 
+$file_count = 0;
 function PrintFiles($pid)
 {
-    global $req;
+    global $req,$file_count;
 
     $s = '<table class="table datatable" style="width: 100%">';
     $s .= '<thead>
                 <th class="all">#</th>
                 <th class="all">Αρχείο</th>
+                <th class="all">Περιγραφή</th>
                 <th class="all">Εντολές</th>
             </thead><tbody>';
 
-            
+
+    $file_count = 0;
     $q1 = QQ("SELECT * FROM PROSONFILE WHERE PID = ? ",array($pid));
     while($r1 = $q1->fetchArray())
     {
+        $file_count++;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
         if (array_key_exists("force_user",$req))
             $s .= sprintf('<td><b><a href="viewfile.php?f=%s&force_user=%s" target="_blank">%s</a></td>',$r1['ID'],$req['force_user'],$r1['FNAME']);
         else
             $s .= sprintf('<td><b><a href="viewfile.php?f=%s" target="_blank">%s</a></td>',$r1['ID'],$r1['FNAME']);
+        $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
         $s .= sprintf('<td>');
 
         if (array_key_exists("force_user",$req))
@@ -104,12 +109,15 @@ function PrintFiles($pid)
 
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
+$filelist = PrintFiles($_GET['e']);
 if ($_GET['f'] == 0)
 {
+    $pr = Single("PROSON","ID",$_GET['e']);
     printf('<button href="proson.php" class="autobutton button is-danger">Πίσω</button><hr>');
-    echo 'Αρχεία<hr>';
-    echo PrintFiles($_GET['e']);
-    echo '<hr>Ανέβασμα νέου αρχείου<hr>';    
+    if ($file_count != 0)
+    echo '<div class="columns">
+  <div class="column is-half">';
+    printf('Προσόν: <b>%s</b><br>Ανέβασμα νέου αρχείου<hr>',$pr['DESCRIPTION']);    
     ?>
         <form method="POST" action="files.php" enctype="multipart/form-data">
         <?php
@@ -118,9 +126,8 @@ if ($_GET['f'] == 0)
             ?>
 
             <input type="hidden" name="e" value="<?= $_GET['e'] ?>">
-            <label for="f0">Περιγραφή</label>
+            <label for="f0">Περιγραφή του αρχείου</label>
         <input type="text" name="f0" id="f0" required class="input"/><br><br>
-        <label for="f1">Ανέβασμα</label>
 
 <!--        <input type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required class="input"/><br>-->
 <div class="file has-name is-boxed">
@@ -134,7 +141,7 @@ if ($_GET['f'] == 0)
                 Επιλογή αρχείου
             </span>
         </span>
-        <span class="file-name">Επιλέξτε αρχείο...</span>
+        <span class="file-name">Κάντε κλικ για να επιλέξετε...</span>
     </label>
 </div>
 
@@ -143,4 +150,12 @@ if ($_GET['f'] == 0)
         </form>
     <?php
 
+    if ($file_count != 0)
+    {
+        echo '</div><div class="column  is-half">';
+        echo 'Υπάρχοντα Αρχεία<hr>';
+        echo $filelist;
+        echo '</div>';
+        echo '</div>';
+    }
 }

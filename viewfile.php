@@ -3,7 +3,6 @@
 require_once "function.php";
 require_once "auth.php";
 
-xdebug_break();
 
 if (!$afm || !$ur)
     {

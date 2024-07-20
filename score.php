@@ -9,6 +9,14 @@ function CalculateScoreFor101($uid,$cid,$placeid,$posid,&$desc = array())
 }
 
 
+/*
+
+
+    $desc = array of results
+        $item = array of ['s'] => score and ['h'] => row of proson used
+
+*/
+
 function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0)
 {
     global $rejr,$xmlp,$required_check_level;
@@ -81,7 +89,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
                 if ($sp > 0 || $wouldeval == 1 || $deep >= $min_needed)
                     break; // not required
                 $rootc = RootForClassId($xmlp->classes,$r1['PROSONTYPE']);
-                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s %s x%s',$rootc->attributes()['t'],$reason,$min_needed);
+                $rejr = sprintf('Λείπει προαπαιτούμενο προσόν: %s <br><span style="text-color:gray">%s x%s</span>',$rootc->attributes()['t'],$reason,$min_needed);
                 return -1;    
             }   
 
@@ -138,7 +146,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
 
 
         //  Forced
-        if ($r1['PROSONTYPE'] == 2) xdebug_break();
+//        if ($r1['PROSONTYPE'] == 2) xdebug_break();
         $forcedscore = QQ("SELECT * FROM PROSONFORCE WHERE (UID = ? OR UID = 0) AND (CID = ? OR CID = 0) AND (PLACEID = ? OR PLACEID = ? OR PLACEID = 0) AND (POS = ? OR POS = ? OR POS = 0) AND (PIDCLASS = ? OR PIDCLASS = 0) AND (PRID = ? OR PRID = 0)",array($uid,$cid,$placeid,$forwhichplace,$posid,$forwhichpos,$r1['PROSONTYPE'],$forced_proson_id))->fetchArray();
         if ($forcedscore)
             {
@@ -175,4 +183,33 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
 
     return $score;
 
+}
+
+
+function PrintDescriptionFromScore($desc,$onlypos = false)
+{
+    $s = '<table class="datatable" style="width: 100%">';
+    $s .= '<thead><th>#</th><th>Προσόν</th><th>Μόρια</th></thead><tbody>';
+    
+    $c = 1;
+    foreach($desc as $d)
+    {
+        if((int)$d['s'] == 0 && $onlypos)    
+            continue;
+        $s .= sprintf('<tr>');
+        $s .= sprintf('<td>%s</td>',$c);
+        $info = '';
+        foreach($d['h'] as $dd)
+        {
+            $info .= sprintf("%s<br>",$dd['DESCRIPTION']);
+        }
+        $s .= sprintf('<td>%s</td>',$info);
+        $s .= sprintf('<td>%s</td>',$d['s']);
+        $s .= sprintf('</tr>');
+            $c++;
+    }
+
+    $s .= '</tbody>';
+    $s .= '</table>';
+    return $s;
 }

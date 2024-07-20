@@ -17,6 +17,29 @@ $mustprepare = 0;
 $mysqli = null;
 $superadmin = 0;
 
+define('ROLE_CHECKER', 1);
+define('ROLE_CREATOR',2);
+define('ROLE_UNI',3);
+define('ROLE_GLOBALPROSONEDITOR',4);
+define('ROLE_FOREASSETPLACES',5);
+define('ROLE_ROLEEDITOR',6);
+define('ROLE_CONTESTVIEWER',7);
+define('ROLE_SUPERADMIN',99);
+
+function RoleToText($r)
+{
+    if ($r == ROLE_CHECKER) return 'Ελεγκτής Προσόντων';
+    if ($r == ROLE_CREATOR) return 'Χειριστής Διαγωνισμών';
+    if ($r == ROLE_UNI) return 'Ίδρυμα';
+    if ($r == ROLE_GLOBALPROSONEDITOR) return 'Διορθωτής XML Προσόντων';
+    if ($r == ROLE_FOREASSETPLACES) return 'Διορθωτής Κενών Φορέα';
+    if ($r == ROLE_ROLEEDITOR) return 'Ελεγκτής Ρόλων';
+    if ($r == ROLE_CONTESTVIEWER) return 'Προβολή Διαγωνισμών';
+    return '';
+}
+
+
+
 // ClassTypes for contests
 // 101 Mousika Sxoleia Metathesis
 
@@ -44,7 +67,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Integrated Master" id="7" t="1" min="0" max="1" />
+                        <p n="Είναι Integrated Master;" id="7" t="1" min="1" max="2" list="Όχι,Ναι" />
                         <p n="Μουσική Ειδίκευση" id="8" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
                     </params>
                 </c>
@@ -318,27 +341,6 @@ function CountDB($q,$arr)
 
 
 
-define('ROLE_CHECKER', 1);
-define('ROLE_CREATOR',2);
-define('ROLE_UNI',3);
-define('ROLE_GLOBALPROSONEDITOR',4);
-define('ROLE_FOREASSETPLACES',5);
-define('ROLE_ROLEEDITOR',6);
-define('ROLE_CONTESTVIEWER',7);
-define('ROLE_SUPERADMIN',99);
-
-function RoleToText($r)
-{
-    if ($r == ROLE_CHECKER) return 'Ελεγκτής Προσόντων';
-    if ($r == ROLE_CREATOR) return 'Χειριστής Διαγωνισμών';
-    if ($r == ROLE_UNI) return 'Ίδρυμα';
-    if ($r == ROLE_GLOBALPROSONEDITOR) return 'Διορθωτής XML Προσόντων';
-    if ($r == ROLE_FOREASSETPLACES) return 'Διορθωτής Κενών Φορέα';
-    if ($r == ROLE_ROLEEDITOR) return 'Ελεγκτής Ρόλων';
-    if ($r == ROLE_CONTESTVIEWER) return 'Προβολή Διαγωνισμών';
-    return '';
-}
-
 function printr($v)
 {
     printf("<xmp>");
@@ -358,16 +360,19 @@ function PrepareDatabase($msql = 0)
     global $lastRowID,$xml_proson;
     if ($msql == 0)
         $j = '';
-    QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY,XML TEXT)");
+
+    if ($msql && Single("GLOBALXML","ID",1))
+        return;
+
+    QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY $j,XML TEXT)");
     QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT,TYPE INTEGER)",$j));
-    QQ("CREATE TABLE IF NOT EXISTS BIO_INFO (ID INTEGER PRIMARY KEY,UID INTEGER,T1 TEXT,T2 TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))");
+    QQ("CREATE TABLE IF NOT EXISTS BIO_INFO (ID INTEGER PRIMARY KEY $j,UID INTEGER,T1 TEXT,T2 TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))");
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FAILREASON TEXT,DIORISMOS INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFORCE (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PLACEID INTEGER,POS INTEGER,PIDCLASS INTEGER,PRID INTEGER,SCORE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID),FOREIGN KEY (PRID) REFERENCES PROSON(ID))",$j));
 //      QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,STARTDATE INTEGER,ENDDATE INTEGER,CLASSTYPE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
@@ -376,6 +381,8 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS APPLICATIONS (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PID INTEGER,POS INTEGER,DATE INTEGER,FORCEDMORIA TEXT,INACTIVE INTEGER,FORCERESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS WINTABLE (ID INTEGER PRIMARY KEY %s,CID INTEGER,PID INTEGER,POS INTEGER,UID INTEGER,AID INTEGER,EXTRA TEXT,FOREIGN KEY (AID) REFERENCES APPLICATIONS(ID),FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID))",$j));
+
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFORCE (ID INTEGER PRIMARY KEY %s,UID INTEGER,CID INTEGER,PLACEID INTEGER,POS INTEGER,PIDCLASS INTEGER,PRID INTEGER,SCORE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),FOREIGN KEY (POS) REFERENCES POSITIONS(ID),FOREIGN KEY (PRID) REFERENCES PROSON(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS REQS2 (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,POSID INTEGER,FORTHESI INTEGER,NAME TEXT,PROSONTYPE INTEGER,SCORE TEXT,ANDLINK INTEGER,ORLINK INTEGER,NOTLINK INTEGER,REGEXRESTRICTIONS TEXT,MINX INTEGER,MAXX INTEGER,
         FOREIGN KEY (PLACEID) REFERENCES PLACES(ID),
@@ -400,8 +407,8 @@ function PrepareDatabase($msql = 0)
     $u5Id = $lastRowID;
     QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
     $r1id = $lastRowID;
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,ROLE_CREATOR)");
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,ROLE_GLOBALPROSONEDITOR)");
+    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,?)",array(ROLE_CREATOR));
+    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,?)",array(ROLE_GLOBALPROSONEDITOR));
     QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
     $u4Id = $lastRowID;
 
@@ -422,7 +429,7 @@ function PrepareDatabase($msql = 0)
         </c>
     </classes>
 </root>';
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?,?)",array($u4Id,ROLE_UNI));
+    QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?)",array($u4Id,ROLE_UNI));
     $r4id = $lastRowID;
 
 
@@ -941,8 +948,10 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
     if ($rolerow)
         $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ORDER BY STATE",array($uid));
 
+    $cntx = 0;
     while($r1 = $q1->fetchArray())
     {
+        $cntx++;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
         $s .= sprintf('<td>%s</td>',$r1['DESCRIPTION']);
@@ -1007,17 +1016,26 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
 
         $s .= sprintf('<td>');
         $q3 = QQ("SELECT * FROM PROSONFILE WHERE PID = ? ",array($r1['ID']));
+        $file_count = 0;
         while($r3 = $q3->fetchArray())
         {
+            $file_count++;
             $s .= sprintf('<b><a href="viewfile.php?f=%s" target="_blank">%s</a><br>',$r3['ID'],$r3['DESCRIPTION']);
         }
 
         if ($veruid == 0)
             {
+                $musttext = 'Διαχείριση Αρχείων';
+                $bt = 'is-link';
+                if ($file_count == 0)
+                    {
+                        $musttext = 'Πρέπει να ανεβάσω αρχεία!';
+                        $bt = 'is-danger';
+                    }
                 if ($r1['STATE'] > 0)
-                    $s .= sprintf('<br><br><button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
+                    $s .= sprintf('<br><br><button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small %s" href="files.php?e=%s&f=0">%s</button>',$bt,$r1['ID'],$musttext);
                 else
-                    $s .= sprintf('<br><br><button class="autobutton button is-small is-link" href="files.php?e=%s&f=0">Διαχείριση Αρχείων</button>',$r1['ID']);
+                    $s .= sprintf('<br><br><button class="autobutton button is-small %s" href="files.php?e=%s&f=0">%s</button>',$bt,$r1['ID'],$musttext);
             }
         $s .= sprintf('</td>');
         $s .= sprintf('<td>');
@@ -1054,6 +1072,12 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
     }
 
     $s .= '</tbody></table>';
+    if ($cntx == 0)
+        {
+            $s = 'Δεν έχουν ανέβει προσόντα.';
+            if ($veruid == 0)
+                $s .= 'Ανεβάστε ένα με το κουμπί "Νέο Προσόν".';
+        }
     return $s;
 }
 
@@ -1272,9 +1296,10 @@ require_once "score.php";
 $push3_admin = 1;
 require_once "push3.php";
 
-function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0)
+function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0,&$desc = array())
 {
-    return CalculateScore($uid,$cid,$placeid,$posid,$debug);
+    $linkssave = array();
+    return CalculateScore($uid,$cid,$placeid,$posid,$debug,$linkssave,0,$desc);
 }   
 
 

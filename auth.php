@@ -14,7 +14,7 @@ $ur = null;
 $afm = 0;
 if (array_key_exists("afm",$_SESSION))
     $afm = $_SESSION['afm'];
-    
+
 if (array_key_exists("oauth2_results",$_SESSION))
     {
     $xml = simplexml_load_string($_SESSION['oauth2_results']);
@@ -48,6 +48,8 @@ if (!$ur && $afm != 0)
         ));
         $ur = Single("USERS","AFM",$afm);
     }
+
+
 $superadmin = 0;
 if ($afm == "114789033")
     $superadmin = 1;

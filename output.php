@@ -37,6 +37,8 @@ function gotop(url)
 }
 
 var datatabe = 0;
+var datatab_nob = true;
+
 function datatab(resp = true,fi = false)
 {
            if (datatabe == 1)
@@ -51,7 +53,7 @@ function datatab(resp = true,fi = false)
               buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
               }
             },
-			        dom: 'frtB',
+			        dom: datatab_nob ? 'frt' : 'frtB',
 			        paging: false,
 			        bInfo: false,
     					fixedHeader: true,

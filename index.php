@@ -9,38 +9,38 @@ if (array_key_exists("target_id",$_SESSION))
 if ($afm && $ur)
     {
         printf('<button class="button is-danger autobutton block" href="auth.php?redirect=index.php&logout=1">Logout %s %s - %s ID %s</button><hr>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID']);
-        printf('<button class="button autobutton is-link block is-large" href="proson.php">Προσόντα</button> ');
-        printf('<button class="button autobutton is-success block is-large" href="applications.php">Αιτήσεις</button> ');
+        printf('<button class="button autobutton is-link block " href="proson.php">Προσόντα</button> ');
+        printf('<button class="button autobutton is-success block " href="applications.php">Αιτήσεις</button> ');
         $q1 = QQ("SELECT * FROM ROLES WHERE UID = ?",array($ur['ID']));
         while(($r1 = $q1->fetchArray()))
         {
           if ($r1['ROLE'] == ROLE_CHECKER || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-info block  is-large" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-info block  " href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_CREATOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-primary block  is-large" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+            printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_UNI  || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link block  is-large" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-link block  " href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link block  is-large" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+            printf('<button class="button autobutton  is-link block  " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
           }
           if ($r1['ROLE'] == ROLE_FOREASSETPLACES || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link block  is-large" href="editkena.php">Διόρθωση Κενών</button> ');
+            printf('<button class="button autobutton  is-link block  " href="editkena.php">Διόρθωση Κενών</button> ');
           }
           if ($r1['ROLE'] == ROLE_ROLEEDITOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-primary block  is-large" href="roleeditor.php">Role Editor</button> ');
+            printf('<button class="button autobutton  is-primary block  " href="roleeditor.php">Role Editor</button> ');
           }
           if ($r1['ROLE'] == ROLE_CONTESTVIEWER || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-primary block  is-large" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+            printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
           if ($superadmin)
             break;
@@ -53,31 +53,31 @@ if ($afm && $ur)
         {
           if ($r1['ROLE'] == ROLE_CHECKER)
           {
-            printf('<button class="button autobutton  is-info block  is-large" href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-info block  " href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_CREATOR)
           {
-            printf('<button class="button autobutton  is-primary block  is-large" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+            printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_CONTESTVIEWER)
           {
-            printf('<button class="button autobutton  is-primary block is-large" href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
+            printf('<button class="button autobutton  is-primary block " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_UNI)
           {
-            printf('<button class="button autobutton  is-link block is-large" href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
+            printf('<button class="button autobutton  is-link block " href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
           }
           if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR)
           {
-            printf('<button class="button autobutton  is-link block is-large" href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+            printf('<button class="button autobutton  is-link block " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
           }
           if ($r1['ROLE'] == ROLE_FOREASSETPLACES)
           {
-            printf('<button class="button autobutton  is-link block is-large" href="editkena.php">Διόρθωση Κενών</button> ');
+            printf('<button class="button autobutton  is-link block " href="editkena.php">Διόρθωση Κενών</button> ');
           }
           if ($r1['ROLE'] == ROLE_ROLEEDITOR)
           {
-            printf('<button class="button autobutton  is-primary block is-large" href="roleeditor.php">Role Editor</button> ');
+            printf('<button class="button autobutton  is-primary block " href="roleeditor.php">Role Editor</button> ');
           }
         }
       }

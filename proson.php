@@ -165,8 +165,9 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                 printf('<input type="hidden" name="force_user" value="%s" />',$req['force_user']);
             ?>
         <label for="CLASSID">Επιλογή Τύπου Προσόντος:</label>
-            <select class="input" name="CLASSID">
-                <?php
+            <select class="input" name="CLASSID" required>
+                <option value disabled selected>Επιλέξτε...</option>');
+            <?php
                 foreach($croot->c as $c)
                 {
                     $attr = $c->attributes();
@@ -207,7 +208,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         <br><br>
 
         <label for="STARTDATE">Ημερομηνία Απόκτησης Τίτλου</label>
-        <input type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
+        <input required type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
         <br><br>
 
         <?php
@@ -258,7 +259,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
             }
             if ($pa['t'] == 1 || $pa['t'] == 3) // integer/integer days
             {
-                if ($pa['min'] == 0 && $pa['max'] == 1 && $pa['t'] == 1)
+/*                if ($pa['min'] == 0 && $pa['max'] == 1 && $pa['t'] == 1)
                 {
                     if ($pa['v'] && strlen($pa['v']))
                         printf('<label class="checkbox" for="param_%s">%s</label><br><input type="checkbox" name="param_%s" %s readonly/><br><br>',$pa['id'],$pa['n'],$pa['id'],$pa['v'] == 1 ? 'checked' : '');
@@ -266,7 +267,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                         printf('<label class="checkbox" for="param_%s">%s</label><br><input type="checkbox" name="param_%s" %s /><br><br>',$pa['id'],$pa['n'],$pa['id'],$parval == 1 ? 'checked' : '');
 
                 }
-                else
+                else*/
                 if ($pa['list'] && strlen($pa['list']))
                 {
                     printf('<label for="param_%s">%s</label><br><select class="input" name="param_%s">',$pa['id'],$pa['n'],$pa['id']);
@@ -301,7 +302,11 @@ function ViewOrEdit($pid,$items,$fcid = 0)
             }
         }
         ?>
-        <button class="button is-success">Υποβολή<button>
+        <div class="notification is-info">
+            Μόλις υποβάλετε το προσόν, θα μεταβείτε στην οθόνη ανεβάσματος αρχείων.
+</div>
+<br><br>
+        <button class="button is-success ">Υποβολή<button>
     </form>
     <?php
 }

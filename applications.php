@@ -191,11 +191,15 @@ if (!array_key_exists("aid",$req))
     $app = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? AND CID = ? AND PID = ? AND POS = ?",array(
         $ur['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],
     ))->fetchArray();
+    $desc = array();        
     if (!$app)
     {
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],true);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc);
         if ($sc >= 0)
-            printf('<br>Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+            {
+                echo PrintDescriptionFromScore($desc,false);
+                printf('<br>Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br><button class="button is-primary  autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$sc,$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+            }
         else
             printf('<br>Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <br><b>%s</b>',$rejr);
 //            echo PrintProsontaForThesi($req['cid'],$req['pid'],$req['pos']);
@@ -203,7 +207,8 @@ if (!array_key_exists("aid",$req))
     else
     {
         printf('Έγινε αίτηση (%s)<br>Α.Π. %s<br><br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],true);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc);
+        echo PrintDescriptionFromScore($desc,true);
         printf("Σύνολο μορίων: %s<br>",$sc);
         if (AppPreference($app['ID']) == 1)
             printf("+$first_pref_score Πρώτη προτίμηση<br>");
