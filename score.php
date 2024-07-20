@@ -194,7 +194,7 @@ function PrintDescriptionFromScore($desc,$onlypos = false)
     $c = 1;
     foreach($desc as $d)
     {
-        if((int)$d['s'] == 0 && $onlypos)    
+        if((float)$d['s'] == 0 && $onlypos)    
             continue;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$c);

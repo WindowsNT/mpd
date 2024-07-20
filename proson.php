@@ -331,6 +331,6 @@ if (array_key_exists("delete",$_GET))
     die;
 }
 
-printf('<button href="index.php" class="autobutton button is-danger">Πίσω</button> <button class="button is-primary autobutton" href="proson.php?e=0">Νέο Προσόν</button><br><br>Λίστα Προσόντων<hr>');
+PrintButtons(array(array("n" => "Πίσω","h" => "index.php","s" => "is-danger"),array("n" => "Νέο Προσόν","h" => "proson.php?e=0","s" => "is-primary")));
 echo PrintProsonta($uid);
 ?>

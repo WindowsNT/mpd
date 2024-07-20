@@ -1086,6 +1086,100 @@ function ApplicationProtocol($row)
 {
     return  sprintf("%s%04s",date("YmdHis",$row['DATE']),$row['ID']);
 }
+
+
+function PrintHeader($andback = '')
+{
+    global $ur,$afm,$superadmin;
+    $superdata = '';
+    if ($superadmin)
+      $superdata = sprintf('<a class="button is-primary" href="superadmin.php">Superadmin</a> <a class="button is-warning" href="update.php">Update</a> ');
+
+    $backx = '';
+    if (strlen($andback))
+        $backx = sprintf('<div class="navbar-item">
+        <a class="button is-danger" href="%σ">
+          <strong>Πίσω</strong>
+        </a>
+      </div>
+',$andback);
+
+    printf('<nav class="navbar" role="navigation" aria-label="main navigation">
+<div class="navbar-brand">
+  <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </a>
+</div>
+
+<div id="navbarBasicExample" class="navbar-menu">
+  <div class="navbar-start">
+
+    %s
+    <a class="navbar-item" href="index.php">
+      <b>%s %s</b>&nbsp; &mdash; %s ID %s
+    </a>
+  </div>
+
+  <div class="navbar-end">
+    <div class="navbar-item">
+      <div class="buttons">
+      %s
+        <a class="button is-warning" href="settings.php">
+          <strong>Ρυθμίσεις</strong>
+        </a>
+        <a class="button is-danger" href="auth.php?redirect=index.php&logout=1">
+          <strong>Logout</strong>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</nav>',$backx,$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID'],$superdata);
+
+  
+      printf('<hr>');
+}
+
+
+function PrintButtons($buttons = array())
+{
+    global $ur,$afm;
+
+    $li = '';
+    foreach($buttons as $b)
+    {
+        $li .= sprintf('<a class="button %s" href="%s"><strong>%s</strong></a>',$b['s'],$b['h'],$b['n']);
+    }
+
+    printf('<nav class="navbar" role="navigation" aria-label="main navigation">
+<div class="navbar-brand">
+  <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </a>
+</div>
+
+<div id="navbarBasicExample" class="navbar-menu">
+  <div class="navbar-start">
+      <div class="buttons">
+      %s
+      </div>
+  </div>
+
+  <div class="navbar-end">
+  </div>
+</div>
+</nav>',$li);
+
+  
+      printf('<hr>');
+}
+
 function DeleteProsonFile($id,$uid = 0)
 {
     if ($uid)

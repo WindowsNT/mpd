@@ -7,49 +7,7 @@ if (array_key_exists("target_id",$_SESSION))
   unset($_SESSION['target_id']);
 if ($afm && $ur)
     {
-      $superdata = '';
-      if ($superadmin)
-        $superdata = sprintf('<a class="button is-primary" href="superadmin.php">Superadmin</a> <a class="button is-warning" href="update.php">Update</a> ');
-
-      printf('<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item" href="https://bulma.io">
-
-    </a>
-
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-
-  <div id="navbarBasicExample" class="navbar-menu">
-    <div class="navbar-start">
-      <a class="navbar-item" href="index.php">
-        <b>%s %s</b>&nbsp; &mdash; %s ID %s
-      </a>
-    </div>
-
-    <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
-        %s
-          <a class="button is-warning" href="settings.php">
-            <strong>Ρυθμίσεις</strong>
-          </a>
-          <a class="button is-danger" href="auth.php?redirect=index.php&logout=1">
-            <strong>Logout</strong>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>',$ur['LASTNAME'],$ur['FIRSTNAME'],$afm,$ur['ID'],$superdata);
-
-    
-        printf('<hr>');
+        PrintHeader();
         echo '<div class="content" style="margin: 20px">';
 
 

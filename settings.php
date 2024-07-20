@@ -14,13 +14,16 @@ if (!$afm || !$ur)
 printf('<button class="button autobutton  is-danger block" href="index.php">Πίσω</button> ');
 printf('<hr>');
 
+?>
+<button class="autobutton is-danger button block" href="bio.php">Biometric Login</button>
+
+<?php
 // Push
 if (1)
 {
+
     Push3_ShowScripts($ur['CLSID'],0);
     echo Push3_ShowOptions($ur['CLSID'],0,0);
 }
 
 ?>
-
-<button class="autobutton is-danger button block" href="bio.php">Biometric Login</button>

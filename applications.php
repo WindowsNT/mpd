@@ -16,7 +16,7 @@ echo '<div class="content" style="margin: 20px">';
 $t = time();
 if (!array_key_exists("cid",$req))
 {
-    echo '<button href="index.php" class="autobutton button is-danger">Πίσω</button> ';
+    PrintButtons(array(array("n" => "Πίσω","h" => "index.php","s" => "is-danger")));
     echo '<table class="table datatable" style="width: 100%">';
     echo '<thead>
                 <th class="all">#</th>
@@ -40,7 +40,7 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['STARTDATE']));
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
-        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
+        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -49,7 +49,7 @@ if (!array_key_exists("cid",$req))
         {
             $placerow = Single("PLACES","ID",$r44['PID']);
             $posrow = Single("POSITIONS","ID",$r44['POS']);
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
+            printf('<button class="is-success is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
         }
         printf('</td>');
 
@@ -71,7 +71,8 @@ if (!$contestrow)
 
 if (!array_key_exists("pid",$req))
     {
-    echo '<button href="applications.php" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>';
+    PrintButtons(array(array("n" => "Πίσω","h" => "applications.php","s" => "is-danger"),array("n" => "Αρχική","h" => "index.php","s" => "is-warning")));
+
     printf("%s<hr>Επιλέξτε φορέα που σας ενδιαφέρει:",$contestrow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -89,7 +90,7 @@ if (!array_key_exists("pid",$req))
         printf('<td>%s</td>',$r2['ID']);
         printf('<td>%s</td>',$r2['DESCRIPTION']);
         printf('<td>');
-        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s">Προβολή</a>',$contestrow['ID'],$r2['ID']);
+        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s">Προβολή</a>',$contestrow['ID'],$r2['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -98,7 +99,7 @@ if (!array_key_exists("pid",$req))
         {
             $placerow = Single("PLACES","ID",$r44['PID']);
             $posrow = Single("POSITIONS","ID",$r44['POS']);
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
+            printf('<button class="is-success is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
         }
         printf('</td>');
 
@@ -118,7 +119,7 @@ if (!$placerow)
 
 if (!array_key_exists("pos",$req))
     {
-    printf('<button href="applications.php?cid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>',$contestrow['ID']);
+    PrintButtons(array(array("n" => "Πίσω","h" => sprintf("applications.php?cid=%s",$contestrow['ID']),"s" => "is-danger"),array("n" => "Αρχική","h" => "index.php","s" => "is-warning")));
     printf("%s<br>%s<hr>Επιλέξτε θέση που σας ενδιαφέρει:",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION']);
 
     echo '<table class="table datatable" style="width: 100%">';
@@ -139,7 +140,7 @@ if (!array_key_exists("pos",$req))
         printf('<td>%s</td>',$r3['COUNT']);
 
         printf('<td>');
-        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
+        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -148,7 +149,7 @@ if (!array_key_exists("pos",$req))
         {
             $placerow = Single("PLACES","ID",$r44['PID']);
             $posrow = Single("POSITIONS","ID",$r44['POS']);
-            printf('<button class="is-link is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
+            printf('<button class="is-success is-small button autobutton block" href="applications.php?&cid=%s&pid=%s&pos=%s">%s<br>Α.Π. %s<br><br>%s<br>%s</br>Μόρια %s</button> <br>',$r44['CID'],$r44['PID'],$r44['POS'],date("d/m/Y H:i",$r44['DATE']),ApplicationProtocol($r44),$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],ScoreForAitisi($r44['ID']));
         }
         printf('</td>');
 
@@ -185,7 +186,7 @@ if (array_key_exists("aid",$req))
 
 if (!array_key_exists("aid",$req))
     {
-        printf('<button href="applications.php?cid=%s&pid=%s" class="autobutton button is-danger">Πίσω</button> <button href="index.php" class="autobutton button is-warning">Αρχική</button> <hr>',$contestrow['ID'],$placerow['ID']);
+        PrintButtons(array(array("n" => "Πίσω","h" => sprintf("applications.php?cid=%s&pid=%s",$contestrow['ID'],$placerow['ID']),"s" => "is-danger"),array("n" => "Αρχική","h" => "index.php","s" => "is-warning")));
         printf("%s<br>%s<br>%s<hr>",$contestrow['DESCRIPTION'],$placerow['DESCRIPTION'],$posrow['DESCRIPTION']);
 
     $app = QQ("SELECT * FROM APPLICATIONS WHERE UID = ? AND CID = ? AND PID = ? AND POS = ?",array(
