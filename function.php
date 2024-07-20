@@ -447,6 +447,7 @@ if (strstr($dbxx,':'))
 {
     // MySQL
     $mysqli = new \mysqli($dbxx,"umpd","e4ea15be-4dea-7754-bdde-c305a932bfa1","mpd");
+    $mysqli->set_charset("utf8");
     PrepareDatabaseMySQL();
 }
 else
