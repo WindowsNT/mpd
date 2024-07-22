@@ -6,6 +6,54 @@
 function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems = 0)
 {
     // Music Schools Calculator
+    $contestrow = Single("CONTESTS","ID",$cid); 
+    if (!$contestrow)
+        return -1;
+    
+    $userrow = Single("USERS","ID",$uid); 
+    if (!$userrow)
+        return -1;
+    
+    
+    /*
+        Ptychio - Met - Did - PostPhD 
+        5,7,11,13       Other
+        6,8,12,14       TMS
+        8,10,14,16      TMS + Eid for the place
+        MAX 36
+
+        Odeio
+        Dipl  Org/Orch/Byz/ 4
+        Dipl  Orch/Chor/    3
+        Pty   Ant/Fug       2
+        MAX 18
+
+        Apait Either PT + Eid or Dipl Org
+
+        TPE
+        0.5 A, 1 B, 1.5 B2
+        XGL
+        0.5 B2, 1 G2 ( )
+        MAX 6
+
+        Proy 
+        2*mous + 0.5*gen
+        PE79 + 2
+        Entop +4
+        PP +2
+        Sinip +4
+        Gamos +2
+        Paidia 2,4,8,10
+        MAX 40
+
+
+
+    */
+    
+
+
+
+
 }
 
 
@@ -27,9 +75,9 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
     $contestrow = Single("CONTESTS","ID",$cid); 
     if (!$contestrow)
         return -1;
-    if ($contestrow['CLASSID'] != 0)
+    if ($contestrow['CLASSID'] == 101)
     {
-
+        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc);
     }
     $posr = Single("POSITIONS","ID",$posid); 
     $score = 0;

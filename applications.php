@@ -173,6 +173,7 @@ if (array_key_exists("aid",$req))
 {
     if ($req['aid'] == 0)
     {
+        QQ("DELETE FROM APPLICATIONS WHERE UID = ? AND CID = ? AND PID = ? AND POS = ?",array($ur['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID']));
         QQ("INSERT INTO APPLICATIONS (UID,CID,PID,POS,DATE) VALUES (?,?,?,?,?)",array(
             $ur['ID'],$contestrow['ID'],$placerow['ID'],$posrow['ID'],time()
         ));
