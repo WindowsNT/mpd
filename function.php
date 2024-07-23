@@ -82,6 +82,17 @@ $def_xml_proson = <<<XML
                         <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
                     </params>
                 </c>
+                <c n="104" t="Μεταδιδακτορικό" el="8" >
+                    <params>
+                        <p n="Ιδρυμα" id="1" t="0" />
+                        <p n="Σχολή" id="2" t="0" />
+                        <p n="Τμήμα" id="3" t="0" unique="1" />
+                        <p n="Ειδίκευση" id="5" t="0" />
+                        <p n="Τίτλος" id="6" t="0" unique="1" />
+                        <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
+                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
+                    </params>
+                </c>
             </classes>
         </c>
         <c n="2" t="Ξένη Γλώσσα" >
@@ -122,15 +133,16 @@ $def_xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="408" t="Πτυχίο Ανώτερων Θεωρητικών" unique="1" >
+                <c n="408" t="Πτυχία Θεωρητικών" unique="1" >
                     <params>
-                        <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας,Πτυχίο Σύνθεσης"/>
+                        <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="407" t="Δίπλωμα Βυζαντινής" unique="1" >
+                <c n="407" t="Διπλώματα Θεωρητικών" >
                     <params>
+                        <p n="Επιλογή Διπλώματος" id="3" t="1" min="1" max="5" list="Δίπλωμα Διεύθυνσης Χορωδίας,Δίπλωμα Σύνθεσης,Δίπλωμα Βυζαντινής Μουσικής,Δίπλωμα Διεύθυνσης Ορχήστρας" unique="1"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
@@ -814,6 +826,9 @@ function deepx($de)
 function PrintForeisContest($uid,$cid,$rootfor = 0,$deep = 0)
 {
     $s = '';
+    $cr = Single("CONTESTS","ID",$cid);
+    if (!$cr)
+        return $s;
     $ra = HasContestAccess($cid,$uid,0);
     $wa = HasContestAccess($cid,$uid,1);
     if (!$ra)
@@ -831,7 +846,9 @@ function PrintForeisContest($uid,$cid,$rootfor = 0,$deep = 0)
         $s .= sprintf('<button class="button is-small is-link autobutton block" href="positions.php?cid=%s&pid=%s">Θέσεις</button> ',$cid,$r1['ID']);
         if ($wa)
             $s .= sprintf('<button class="button autobutton is-small  block is-warning" href="contest.php?addplace=1&cid=%s&par=%s">Προσθήκη κάτω</button> ',$cid,$r1['ID'],$cid,$r1['ID'],$aitcount,$r1['ID']);
-        $s .= sprintf('<button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> ',$cid,$r1['ID']);
+
+        if ($cr['CLASSID'] == 0)
+            $s .= sprintf('<button class="autobutton block button is-small is-link" href="prosonta3.php?cid=%s&placeid=%s">Προσόντα Φορεα</button> ',$cid,$r1['ID']);
 
         $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s">Λίστα Αιτήσεων (%s)</button> ',$cid,$r1['ID'],$aitcount);
         if ($wa)
@@ -880,9 +897,11 @@ function PrintContests($uid)
         $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ?",array($r1['ID']))->fetchArray()[0];
         if ($wa)
             $s .= sprintf('<button class="is-small is-info autobutton button block" href="contest.php?c=%s">Επεξεργασία</button> ',$r1['ID']);
-        $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
+        if ($r1['CLASSID'] == 0)
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="positiongroups.php?cid=%s">Προσόντα Κοινών Θέσεων</button> ',$r1['ID']);
         $s .= sprintf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s">Λίστα Αιτήσεων (%s)</button> ',$r1['ID'],$aitcount);
-        $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
+        if ($r1['CLASSID'] == 0)
+            $s .= sprintf('<button class="autobutton button is-small is-link block" href="prosonta3.php?cid=%s&placeid=0">Προσόντα Διαγωνισμού</button> ',$r1['ID']);
         if ($r1['ID'] != 1 && $wa)
         $s .= sprintf('<div class="dropdown is-hoverable">
 <div class="dropdown-trigger">
@@ -1646,6 +1665,33 @@ function KillUsersType1()
     QQ("VACUUM");
 }
 
+
+function IsMusName($n)
+{
+    if ($n == "ΤΜΗΜΑ ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ") return true;
+    return false;
+}
+
+function RemoveAccents1($e)
+{
+    $search = explode(",","ά,έ,ή,ί,ό,ύ,ώ,ϊ,ΐ,ϋ,ΰ");
+    $replace = explode(",","α,ε,η,ι,ο,υ,ω,ι,ι,υ,υ");
+    $ee = str_replace($search, $replace, $e);
+    return $ee;
+}
+
+function RemoveAccents2($e)
+{
+    $search = explode(",","Ά,Έ,Ή,Ί,Ό,Ύ,Ώ,Ϊ");
+    $replace = explode(",","Α,Ε,Η,Ι,Ο,Υ,Ω,Ι");
+    $ee = str_replace($search, $replace, $e);
+    return $ee;
+}
+
+function RemoveAccents($e)
+{   
+    return RemoveAccents2(RemoveAccents1($e));
+}
 function Kill($cid,$placeid,$posid,$appid)
 {
     BeginTransaction();

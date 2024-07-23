@@ -1,10 +1,15 @@
 <?php
 
+/*
+    $desc = array of results
+        $item = array of ['s'] => score and ['h'] => row of proson used
+*/
 
-// Scores for metathesi music schools algorithm for example
-
+// Scores for metathesi music schools algorithm 
 function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems = 0)
 {
+    global $required_check_level,$rejr;
+
     // Music Schools Calculator
     $contestrow = Single("CONTESTS","ID",$cid); 
     if (!$contestrow)
@@ -13,8 +18,276 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
     $userrow = Single("USERS","ID",$uid); 
     if (!$userrow)
         return -1;
+
+    $placerow = Single("PLACES","ID",$placeid);
+    $posrow = Single("POSITIONS","ID",$posid);
+
+    $Has_Diploma_For_Position = 0;
+    $Has_Uni_For_Position = 0;
+
+    $score = 0;
+
+    $moria_tpe = 0;
+    $moria_languages = 0;
+
+    $moria_conservatoire_instrument = 0;
+    $moria_ptychio_antfug = 0;
+    $moria_diplomasodeiou = 0;
+
+    $moria_uni = 0;
+    $moria_k = 0;
+
+    // Load all prosonta and their parameters
+    $all_prosonta = array();
+    $q0 = QQ("SELECT * FROM PROSON WHERE STATE >= ? AND UID = ?",array($required_check_level,$uid));
+    while($r0 = $q0->fetchArray())
+    {
+        $prx = array();
+        $prx['params'] = array();
+        $x0 = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($r0['ID']));
+        while($y0 = $x0->fetchArray())
+        {
+            $prx['params'][] = $y0;
+        }
+        $prx['row'] = $r0;
+        $all_prosonta[] = $prx;
+    }
+
+
+    // TPE Epimorfosi 701
+    // 0.5 A, 1 B, 1.5 B2
+    if (1)
+    {
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 701) continue;
+
+            $used = array();
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx != 1)
+                    continue;
+                   
+                if (($param['PVALUE'] == 1) && $moria_tpe < 0.5) 
+                {
+                    $moria_tpe = 0.5;
+                    $used = $r1;
+                }
+                if (($param['PVALUE'] == 2) && $moria_tpe < 1.0) {
+                    $moria_tpe = 1.0;
+                    $used = $r1;
+                }
+                if (($param['PVALUE'] >= 3) && $moria_tpe < 1.5) {
+                    $moria_tpe = 1.5;
+                    $used = $r1;
+                }        
+            }
+
+            if ($moria_tpe > 0)
+            {
+                $d1 = array('s' => $moria_tpe,'h' => array($used));
+                $desc []= $d1;
+            }
+        }
+    }
+
+    // Foreign Languages
+    // 0.5 B2, 1 G2
+    // MAX 6 with TPE
+    if (1)
+    {
+        $languages_av = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 2) continue;
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx == 1)
+                {
+                    $langx = $param['PVALUE'];
+                    if (!array_key_exists($langx,$languages_av))
+                        $languages_av[$langx] = array("s" => 0,"u" => array());
+                }
+                if ($pidx == 2)
+                {
+                    $lev = $param['PVALUE'];
+                    if ($lev >= 2 && $languages_av[$langx]['s'] < 0.5) 
+                    {
+                        $languages_av[$langx]['s'] = 0.5;
+                        $languages_av[$langx]['u'] = $r1;
+                    }
+                    if ($lev >= 4 && $languages_av[$langx]['s'] < 1.0) 
+                    {
+                        $languages_av[$langx]['s'] = 1.0;
+                        $languages_av[$langx]['u'] = $r1;
+                    }
+                }
+            }
+        }
+        foreach($languages_av as $langu)
+        {
+            $moria_languages += $langu['s'];
+            $d1 = array('s' => $langu['s'],'h' => array($langu['u']));
+            $desc []= $d1;
+        }
+    }
+
+    // Diploma/Ptychio Organou
+    if (1)
+    {
+        $instruments_av = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 401 && $r1['CLASSID'] != 405) continue;
+
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx == 3)
+                {
+                    $langx = $param['PVALUE'];
+                    if (!array_key_exists($langx,$instruments_av))
+                        $instruments_av[$langx] = array("s" => 0,"u" => array());
     
-    
+                    if ($r1['CLASSID'] == 401)     
+                        {
+                            $instruments_av[$langx]['s'] = 4.0;
+
+                            // Check position
+                            if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($langx)))
+                                $Has_Diploma_For_Position = 1;
+                        }
+                    if ($r1['CLASSID'] == 405 && $instruments_av[$langx]['s'] < 2.0)      
+                        $instruments_av[$langx]['s'] = 2.0;
+                    $instruments_av[$langx]['u'] = $r1;
+                }
+            }
+        }
+        foreach($instruments_av as $langu)
+        {
+            $moria_conservatoire_instrument += $langu['s'];
+            $d1 = array('s' => $langu['s'],'h' => array($langu['u']));
+            $desc []= $d1;
+        }
+    }
+
+
+    // Ptychio Ant/Fug
+    if (1)
+    {
+        $use = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 408) continue;
+
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx == 3)
+                {
+                    $lev = $param['PVALUE'];
+                    if ($lev >= 3)
+                    {
+                        $moria_ptychio_antfug = 2;
+                        $use = $r1;
+
+                        // Check position
+                        if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
+                            $Has_Diploma_For_Position = 1;
+                    }
+                }
+            }
+        }
+        if ($moria_ptychio_antfug > 0)
+        {
+            $d1 = array('s' => 2,'h' => array($use));
+            $desc []= $d1;
+        }
+    }
+        
+    // Dipl Orch (4)/Byz (4),Synth (3)/Chor (3)
+    if (1)
+    {
+        $unique_types = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 407) continue;
+
+            // 1 chorus,2 synth,3 byz,4 orch,
+            foreach($proson['params'] as $param)
+            {
+                $type = $param['PIDX'];
+                if (in_array($type,$unique_types))
+                    continue;
+
+                $unique_types[] = $type;
+                if ($type == 1 || $type == 2)
+                {
+                    $moria_diplomasodeiou += 3.0;
+                    $d1 = array('s' => 3,'h' => array($r1));
+                    $desc []= $d1;
+                }
+                if ($type == 3 || $type == 4)
+                {
+                    $moria_diplomasodeiou += 4.0;
+                    $d1 = array('s' => 4,'h' => array($r1));
+                    $desc []= $d1;
+
+                    // Check position
+                    if ($type == 3 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Βυζαντινής Μουσικής")))
+                        $Has_Diploma_For_Position = 1;
+                }
+            }
+        }
+    }
+
+    // University
+    if (1)
+    {
+        $unique_types = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 101 && $r1['CLASSID'] != 102 && $r1['CLASSID'] != 103 && $r1['CLASSID'] != 104) continue;
+            
+            // Param pid 3 is the tmima
+            // Param pid [6,8,7,8] the music eidikeysi
+            foreach($proson['params'] as $param)
+            {
+                $mouseid = 'Θεωρητικά Ευρωπαϊκής Μουσικής';
+
+
+
+                // Check position
+                if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($mouseid)))
+                    $Has_Uni_For_Position = 1;
+
+                // Them
+
+            }
+        }
+    }
+
+
+    // Forced
+    if (!$Has_Diploma_For_Position && !$Has_Uni_For_Position)
+    {
+        if ($posrow)
+        {
+            $desc = array();
+            $rejr = "Λείπει προαπαιτούμενο: Δίπλωμα οργάνου ή ΤΜΣ με ειδίκευση: ". $posrow['DESCRIPTION'];
+            return -1;
+        }
+    }
+
+
     /*
         Ptychio - Met - Did - PostPhD 
         5,7,11,13       Other
@@ -30,12 +303,6 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
 
         Apait Either PT + Eid or Dipl Org
 
-        TPE
-        0.5 A, 1 B, 1.5 B2
-        XGL
-        0.5 B2, 1 G2 ( )
-        MAX 6
-
         Proy 
         2*mous + 0.5*gen
         PE79 + 2
@@ -50,20 +317,12 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
 
     */
     
+    $score = min(($moria_tpe + $moria_languages),6.0) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0) + min($moria_uni,36) + min($moria_k,40);
 
 
-
-
+    return $score;
 }
 
-
-/*
-
-
-    $desc = array of results
-        $item = array of ['s'] => score and ['h'] => row of proson used
-
-*/
 
 function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0)
 {
@@ -77,7 +336,11 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
         return -1;
     if ($contestrow['CLASSID'] == 101)
     {
-        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc);
+        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,0);
+    }
+    if ($contestrow['CLASSID'] == 102)
+    {
+        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,1);
     }
     $posr = Single("POSITIONS","ID",$posid); 
     $score = 0;

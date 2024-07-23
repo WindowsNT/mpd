@@ -87,14 +87,14 @@ if (array_key_exists("c",$_POST))
     {
         if (!HasContestAccess($_POST['c'],$ur['ID'],1))
             die;
-        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ? WHERE ID = ? ",array(
-           $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['c']
+        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
+           $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],$_POST['c']
         ));
         $lastRowID = $_POST['c'];
     }
     else    
-    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,MINISTRY,CATEGORY,STARTDATE,ENDDATE) VALUES (?,?,?,?,?,?) ",array(
-        $ur['ID'],$_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE'])
+    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,MINISTRY,CATEGORY,STARTDATE,ENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?) ",array(
+        $ur['ID'],$_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],
     ));
 
     if ($lastRowID)
@@ -138,6 +138,8 @@ function ViewOrEdit($cid)
         <label for="CLASSID">Class ID</label>
         <select name="CLASSID" class="input">
             <option value="0" <?= $items['CLASSID'] == 0 ? "selected" : "" ?>>Προεπιλογή</option>
+            <option value="101" <?= $items['CLASSID'] == 101 ? "selected" : "" ?>>Μεταθέσεις Μουσικών Σχολείων</option>
+            <option value="102" <?= $items['CLASSID'] == 102 ? "selected" : "" ?>>Αποσπάσεις Μουσικών Σχολείων</option>
         </select>
         <br><br>
 

@@ -121,10 +121,26 @@ while($r1 = $q1->fetchArray())
         foreach($prosontalist as $prosonrow)
         {
             $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID']))->fetchArray();
-            if ($exist)
-                printf('<button class="button is-small is-danger" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s,1);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$exist['SCORE'],$prosonrow['DESCRIPTION']);
+            if ($cidrow['CLASSID'] == 0)
+            {
+                if ($exist)
+                    printf('<button class="button is-small is-danger" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s,1);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$exist['SCORE'],$prosonrow['DESCRIPTION']);
+                else
+                    printf('<button class="button is-small is-link" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$dd['s'],$prosonrow['DESCRIPTION']);
+            }
             else
-                printf('<button class="button is-small is-link" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$dd['s'],$prosonrow['DESCRIPTION']);
+            {
+                printf('<button class="button is-small is-link">%s</button> %s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+            }
+
+            // View the items
+            $files4 = QQ("SELECT * FROM PROSONFILE WHERE PID = ?",array($prosonrow['ID']));
+            $subt = '';
+            while($files2 = $files4->fetchArray())
+            {
+                $subt .= sprintf('<a target="_blank" href="viewfile.php?f=%s">%s</a><br>',$files2['ID'],$files2['DESCRIPTION']);
+            }
+            echo $subt;
         }
         printf('<br>');
     }
