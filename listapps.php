@@ -104,12 +104,13 @@ while($r1 = $q1->fetchArray())
     printf('<tr>');
     printf('<td>%s</td>',$r1['ID']);
     printf('<td>%s %s</td>',$ur['LASTNAME'],$ur['FIRSTNAME']);
-    printf('<td>%d</td>',AppPreference($r1['ID']));
+    $whatpref = AppPreference($r1['ID']);
+    printf('<td>%d</td>',$whatpref);
     printf('<td>%s</td>',$fr['DESCRIPTION']);
     printf('<td>%s</td>',$pr['DESCRIPTION']);
     $a = array();
     $desc = array();
-    $scx = CalculateScore($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],0,$a,0,$desc);
+    $scx = CalculateScore($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],0,$a,0,$desc,0,0,$whatpref);
     printf('<td>%s</td>',$scx);
 
 
@@ -130,7 +131,10 @@ while($r1 = $q1->fetchArray())
             }
             else
             {
-                printf('<button class="button is-small is-info">%s</button> %s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+                if ($prosonrow['ID'] == 0)
+                    printf('<button class="button is-small is-info">%s</button><br>%s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+                else
+                    printf('<b>%s</b><br>%s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
             }
 
             // View the items

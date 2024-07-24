@@ -2,8 +2,6 @@
 
 require_once "function.php";
 require_once "auth.php";
-require_once "output.php";
-echo '<div class="content" style="margin: 20px">';
 
 if (!$afm || !$ur)
     {
@@ -26,6 +24,35 @@ if (array_key_exists("reset",$req) && $wa)
     redirect(sprintf("contest.php",$req['cid']));
     die;
 }
+
+if (array_key_exists("gen",$req) && $wa)
+{
+    $cr = Single("CONTESTS","ID",$req['cid']);
+    if ($req['gen'] == 1)
+    {
+        // Csv with win 
+        printf("Επίθετο,Όνομα,ID αίτησης,Περιγραφή Διαγωνισμού,Φορέας,Θέση,Προτίμηση,Μόρια\r\n");
+        $completed = QQ("SELECT * FROM WINTABLE WHERE CID = ?",array($req['cid']));
+        while ($co = $completed->fetchArray())
+        {
+//            header("Content-type: text/csv;");
+            $pref = AppPreference($co['AID']);
+            $ur = Single("USERS","ID",$co['UID']);
+            $d = array();
+            $sc = ScoreForThesi($ur['ID'],$req['cid'],$co['PID'],$co['POS'],0,$d,$pref == 1);
+            $ar = Single("APPLICATIONS","ID",$co['AID']);
+            $placerow = Single("PLACES","ID",$co['PID']);
+            $posrow = Single("POSITIONS","ID",$co['POS']);
+            printf("%s,%s,%s,%s,%s,%s,%s,%s\r\n",$ur['LASTNAME'],$ur['FIRSTNAME'],$ar['ID'],$cr['DESCRIPTION'],$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],$pref,$sc);
+        }
+
+    }
+    die;
+}
+
+require_once "output.php";
+echo '<div class="content" style="margin: 20px">';
+
 $cr = Single("CONTESTS","ID",$req['cid']);
 
 function moria_sort($a, $b) {
@@ -155,6 +182,11 @@ while($place = $place_query->fetchArray())
     {
         printf('<button class="autobutton is-primary button" href="win.php?&cid=%s&pref=%s&run=1">Continue PREF = %s</button> ',$req['cid'],$checking_prefefence,$checking_prefefence);
         printf('<button class="sureautobutton is-danger button" href="win.php?&cid=%s&reset=1">Reset</button>',$req['cid']);
+
+        printf('<br><br>');
+        printf('<button class="autobutton is-success button" href="win.php?&cid=%s&gen=1">CSV Αποτελεσμάτων</button> ',$req['cid']);
+        printf('<button class="autobutton is-success button" href="win.php?&cid=%s&gen=2">CSV Όλων των αιτήσεων</button> ',$req['cid']);
+
     }
 
 ?>
