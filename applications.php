@@ -208,12 +208,9 @@ if (!array_key_exists("aid",$req))
         }
     else
     {
-        printf('Έγινε αίτηση (%s)<br>Α.Π. %s<br><br><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc);
+        printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc,AppPreference($app['ID']) == 1);
         echo PrintDescriptionFromScore($desc,true);
         printf("Σύνολο μορίων: %s<br>",$sc);
-        if (AppPreference($app['ID']) == 1)
-            printf("+$first_pref_score Πρώτη προτίμηση<br>");
-
     }
 }

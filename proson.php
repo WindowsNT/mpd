@@ -136,7 +136,7 @@ echo '<div class="content" style="margin: 20px">';
 
 function ViewOrEdit($pid,$items,$fcid = 0)
 {
-    global $xmlp,$_SESSION,$uid,$req;
+    global $xmlp,$_SESSION,$uid,$req,$music_schools,$music_eidik;
     EnsureProsonLoaded();
     $xx = $xmlp;
     if (array_key_exists("constraint",$_SESSION))
@@ -207,7 +207,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Απόκτησης Τίτλου</label>
+        <label for="STARTDATE">Ημερομηνία Έναρξης Ισχύος Δικαιολογητικού</label>
         <input required type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
         <br><br>
 
@@ -229,7 +229,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         
             }
         ?>
-        <label for="STARTDATE">Είναι προσόν διορισμού;</label>
+        <label for="STARTDATE">Είναι το δικαιολογητικό προσόν διορισμού;</label>
         <select name="DIORISMOS" class="input">
             <option value="0">Όχι</option>
             <option value="1" <?= (int)$items['DIORISMOS'] ? "selected" : "" ?>>Ναι</option>
@@ -271,7 +271,17 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                 if ($pa['list'] && strlen($pa['list']))
                 {
                     printf('<label for="param_%s">%s</label><br><select class="input" name="param_%s">',$pa['id'],$pa['n'],$pa['id']);
-                    $vv = explode(",",$pa['list']);
+                    if ($pa['list'] == '--TMS--')
+                        {
+                            $vv = explode(",",$music_eidik);
+                        }
+                    else
+                    if ($pa['list'] == '--MS--')
+                        {
+                            $vv = explode(",",$music_schools);
+                        }
+                    else
+                        $vv = explode(",",$pa['list']);
                     $mi = (int)$pa['min'];
                     foreach($vv as $v)
                     {

@@ -118,6 +118,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
     </thead>
     <tbody>
     <?php
+    $crow = Single("CONTESTS","ID",$req['cid']);
     $q4 = QQ("SELECT * FROM POSITIONS WHERE CID = ? AND PLACEID = ?",array($req['cid'],$req['pid']));
     while($r4 = $q4->fetchArray())
     {
@@ -129,6 +130,9 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
         if (!$is_foreas_editing)
             {
                 $CountY = QQ("SELECT COUNT (*) FROM REQS2 WHERE CID = ? AND FORTHESI = ?",array($req['cid'],$r4['DESCRIPTION']))->fetchArray()[0];
+                if ($crow['CLASSID'] != 0)
+                    printf('Προσόντα Ορισμένα από το Σύστημα &nbsp;');
+                else
                 if ($CountY) 
                     printf('Προσόντα Κοινά από τον Διαγωνισμό &nbsp;');
                 else

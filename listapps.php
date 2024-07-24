@@ -130,7 +130,7 @@ while($r1 = $q1->fetchArray())
             }
             else
             {
-                printf('<button class="button is-small is-link">%s</button> %s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+                printf('<button class="button is-small is-info">%s</button> %s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
             }
 
             // View the items

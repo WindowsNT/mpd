@@ -6,9 +6,9 @@
 */
 
 // Scores for metathesi music schools algorithm 
-function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems = 0)
+function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpref = 0,$typems = 0)
 {
-    global $required_check_level,$rejr;
+    global $required_check_level,$rejr,$music_eidik,$music_schools;
 
     // Music Schools Calculator
     $contestrow = Single("CONTESTS","ID",$cid); 
@@ -25,26 +25,33 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
     $Has_Diploma_For_Position = 0;
     $Has_Uni_For_Position = 0;
 
-    $score = 0;
+    $score = 0.0;
 
-    $moria_tpe = 0;
-    $moria_languages = 0;
+    $moria_tpe = 0.0;
+    $moria_languages = 0.0;
 
-    $moria_conservatoire_instrument = 0;
-    $moria_ptychio_antfug = 0;
-    $moria_diplomasodeiou = 0;
+    $moria_conservatoire_instrument = 0.0;
+    $moria_ptychio_antfug = 0.0;
+    $moria_diplomasodeiou = 0.0;
 
-    $moria_uni = 0;
-    $moria_k = 0;
+    $moria_uni = 0.0;
+    $moria_proyp1 = 0.0;
+    $moria_proyp2 = 0.0;
+    $moria_79 = 0.0;
+    $moria_y = 0.0;
+    $moria_k = 0.0;
+
+    $moria_1 = 0.0;
 
     // Load all prosonta and their parameters
     $all_prosonta = array();
-    $q0 = QQ("SELECT * FROM PROSON WHERE STATE >= ? AND UID = ?",array($required_check_level,$uid));
+    $time = time();
+    $q0 = QQ("SELECT * FROM PROSON WHERE STATE >= ? AND STARTDATE < ? AND (ENDDATE > ? OR ENDDATE = 0) AND UID = ?",array($required_check_level,$time,$time,$uid));
     while($r0 = $q0->fetchArray())
     {
         $prx = array();
         $prx['params'] = array();
-        $x0 = QQ("SELECT * FROM PROSONPAR WHERE PID = ?",array($r0['ID']));
+        $x0 = QQ("SELECT * FROM PROSONPAR WHERE PID = ? ORDER BY PIDX",array($r0['ID']));
         while($y0 = $x0->fetchArray())
         {
             $prx['params'][] = $y0;
@@ -134,6 +141,15 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
             $d1 = array('s' => $langu['s'],'h' => array($langu['u']));
             $desc []= $d1;
         }
+    }
+
+    // Total TPE+LANG
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Γλωσσών + ΤΠΕ (Μέγιστο: 6)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min(($moria_tpe + $moria_languages),6.0),'h' => $j);
+        $desc []= $d1;
     }
 
     // Diploma/Ptychio Organou
@@ -248,35 +264,348 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
         }
     }
 
+    
+    // Total Conservatoire
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Ωδείου (Μέγιστο: 18)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0),'h' => $j);
+        $desc []= $d1;
+    }
+
+
     // University
     if (1)
     {
         $unique_types = array();
+
+        $ex1 = array();
+
         foreach($all_prosonta as $proson)
         {
             $r1 = $proson['row'];
             if ($r1['CLASSID'] != 101 && $r1['CLASSID'] != 102 && $r1['CLASSID'] != 103 && $r1['CLASSID'] != 104) continue;
+
             
-            // Param pid 3 is the tmima
-            // Param pid [6,8,7,8] the music eidikeysi
+            // Param pid [6,8,7,7] the music eidikeysi
+            $whatpid = 0;
+            if ($r1['CLASSID'] == 101) $whatpid = 6;
+            if ($r1['CLASSID'] == 102) $whatpid = 8;
+            if ($r1['CLASSID'] == 103) $whatpid = 7;
+            if ($r1['CLASSID'] == 104) $whatpid = 7;
+
+
+
+
+
+            $cur_idr = '';
+            $cur_sx = '';
+            $cur_tm = '';
             foreach($proson['params'] as $param)
+            {   
+                if ($param['PIDX'] == 1) 
+                {
+                    if (!array_key_exists($param['PVALUE'],$ex1))
+                        $ex1[$param['PVALUE']] = array();
+                    $cur_idr = $param['PVALUE'];
+                    continue;
+                }
+                if ($param['PIDX'] == 2) 
+                {
+                    if (!array_key_exists($param['PVALUE'],$ex1[$cur_idr]))
+                        $ex1[$cur_idr][$param['PVALUE']] = array();
+                    $cur_sx = $param['PVALUE'];
+                    continue;
+                }
+                if ($param['PIDX'] == 3) 
+                {
+                    if (!array_key_exists($param['PVALUE'],$ex1[$cur_idr][$cur_sx]))
+                        $ex1[$cur_idr][$cur_sx][$param['PVALUE']] = array("s" => 0);
+                    $cur_tm = $param['PVALUE'];
+                    continue;
+                }
+
+                if ($param['PIDX'] == $whatpid)
+                {
+                    if ($param['PVALUE'] == 0) // No TMS Pty
+                    {
+                        $mu = 0;
+                        if ($r1['CLASSID'] == 101) $mu = 5.0;
+                        if ($r1['CLASSID'] == 102) $mu = 7.0;
+                        if ($r1['CLASSID'] == 103) $mu = 11.0;
+                        if ($r1['CLASSID'] == 104) $mu = 13.0;
+
+                        if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
+                        {
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['h'] = array($r1);
+                        }
+                    }
+                    if ($param['PVALUE'] == 1) // TMS but no eid
+                    {
+                        $mu = 0;
+                        if ($r1['CLASSID'] == 101) $mu = 8.0;
+                        if ($r1['CLASSID'] == 102) $mu = 10.0;
+                        if ($r1['CLASSID'] == 103) $mu = 14.0;
+                        if ($r1['CLASSID'] == 104) $mu = 16.0;
+                        if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
+                        {
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['h'] = array($r1);
+                        }
+                    }
+                    if ($param['PVALUE'] > 1) // TMS eid
+                    {
+                        $mu = 0;
+                        if ($r1['CLASSID'] == 101) $mu = 8.0;
+                        if ($r1['CLASSID'] == 102) $mu = 10.0;
+                        if ($r1['CLASSID'] == 103) $mu = 14.0;
+                        if ($r1['CLASSID'] == 104) $mu = 16.0;
+
+                        // And check if this is eidikeysi
+                        $instr = explode(",",$music_eidik)[$param['PVALUE']];
+                        if (!$Has_Uni_For_Position && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($instr)))
+                            {
+                                $Has_Uni_For_Position = 1;
+                                $mu += 4.0;
+                            }
+
+                        if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
+                        {
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
+                            $ex1[$cur_idr][$cur_sx][$cur_tm]['h'] = array($r1);
+                        }
+                    }
+                }
+            }
+
+            foreach($proson['params'] as $param)
+            {   
+                if ($param['PIDX'] == $whatpid)
+                {
+                    if ($param['PVALUE'] >= 1)
+                    {
+                        if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents('Θεωρητικά Ευρωπαϊκής Μουσικής')))
+                            $Has_Uni_For_Position = 1;
+                    }
+                }
+            }
+
+        }
+        foreach($ex1 as $ex11)
+        {
+            foreach($ex11 as $ex111)
             {
-                $mouseid = 'Θεωρητικά Ευρωπαϊκής Μουσικής';
-
-
-
-                // Check position
-                if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($mouseid)))
-                    $Has_Uni_For_Position = 1;
-
-                // Them
-
+                foreach($ex111 as $ex1111)
+                {
+                    if ($ex1111['s'] == 0) continue;
+                    $d1 = array('s' => $ex1111['s'],'h' => $ex1111['h']);
+                    $desc []= $d1;
+                    $moria_uni += $ex1111['s'];
+                }
             }
         }
     }
 
 
+
+    // Total University
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Πανεπιστημιακής Εκπαίδευσης (Μέγιστο: 36)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_uni,36.0),'h' => $j);
+        $desc []= $d1;
+    }
+
+
+
+
+    // Koin
+    if (1)
+    {
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 501 && $r1['CLASSID'] != 502 && $r1['CLASSID'] != 503)  
+                continue;
+            foreach($proson['params'] as $param)
+            {
+                // Entopi/Sinipi
+                if (($r1['CLASSID'] == 501 || $r1['CLASSID'] == 503) && $param['PIDX'] == 2 && $placerow)
+                {
+                    $placename = $placerow['DESCRIPTION'];
+                    $iname = explode(",",$music_schools)[(int)$param['PVALUE']];
+                    if (mb_strtolower(RemoveAccents($iname)) == mb_strtolower(RemoveAccents($placename)))
+                    {
+                        $moria_k += 4.0;
+                        $d1 = array('s' => 4.0,'h' => array($r1));
+                        $desc []= $d1;
+                    }
+                }
+
+                // Gamos
+                if ($r1['CLASSID'] == 502 && $param['PIDX'] == 1)
+                {
+                    if ($param['PVALUE'] == 1)
+                    {
+                        $moria_k += 2.0;
+                        $d1 = array('s' => 2.0,'h' => array($r1));
+                        $desc []= $d1;
+                    }
+                }
+                // Kids
+                if ($r1['CLASSID'] == 502 && $param['PIDX'] == 2)
+                {
+                    $kidm = 0;
+                    if ($param['PVALUE'] == 1) $kidm = 2;
+                    if ($param['PVALUE'] == 2) $kidm = 4;
+                    if ($param['PVALUE'] == 3) $kidm = 8;
+                    if ($param['PVALUE'] >= 4) $kidm = 10;
+
+                    if ($kidm)
+                    {
+                        $moria_k += $kidm;
+                        $d1 = array('s' => $kidm,'h' => array($r1));
+                        $desc []= $d1;
+                    }
+                }
+            }
+       }
+    }
+
+    // Total Koin
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Κοινωνικής Κατάστασης (Μέγιστο: 20)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_k,20.0),'h' => $j);
+        $desc []= $d1;
+    }
+
+    // Ypir
+    $years_mousika = 0;
+    $years_total = 0;
+    if (1)
+    {
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 601) 
+                continue;
+            $value_mousika = 0;
+            foreach($proson['params'] as $param)
+            {
+                if ($param['PIDX'] == 1)
+                {
+                    if ($param['PVALUE'] == "ΠΕ79" || $param['PVALUE'] == "ΠΕ79.01")
+                    {
+                        $d1 = array('s' => 2,'h' => array($r1));
+                        $d1['h'][0]['DESCRIPTION'] = "ΠΕ79";
+                        $desc []= $d1;
+                        $moria_79 = 2.0;
+                    }
+                }
+                if ($param['PIDX'] == 4)
+                {
+                    // Proyp Mousika
+                    $v = $param['PVALUE'];
+                    $value_mousika = $v;
+                    $years = (int)($v / 360);
+                    $years_mousika = $years;
+                    $v %= 360;
+                    $months = (int)($v / 30);
+                    $v %= 30;
+                    $days = $v;
+                
+
+                    $resv = round($years * 2.0 + $months / 6.0 + $days/180.0,2);
+                    $moria_proyp2 = $resv;
+                    $d1 = array('s' => $resv,'h' => array($r1));
+                    $d1['h'][0]['DESCRIPTION'] = "Προυπηρεσία Μουσικά";
+                    $desc []= $d1;
+                }
+            }
+            foreach($proson['params'] as $param)
+            {
+                if ($param['PIDX'] == 9)
+                {
+                    // Proyp Genika
+                    $v = $param['PVALUE'];
+                    $years_total = (int)($v / 360);
+                    $v -= $value_mousika;
+                    $years = (int)($v / 360);
+                    $v %= 360;
+                    $months = (int)($v / 30);
+                    $v %= 30;
+                    $days = $v;
+                
+                    $resv = round($years * 0.5 + $months / 24.0 + $days/720.0,2);
+                    $moria_proyp1 = $resv;
+                    $d1 = array('s' => $resv,'h' => array($r1));
+                    $d1['h'][0]['DESCRIPTION'] = "Προυπηρεσία Γενικά";
+                    $desc []= $d1;
+                }
+            }
+
+
+        }
+
+        $moria_y = min($moria_proyp1 + $moria_proyp2 + $moria_79,20.0);
+    }
+
+    
+    // Total Proyp
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια προϋπηρεσίας (Μέγιστο: 20)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_y,20.0),'h' => $j);
+        $desc []= $d1;
+    }
+
+
+    // Prwti
+    if ($whatpref == 1)
+    {
+        $moria_1 = 2.0;
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Μόρια πρώτης προτίμησης</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => $moria_1,'h' => $j);
+        $desc []= $d1;
+    }
+     
+
+    
     // Forced
+    if ($typems == 0)
+    {
+        // Met
+        if ($years_total < 5)
+        {
+            $desc = array();
+            $rejr = "Απαιτείται ελάχιστη προϋπηρεσία στη γενική εκπαίδευση, τουλάχιστον 5 έτη.";
+            return -1;
+        }
+        if ($years_mousika < 5)
+        {
+            $desc = array();
+            $rejr = "Απαιτείται ελάχιστη προϋπηρεσία στα μουσικά σχολεία, τουλάχιστον 5 έτη.";
+            return -1;
+        }
+    }
+    if ($typems == 1)
+    {
+        // Apos
+        if ($years_total < 5)
+        {
+            $desc = array();
+            $rejr = "Απαιτείται ελάχιστη προϋπηρεσία στη γενική εκπαίδευση, τουλάχιστον 5 έτη.";
+            return -1;
+        }
+    }
+    
     if (!$Has_Diploma_For_Position && !$Has_Uni_For_Position)
     {
         if ($posrow)
@@ -288,11 +617,12 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
     }
 
 
+
     /*
         Ptychio - Met - Did - PostPhD 
         5,7,11,13       Other
-        6,8,12,14       TMS
-        8,10,14,16      TMS + Eid for the place
+        8,10,14,16       TMS
+        +4               TMS + Eid for the place
         MAX 36
 
         Odeio
@@ -304,7 +634,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
         Apait Either PT + Eid or Dipl Org
 
         Proy 
-        2*mous + 0.5*gen
+        2*mous + 0.5*gen max 20
         PE79 + 2
         Entop +4
         PP +2
@@ -316,17 +646,16 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$typems 
 
 
     */
+
     
-    $score = min(($moria_tpe + $moria_languages),6.0) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0) + min($moria_uni,36) + min($moria_k,40);
-
-
-    return $score;
+    $score = min(($moria_tpe + $moria_languages),6.0) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0) + min($moria_uni,36.0) + min(min($moria_y,20.0)+ min($moria_k,20.0) + $moria_1,40.0);
+    return min($score,100.0);
 }
 
 
-function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0)
+function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0,$whatpref = 0)
 {
-    global $rejr,$xmlp,$required_check_level;
+    global $rejr,$xmlp,$required_check_level,$first_pref_score;
     EnsureProsonLoaded();
     $pr = Single("USERS","ID",$uid);
     if (!$pr)
@@ -336,11 +665,11 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
         return -1;
     if ($contestrow['CLASSID'] == 101)
     {
-        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,0);
+        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,$whatpref,0);
     }
     if ($contestrow['CLASSID'] == 102)
     {
-        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,1);
+        return CalculateScoreForMS($uid,$cid,$placeid,$posid,$desc,$whatpref,1);
     }
     $posr = Single("POSITIONS","ID",$posid); 
     $score = 0;
@@ -478,6 +807,8 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
 
     if ($posid)
     {
+        if ($whatpref == 1)
+            $score += $first_pref_score;
         $v = CalculateScore($uid,$cid,$placeid,0,$debug,$linkssave,$prosononly,$desc,0,$posid);
         if ($v == -1)
             return -1;
@@ -508,15 +839,25 @@ function PrintDescriptionFromScore($desc,$onlypos = false)
         if((float)$d['s'] == 0 && $onlypos)    
             continue;
         $s .= sprintf('<tr>');
-        $s .= sprintf('<td>%s</td>',$c);
         $info = '';
+        $is_sum = 0;
         foreach($d['h'] as $dd)
         {
             $info .= sprintf("%s<br>",$dd['DESCRIPTION']);
+            if ($dd['ID'] == 0)
+                $is_sum = 1;
         }
+        if ($is_sum)
+            $s .= sprintf('<td></td>');
+        else
+            $s .= sprintf('<td>%s</td>',$c);
         $s .= sprintf('<td>%s</td>',$info);
-        $s .= sprintf('<td>%s</td>',$d['s']);
+        if ($is_sum)
+            $s .= sprintf('<td><b>%s</b></td>',$d['s']);
+        else
+            $s .= sprintf('<td>%s</td>',$d['s']);
         $s .= sprintf('</tr>');
+        if (!$is_sum)
             $c++;
     }
 

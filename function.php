@@ -4,6 +4,7 @@
 */
 
 ini_set('display_errors', 1); error_reporting(E_ALL);
+date_default_timezone_set("Europe/Athens");
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
 $req = array_merge($_GET,$_POST);
@@ -38,7 +39,14 @@ function RoleToText($r)
     return '';
 }
 
+$music_schools = 'Κανένα,Μουσικό Σχολείο Αγρινίου,Μουσικό Σχολείο Αθηνών,Μουσικό Σχολείο Αλίμου,Μουσικό Σχολείο Αλεξανδρούπολης,Μουσικό Σχολείο Αμφισσας,Μουσικό Σχολείο Αμύνταιου,Μουσικό Σχολείο Αργολίδας,Μουσικό Σχολείο Αρτας,Μουσικό Σχολείο Βέροιας,Μουσικό Σχολείο Βαρθολομιού,Μουσικό Σχολείο Βόλου,Μουσικό Σχολείο Γιαννιτσών,Μουσικό Σχολείο Δράμας,Μουσικό Σχολείο Δυτικής Λέσβου,Μουσικό Σχολείο Ζακύνθου,Μουσικό Σχολείο Ηγουμενίτσας,Μουσικό Σχολείο Ηρακλείου,Μουσικό Σχολείο Θέρισου,Μουσικό Σχολείο Θεσσαλονίκης,Μουσικό Σχολείο Ιλίου,Μουσικό Σχολείο Ιωαννίνων,Μουσικό Σχολείο Κέρκυρας,Μουσικό Σχολείο Καβάλας,Μουσικό Σχολείο Καλαμάτας,Μουσικό Σχολείο Καρδίτσας,Μουσικό Σχολείο Καστοριάς,Μουσικό Σχολείο Κατερίνης,Μουσικό Σχολείο Κομοτηνής,Μουσικό Σχολείο Κορίνθου,Μουσικό Σχολείο Λάρισας,Μουσικό Σχολείο Λαμίας,Μουσικό Σχολείο Λασιθίου,Μουσικό Σχολείο Λευκάδας,Μουσικό Σχολείο Λιβαδειάς,Μουσικό Σχολείο Μυτιλήνης,Μουσικό Σχολείο Ξάνθης,Μουσικό Σχολείο Πάτρας,Μουσικό Σχολείο Παλλήνης,Μουσικό Σχολείο Πειραιά,Μουσικό Σχολείο Πρέβεζας,Μουσικό Σχολείο Πτολεμαΐδας,Μουσικό Σχολείο Ρεθύμνου,Μουσικό Σχολείο Ρόδου,Μουσικό Σχολείο Σάμου,Μουσικό Σχολείο Σερρών,Μουσικό Σχολείο Σιάτιστας,Μουσικό Σχολείο Σπάρτης,Μουσικό Σχολείο Τρικάλων,Μουσικό Σχολείο Τριπόλεως,Μουσικό Σχολείο Χίου,Μουσικό Σχολείο Χαλκίδας';
+$music_eidik = 'Μη Πτυχίο ΤΜΣ,Πτυχίο ΤΜΣ χωρίς ειδίκευση,Ακορντεόν,Βιολί,Βιολί (Παραδοσιακό),Βιολοντσέλο,Βιόλα,Θεωρητικά Βυζαντινής Μουσικής,Θεωρητικά Ευρωπαϊκής Μουσικής,Κανονάκι,Κιθάρα Ηλεκτρική,Κιθάρα Κλασική,Κλαρινέτο,Κρουστά Ευρωπαϊκά (Κλασικά - Σύγχρονα),Κρουστά παραδοσιακά,Λαούτο,Μαντολίνο,Μπουζούκι (Τρίχορδο),Πιάνο,Σαξόφωνο (Άλτο - Βαρύτονο - Τενόρο),Ταμπουράς,Τρομπέτα,Τρομπόνι,Φλάουτο';
 
+/*$s1 = explode(",",$music_scools);
+sort($s1);
+$s2 = implode(",",$s1);
+printdie($s2); 
+*/
 
 // ClassTypes for contests
 // 101 Mousika Sxoleia Metathesis
@@ -56,7 +64,7 @@ $def_xml_proson = <<<XML
                         <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="6" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
+                        <p n="Μουσική Ειδίκευση" id="6" t="1" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="102" t="Μεταπτυχιακό" el="7" >
@@ -68,7 +76,7 @@ $def_xml_proson = <<<XML
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                         <p n="Είναι Integrated Master;" id="7" t="1" min="1" max="2" list="Όχι,Ναι" />
-                        <p n="Μουσική Ειδίκευση" id="8" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
+                        <p n="Μουσική Ειδίκευση" id="8" t="1" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="103" t="Διδακτορικό" el="8" >
@@ -79,7 +87,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
+                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="104" t="Μεταδιδακτορικό" el="8" >
@@ -90,7 +98,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="Χωρίς Ειδίκευση,Πιάνο,Βιολί,Σαξόφωνο,Κιθάρα" />
+                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
             </classes>
@@ -155,6 +163,7 @@ $def_xml_proson = <<<XML
                 <c n="501" t="Εντοπιότητα" unique="1" >
                     <params>
                         <p n="Περιοχή" id="1" t="0" />
+                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="1" list="--MS--"/>
                     </params>
                 </c>
                 <c n="502" t="Οικογενειακή κατάσταση" unique="1" >
@@ -162,6 +171,12 @@ $def_xml_proson = <<<XML
                         <p n="Γάμος" id="1" t="2" min="0" max="1" />
                         <p n="Παιδιά" id="2" t="2" />
                         <p n="Αναπηρία" id="3" t="2" min="0" max="100" />
+                    </params>
+                </c>
+                <c n="503" t="Συνυπηρέτηση" unique="1" >
+                    <params>
+                        <p n="Περιοχή" id="1" t="0" />
+                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="1" list="--MS--"/>
                     </params>
                 </c>
             </classes>
@@ -947,7 +962,7 @@ function PrintContests($uid)
 
 function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
 {
-    global $xmlp,$required_check_level;
+    global $xmlp,$required_check_level,$music_schools,$music_eidik;
     EnsureProsonLoaded();
 
 
@@ -1024,8 +1039,22 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             $vvv2 = '';
             if ($parlist[(int)$r2['PIDX']])
             {
-                $ch = explode(",",$parlist[(int)$r2['PIDX']]);
-                $vvv2 = ' - '.$ch[((int)$vvv) - 1];
+                if ($parlist[(int)$r2['PIDX']] == "--TMS--")
+                {
+                    $ch = explode(",",$music_eidik);
+                    $vvv2 = ' - '.$ch[((int)$vvv)];
+                }
+                else
+                if ($parlist[(int)$r2['PIDX']] == "--MS--")
+                {
+                    $ch = explode(",",$music_schools);
+                    $vvv2 = ' - '.$ch[((int)$vvv)];
+                }
+                else
+                {
+                    $ch = explode(",",$parlist[(int)$r2['PIDX']]);
+                    $vvv2 = ' - '.$ch[((int)$vvv) - 1];
+                }
 
             }
             
@@ -1349,7 +1378,6 @@ function AppPreference($apid)
 
 function ScoreForAitisi($apid)
 {
-    global $first_pref_score;
     $score = 0;
     $apr = Single("APPLICATIONS","ID",$apid);
     if (!$apr)
@@ -1359,12 +1387,8 @@ function ScoreForAitisi($apid)
         return $apr['FORCEDMORIA'];
 
     $pref = AppPreference($apid);
-    if ($pref == 1)
-        $score += $first_pref_score;
-
-
-   
-    $score += ScoreForThesi($apr['UID'],$apr['CID'],$apr['PID'],$apr['POS']);
+    $de = array();
+    $score = ScoreForThesi($apr['UID'],$apr['CID'],$apr['PID'],$apr['POS'],0,$de,$pref == 1);
     return $score;
 }
 
@@ -1410,10 +1434,10 @@ require_once "score.php";
 $push3_admin = 1;
 require_once "push3.php";
 
-function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0,&$desc = array())
+function ScoreForThesi($uid,$cid,$placeid,$posid,$debug = 0,&$desc = array(),$is1 = 0)
 {
     $linkssave = array();
-    return CalculateScore($uid,$cid,$placeid,$posid,$debug,$linkssave,0,$desc);
+    return CalculateScore($uid,$cid,$placeid,$posid,$debug,$linkssave,0,$desc,0,0,$is1 ? 1 : 0);
 }   
 
 
