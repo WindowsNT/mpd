@@ -280,6 +280,8 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                         {
                             $vv = explode(",",$music_eidik);
                             array_splice($vv,0,2);
+                            array_splice($vv, array_search("Θεωρητικά Ευρωπαϊκής Μουσικής", $vv), 1);
+                            array_splice($vv, array_search("Θεωρητικά Βυζαντινής Μουσικής", $vv), 1);
                         }
                     else
                     if ($pa['list'] == '--MS--')
@@ -289,6 +291,13 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                     else
                         $vv = explode(",",$pa['list']);
                     $mi = (int)$pa['min'];
+
+                    if ($pa['t'] == 4)
+                    {
+                        // Sort items
+                        sort($vv);
+                    }
+
                     foreach($vv as $v)
                     {
                         $s = '';
