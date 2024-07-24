@@ -328,7 +328,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
                 if ($param['PIDX'] == $whatpid)
                 {
-                    if ($param['PVALUE'] == 0) // No TMS Pty
+                    if ($param['PVALUE'] == "Μη Πτυχίο ΤΜΣ") // No TMS Pty
                     {
                         $mu = 0;
                         if ($r1['CLASSID'] == 101) $mu = 5.0;
@@ -342,20 +342,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                             $ex1[$cur_idr][$cur_sx][$cur_tm]['h'] = array($r1);
                         }
                     }
-                    if ($param['PVALUE'] == 1) // TMS but no eid
-                    {
-                        $mu = 0;
-                        if ($r1['CLASSID'] == 101) $mu = 8.0;
-                        if ($r1['CLASSID'] == 102) $mu = 10.0;
-                        if ($r1['CLASSID'] == 103) $mu = 14.0;
-                        if ($r1['CLASSID'] == 104) $mu = 16.0;
-                        if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
-                        {
-                            $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
-                            $ex1[$cur_idr][$cur_sx][$cur_tm]['h'] = array($r1);
-                        }
-                    }
-                    if ($param['PVALUE'] > 1) // TMS eid
+                    else
                     {
                         $mu = 0;
                         if ($r1['CLASSID'] == 101) $mu = 8.0;
@@ -364,7 +351,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                         if ($r1['CLASSID'] == 104) $mu = 16.0;
 
                         // And check if this is eidikeysi
-                        $instr = explode(",",$music_eidik)[$param['PVALUE']];
+                        $instr = $param['PVALUE'];
                         if (!$Has_Uni_For_Position && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($instr)))
                             {
                                 $Has_Uni_For_Position = 1;

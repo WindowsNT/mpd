@@ -64,7 +64,7 @@ $def_xml_proson = <<<XML
                         <p n="Τμήμα" id="3" t="0" unique="1" />
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="6" t="1" min="0" max="4" list="--TMS--" />
+                        <p n="Μουσική Ειδίκευση" id="6" t="4" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="102" t="Μεταπτυχιακό" el="7" >
@@ -76,7 +76,7 @@ $def_xml_proson = <<<XML
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
                         <p n="Είναι Integrated Master;" id="7" t="1" min="1" max="2" list="Όχι,Ναι" />
-                        <p n="Μουσική Ειδίκευση" id="8" t="1" min="0" max="4" list="--TMS--" />
+                        <p n="Μουσική Ειδίκευση" id="8" t="4" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="103" t="Διδακτορικό" el="8" >
@@ -87,7 +87,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="--TMS--" />
+                        <p n="Μουσική Ειδίκευση" id="7" t="4" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
                 <c n="104" t="Μεταδιδακτορικό" el="8" >
@@ -98,7 +98,7 @@ $def_xml_proson = <<<XML
                         <p n="Ειδίκευση" id="5" t="0" />
                         <p n="Τίτλος" id="6" t="0" unique="1" />
                         <p n="Βαθμός" id="4" t="2" min="5" max="10"/>
-                        <p n="Μουσική Ειδίκευση" id="7" t="1" min="0" max="4" list="--TMS--" />
+                        <p n="Μουσική Ειδίκευση" id="7" t="4" min="0" max="4" list="--TMS--" />
                     </params>
                 </c>
             </classes>
@@ -1041,8 +1041,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             {
                 if ($parlist[(int)$r2['PIDX']] == "--TMS--")
                 {
-                    $ch = explode(",",$music_eidik);
-                    $vvv2 = ' - '.$ch[((int)$vvv)];
+                    $vvv2 = '';
                 }
                 else
                 if ($parlist[(int)$r2['PIDX']] == "--MS--")
