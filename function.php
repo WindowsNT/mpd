@@ -168,9 +168,10 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="502" t="Οικογενειακή κατάσταση" unique="1" >
                     <params>
-                        <p n="Γάμος" id="1" t="2" min="0" max="1" />
+                        <p n="Γάμος" id="1" t="1" min="0" max="1"  list="Όχι,Ναι" />
                         <p n="Παιδιά" id="2" t="2" />
-                        <p n="Αναπηρία" id="3" t="2" min="0" max="100" />
+                        <p n="Αναπηρία (Ποσοστό)" id="3" t="2" min="0" max="100" />
+                        <p n="Μονογονεϊκή Οικογένεια" id="4" t="1" min="1" max="2" list="Όχι,Ναι"  />
                     </params>
                 </c>
                 <c n="503" t="Συνυπηρέτηση" unique="1" >
@@ -979,7 +980,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             </thead><tbody>';
 
             
-    $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ",array($uid));
+    $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ORDER BY ID DESC",array($uid));
     if ($rolerow)
         $q1 = QQ("SELECT * FROM PROSON WHERE PROSON.UID = ? ORDER BY STATE",array($uid));
 

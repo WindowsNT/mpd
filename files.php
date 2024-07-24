@@ -27,6 +27,11 @@ if (array_key_exists("f1",$_FILES))
 	$tempfile = $file['tmp_name'];
 	$vev = file_get_contents($tempfile);
 
+    if (filesize($tempfile) > 5*1024*1024)
+    {
+        die("Το αρχείο είναι μεγαλύτερο από 5MB.");
+    }
+
     // check jpg
     $finfo = new finfo(FILEINFO_MIME);
     $ct = $finfo->buffer($vev);
@@ -138,7 +143,8 @@ if ($_GET['f'] == 0)
                 <i class="fa fa-upload"></i>
             </span>
             <span class="file-label">
-                Επιλογή αρχείου
+                Επιλογή αρχείου<br>
+                JPG/PDF/PNG <= 5MB
             </span>
         </span>
         <span class="file-name">Κάντε κλικ για να επιλέξετε...</span>
