@@ -8,7 +8,14 @@
 // Scores for metathesi music schools algorithm 
 function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpref = 0,$typems = 0)
 {
-    global $required_check_level,$rejr,$music_eidik,$music_schools;
+    global $required_check_level,$rejr;
+
+    $max_tpex = 6.0;
+    $max_uni = 34.0;
+    $max_odeio = 18.0;
+    $max_proy = 20.0;
+    $max_koin = 18.0;
+    $max_sumyk = 40.0;
 
     // Music Schools Calculator
     $contestrow = Single("CONTESTS","ID",$cid); 
@@ -86,8 +93,13 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     $moria_tpe = 1.0;
                     $used = $r1;
                 }
-                if (($param['PVALUE'] >= 3) && $moria_tpe < 1.5) {
+                if (($param['PVALUE'] == 3) && $moria_tpe < 1.5) {
                     $moria_tpe = 1.5;
+                    $used = $r1;
+                }        
+
+                if (($param['PVALUE'] == 4) && $moria_tpe < 2.0) {
+                    $moria_tpe = 2.0;
                     $used = $r1;
                 }        
             }
@@ -147,8 +159,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     if (1)
     {
         $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Γλωσσών + ΤΠΕ (Μέγιστο: 6)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min(($moria_tpe + $moria_languages),6.0),'h' => $j);
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Γλωσσών + ΤΠΕ (Μέγιστο: $max_tpex)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min(($moria_tpe + $moria_languages),$max_tpex),'h' => $j);
         $desc []= $d1;
     }
 
@@ -269,8 +281,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     if (1)
     {
         $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Ωδείου (Μέγιστο: 18)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0),'h' => $j);
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Ωδείου (Μέγιστο: $max_odeio)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio),'h' => $j);
         $desc []= $d1;
     }
 
@@ -401,8 +413,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     if (1)
     {
         $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Πανεπιστημιακής Εκπαίδευσης (Μέγιστο: 36)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min($moria_uni,36.0),'h' => $j);
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Πανεπιστημιακής Εκπαίδευσης (Μέγιστο: $max_uni)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_uni,$max_uni),'h' => $j);
         $desc []= $d1;
     }
 
@@ -449,8 +461,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     $kidm = 0;
                     if ($param['PVALUE'] == 1) $kidm = 2;
                     if ($param['PVALUE'] == 2) $kidm = 4;
-                    if ($param['PVALUE'] == 3) $kidm = 8;
-                    if ($param['PVALUE'] >= 4) $kidm = 10;
+                    if ($param['PVALUE'] >= 3) $kidm = 8;
+                    //if ($param['PVALUE'] >= 4) $kidm = 10;
 
                     if ($kidm)
                     {
@@ -467,8 +479,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     if (1)
     {
         $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Κοινωνικής Κατάστασης (Μέγιστο: 20)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min($moria_k,20.0),'h' => $j);
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Κοινωνικής Κατάστασης (Μέγιστο: $max_koin)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_k,$max_koin),'h' => $j);
         $desc []= $d1;
     }
 
@@ -540,7 +552,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
         }
 
-        $moria_y = min($moria_proyp1 + $moria_proyp2 + $moria_79,20.0);
+        $moria_y = min($moria_proyp1 + $moria_proyp2,$max_proy);
     }
 
     
@@ -548,8 +560,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     if (1)
     {
         $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια προϋπηρεσίας (Μέγιστο: 20)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min($moria_y,20.0),'h' => $j);
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια προϋπηρεσίας (Μέγιστο: $max_proy)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min($moria_y,$max_proy),'h' => $j);
         $desc []= $d1;
     }
 
@@ -564,6 +576,13 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
         $desc []= $d1;
     }
      
+    if ($moria_79 > 0)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Μόρια ΠΕ79</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => $moria_79,'h' => $j);
+        $desc []= $d1;
+    }
 
     
     // Forced
@@ -636,7 +655,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     */
 
     
-    $score = min(($moria_tpe + $moria_languages),6.0) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),18.0) + min($moria_uni,36.0) + min(min($moria_y,20.0)+ min($moria_k,20.0) + $moria_1,40.0);
+    $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min(min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1,$max_sumyk) + $moria_79;
     return min($score,100.0);
 }
 
