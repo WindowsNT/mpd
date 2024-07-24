@@ -130,14 +130,14 @@ $def_xml_proson = <<<XML
                 <c n="405" t="Πτυχίο Οργάνου" >
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Όργανο" id="3" t="0" unique="1" />
+                        <p n="Όργανο" id="3" t="4" unique="1" list="--TMS2--"/>
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="401" t="Δίπλωμα Οργάνου" >
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
-                        <p n="Όργανο" id="3" t="0" unique="1" />
+                        <p n="Όργανο" id="3" t="4" unique="1" list="--TMS2--"/>
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
@@ -1040,6 +1040,11 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             if ($parlist[(int)$r2['PIDX']])
             {
                 if ($parlist[(int)$r2['PIDX']] == "--TMS--")
+                {
+                    $vvv2 = '';
+                }
+                else
+                if ($parlist[(int)$r2['PIDX']] == "--TMS2--")
                 {
                     $vvv2 = '';
                 }

@@ -36,6 +36,6 @@ while($r1 = $q1->fetchArray())
     {
         if (!in_array($r2['ID'],$places) && !$superadmin)
             continue;
-        printf('Διαγωνισμός: %s<br><a href="positions.php?cid=%s&pid=%s">%s</a><br>',$r1['DESCRIPTION'],$r1['ID'],$r2['ID'],$r2['DESCRIPTION']);
+        printf('Διαγωνισμός: <b>%s</b><hr><button class="autobutton is-primary button" href="positions.php?cid=%s&pid=%s">%s</button><br>',$r1['DESCRIPTION'],$r1['ID'],$r2['ID'],$r2['DESCRIPTION']);
     }   
 }

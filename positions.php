@@ -15,7 +15,7 @@ if (!$afm || !$ur)
 $is_foreas_editing = 0;
 $ra = HasContestAccess($req['cid'],$ur['ID'],0);
 $wa = HasContestAccess($req['cid'],$ur['ID'],1);
-if (!$ra)
+if (!$wa)
 {
     // Check place access
     if (!HasPlaceAccessForKena($req['pid'],$ur['ID']))
@@ -82,7 +82,7 @@ if (array_key_exists("movefromglobal",$_GET) && $wa)
    
 }
 
-if (array_key_exists("delete",$_GET) && $wa)
+if (array_key_exists("delete",$_GET) && ($wa || $is_foreas_editing))
 {
     QQ("DELETE FROM POSITIONS WHERE ID = ?",array(
         $req['delete']
@@ -91,11 +91,13 @@ if (array_key_exists("delete",$_GET) && $wa)
     die;
 }
 
-if (array_key_exists("addposition",$_POST) && $wa)
+if (array_key_exists("addposition",$_POST) && ($wa || $is_foreas_editing))
 {
-    QQ("INSERT INTO POSITIONS (CID,PLACEID,DESCRIPTION,COUNT) VALUES(?,?,?,?)",array(
+    $ex = QQ("SELECT * FROM POSITIONS WHERE CID = ? AND PLACEID = ? AND DESCRIPTION = ?",array($req['cid'],$req['pid'],$req['DESCRIPTION'],))->fetchArray();
+    if (!$ex)
+        QQ("INSERT INTO POSITIONS (CID,PLACEID,DESCRIPTION,COUNT) VALUES(?,?,?,?)",array(
         $req['cid'],$req['pid'],$req['DESCRIPTION'],$req['COUNT']
-    ));
+        ));
     redirect(sprintf("positions.php?cid=%s&pid=%s",$_POST['cid'],$_POST['pid']));
     die;
 }
@@ -158,7 +160,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
             $aitcount = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['cid'],$req['pid'],$r4['ID']))->fetchArray()[0];
             printf('<button class="autobutton button is-small is-primary block" href="listapps.php?cid=%s&pid=%s&pos=%s">Λίστα Αιτήσεων (%s)</button> ',$req['cid'],$req['pid'],$r4['ID'],$aitcount);
         }
-        if ($wa)
+        if ($wa || $is_foreas_editing)
             printf('<button class="is-small sureautobutton is-danger button" href="positions.php?cid=%s&pid=%s&delete=%s">Διαγραφή</button>',$req['cid'],$req['pid'],$r4['ID']);
         printf('</td>');
         printf('</tr>');
@@ -182,7 +184,7 @@ printf('Θέσεις σε φορέα: %s<hr>',$placerow['DESCRIPTION']);
     }
 </script>
 <?php
-if ($wa)
+if ($wa || $is_foreas_editing)
 {
 ?>
 <div id="addpos1">

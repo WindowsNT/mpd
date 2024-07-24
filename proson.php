@@ -276,6 +276,12 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                             $vv = explode(",",$music_eidik);
                         }
                     else
+                    if ($pa['list'] == '--TMS2--')
+                        {
+                            $vv = explode(",",$music_eidik);
+                            array_splice($vv,0,2);
+                        }
+                    else
                     if ($pa['list'] == '--MS--')
                         {
                             $vv = explode(",",$music_schools);
