@@ -436,7 +436,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 if (($r1['CLASSID'] == 501 || $r1['CLASSID'] == 503) && $param['PIDX'] == 2 && $placerow)
                 {
                     $placename = $placerow['DESCRIPTION'];
-                    $iname = explode(",",$music_schools)[(int)$param['PVALUE']];
+                    $iname = $param['PVALUE'];
+
                     if (mb_strtolower(RemoveAccents($iname)) == mb_strtolower(RemoveAccents($placename)))
                     {
                         $moria_k += 4.0;

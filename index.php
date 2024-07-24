@@ -92,6 +92,8 @@ else
  
   echo '<div class="content" style="margin: 20px">';
   $_SESSION['return_msa'] = 'mpd';
+  $_SESSION['return_psd_login'] = "mpd";
+
     ?>
 
 
@@ -147,7 +149,7 @@ shaders: {
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
 
-<!--    <div class="navbar-item">
+    <div class="navbar-item">
 
     <div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
@@ -159,8 +161,9 @@ shaders: {
     <div class="dropdown-content">
     <div class="dropdown-item">
         <p>
-          <a href="https://www.msa-apps.com/taxis.php" class="button is-small is-primary block" >Taxis Login</a><br>
-          <a href="bio.php?login" class="button is-small is-link block">Biometric Login<hr></a>
+          <a href="https://www.msa-apps.com/taxis.php" class="button is-small is-primary block" >Taxis Login</a>
+          <a href="https://www.msa-apps.com/slogin.php" class="button is-small is-primary block" >ΠΣΔ Login</a>
+          <a href="bio.php?login" class="button is-small is-link block">Biometric Login</a>
         </p>
       </div>
      </div>
@@ -171,7 +174,7 @@ shaders: {
         <button class="button is-link">Video Demo</button>
       </a>
     </div>
--->
+
     <div class="navbar-end">
       <div class="navbar-item">
         

@@ -9,6 +9,12 @@ if (array_key_exists("logout",$_GET))
         unset($_SESSION['afm']);
         unset($_SESSION['afm2']);
         unset($_SESSION['oauth2_results']);
+        if (array_key_exists("sl_attr",$_SESSION))
+        {
+            unset($_SESSION['sl_attr']);
+            redirect("https://www.msa-apps.com/slogin.php?logout");
+            die;
+        }
     }
 $ur = null;
 $afm = 0;
@@ -38,6 +44,12 @@ if (array_key_exists("oauth2_results",$_SESSION))
     }
 }
 
+if (array_key_exists("sl_attr",$_SESSION))
+{
+    $afm = $_SESSION['sl_attr']['gsntaxnumber'];
+    $taxis_ln = $_SESSION['sl_attr']['sn'];
+    $taxis_fn = $_SESSION['sl_attr']['givenname'];
+}
 
 
 $ur = Single("USERS","AFM",$afm);

@@ -163,7 +163,7 @@ $def_xml_proson = <<<XML
                 <c n="501" t="Εντοπιότητα" unique="1" >
                     <params>
                         <p n="Περιοχή" id="1" t="0" />
-                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="1" list="--MS--"/>
+                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="4" list="--MS--"/>
                     </params>
                 </c>
                 <c n="502" t="Οικογενειακή κατάσταση" unique="1" >
@@ -176,7 +176,7 @@ $def_xml_proson = <<<XML
                 <c n="503" t="Συνυπηρέτηση" unique="1" >
                     <params>
                         <p n="Περιοχή" id="1" t="0" />
-                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="1" list="--MS--"/>
+                        <p n="Περιοχή Μουσικού Σχολείου" id="2" t="4" list="--MS--"/>
                     </params>
                 </c>
             </classes>
@@ -1047,8 +1047,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
                 else
                 if ($parlist[(int)$r2['PIDX']] == "--MS--")
                 {
-                    $ch = explode(",",$music_schools);
-                    $vvv2 = ' - '.$ch[((int)$vvv)];
+                    $vvv2 = '';
                 }
                 else
                 {

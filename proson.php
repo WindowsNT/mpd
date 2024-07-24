@@ -257,7 +257,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                 else
                     printf('<label for="param_%s">%s</label><input class="input" type="text" name="param_%s" value="%s" /><br><br>',$pa['id'],$pa['n'],$pa['id'],$parval);
             }
-            if ($pa['t'] == 1 || $pa['t'] == 3) // integer/integer days
+            if ($pa['t'] == 1 || $pa['t'] == 3 || $pa['t'] == 4) // integer/integer days/select values
             {
 /*                if ($pa['min'] == 0 && $pa['max'] == 1 && $pa['t'] == 1)
                 {
@@ -286,10 +286,20 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                     foreach($vv as $v)
                     {
                         $s = '';
-                        $si = (int)$parval;
-                        if ($si == $mi)
-                            $s = 'selected';
-                        printf('<option value="%s" %s>%s</option>',$mi,$s,$v);
+                        if ($pa['t'] == 4)
+                        {
+                            $si = $parval;
+                            if ($si == $v)
+                                $s = 'selected';
+                            printf('<option value="%s" %s>%s</option>',$v,$s,$v);
+                        }
+                        else
+                        {
+                            $si = (int)$parval;
+                            if ($si == $mi)
+                                $s = 'selected';
+                            printf('<option value="%s" %s>%s</option>',$mi,$s,$v);
+                        }
                         $mi++;
                     }
                     printf('</select><br><br>');
@@ -313,7 +323,7 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         }
         ?>
         <div class="notification is-info">
-            Μόλις υποβάλετε το προσόν, θα μεταβείτε στην οθόνη ανεβάσματος αρχείων.
+            Μόλις πατήσετε υποβολή για νέο προσόν, θα μεταβείτε στην οθόνη ανεβάσματος δικαιολογητικών.
 </div>
 <br><br>
         <button class="button is-success ">Υποβολή<button>
