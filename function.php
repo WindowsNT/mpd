@@ -168,7 +168,7 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="502" t="Οικογενειακή κατάσταση" unique="1" >
                     <params>
-                        <p n="Γάμος" id="1" t="1" min="0" max="1"  list="Όχι,Ναι" />
+                        <p n="Γάμος" id="1" t="1" min="1" max="2"  list="Όχι,Ναι" />
                         <p n="Παιδιά" id="2" t="2" />
                         <p n="Αναπηρία (Ποσοστό)" id="3" t="2" min="0" max="100" />
                         <p n="Μονογονεϊκή Οικογένεια" id="4" t="1" min="1" max="2" list="Όχι,Ναι"  />
@@ -226,7 +226,7 @@ $def_xml_proson = <<<XML
                     <params>
                         <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Ίδρυμα" id="2" t="0"/>
-                        <p n="Διεθνές" id="3" t="1" min="0" max="1" />
+                        <p n="Διεθνές" id="3" t="1" min="1" max="2" list="Όχι,Ναι" />
                         <p n="ISSN" id="4" />
                     </params>
                 </c>
@@ -234,7 +234,7 @@ $def_xml_proson = <<<XML
                     <params>
                         <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Περιοδικό" id="2" t="0"/>
-                        <p n="Διεθνής" id="3" t="1" min="0" max="1" />
+                        <p n="Διεθνής" id="3" t="1" min="1" max="2" list="Όχι,Ναι" />
                         <p n="ISSN" id="4" />
                     </params>
                 </c>
@@ -242,7 +242,7 @@ $def_xml_proson = <<<XML
                     <params>
                         <p n="Τίτλος" id="1" t="0" unique="1"/>
                         <p n="Εκδοτικός Οίκος" id="2" t="0"/>
-                        <p n="Διεθνής" id="3" t="1" min="0" max="1" />
+                        <p n="Διεθνές" id="3" t="1" min="1" max="2" list="Όχι,Ναι" />
                         <p n="ISSN" id="4" />
                     </params>
                 </c>
@@ -987,6 +987,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
     $cntx = 0;
     while($r1 = $q1->fetchArray())
     {
+        if ($r1['ID'] == 13) xdebug_break();
         $cntx++;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);

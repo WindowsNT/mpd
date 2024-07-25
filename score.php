@@ -348,6 +348,15 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                         if ($r1['CLASSID'] == 103) $mu = 11.0;
                         if ($r1['CLASSID'] == 104) $mu = 13.0;
 
+                        if ($r1['CLASSID'] == 102)
+                        {
+                            foreach($proson['params'] as $param3)
+                            {   
+                                if ($param3['PIDX'] == 7 && $param3['PVALUE'] == 2)
+                                    $mu--;
+                            }                
+                        }
+
                         if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
                         {
                             $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
@@ -361,6 +370,15 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                         if ($r1['CLASSID'] == 102) $mu = 10.0;
                         if ($r1['CLASSID'] == 103) $mu = 14.0;
                         if ($r1['CLASSID'] == 104) $mu = 16.0;
+
+                        if ($r1['CLASSID'] == 102)
+                        {
+                            foreach($proson['params'] as $param3)
+                            {   
+                                if ($param3['PIDX'] == 7 && $param3['PVALUE'] == 2)
+                                    $mu--;
+                            }                
+                        }
 
                         // And check if this is eidikeysi
                         $instr = $param['PVALUE'];
@@ -424,6 +442,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     // Koin
     if (1)
     {
+        $isGamos = 0;$isMono = 0;
         foreach($all_prosonta as $proson)
         {
             $r1 = $proson['row'];
@@ -446,15 +465,28 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 }
 
                 // Gamos
-                if ($r1['CLASSID'] == 502 && $param['PIDX'] == 1)
+                if ($r1['CLASSID'] == 502 && $param['PIDX'] == 1 && !$isGamos && !$isMono)
                 {
-                    if ($param['PVALUE'] == 1)
+                    if ($param['PVALUE'] == 2)
                     {
                         $moria_k += 2.0;
+                        $isGamos = 1;
                         $d1 = array('s' => 2.0,'h' => array($r1));
                         $desc []= $d1;
                     }
                 }
+                // Monog
+                if ($r1['CLASSID'] == 502 && $param['PIDX'] == 4 && !$isGamos && !$isMono)
+                {
+                    if ($param['PVALUE'] == 2)
+                    {
+                        $moria_k += 2.0;
+                        $isMono = 1;
+                        $d1 = array('s' => 2.0,'h' => array($r1));
+                        $desc []= $d1;
+                    }
+                }
+
                 // Kids
                 if ($r1['CLASSID'] == 502 && $param['PIDX'] == 2)
                 {
@@ -501,9 +533,9 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 {
                     if ($param['PVALUE'] == "ΠΕ79" || $param['PVALUE'] == "ΠΕ79.01")
                     {
-                        $d1 = array('s' => 2,'h' => array($r1));
-                        $d1['h'][0]['DESCRIPTION'] = "ΠΕ79";
-                        $desc []= $d1;
+//                        $d1 = array('s' => 2,'h' => array($r1));
+  //                      $d1['h'][0]['DESCRIPTION'] = "ΠΕ79";
+    //                    $desc []= $d1;
                         $moria_79 = 2.0;
                     }
                 }
@@ -646,7 +678,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
         Entop +4
         PP +2
         Sinip +4
-        Gamos +2
+        Gamos/Monog +2
         Paidia 2,4,8,10
         MAX 40
 
