@@ -15,7 +15,6 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     $max_odeio = 18.0;
     $max_proy = 20.0;
     $max_koin = 18.0;
-    $max_sumyk = 40.0;
 
     // Music Schools Calculator
     $contestrow = Single("CONTESTS","ID",$cid); 
@@ -206,6 +205,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
 
     // Ptychio Ant/Fug
+    $useantfug = null;
     if (1)
     {
         $use = array();
@@ -223,7 +223,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     if ($lev >= 3)
                     {
                         $moria_ptychio_antfug = 2;
-                        $use = $r1;
+                        $useantfug = $r1;
 
                         // Check position
                         if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
@@ -231,11 +231,6 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     }
                 }
             }
-        }
-        if ($moria_ptychio_antfug > 0)
-        {
-            $d1 = array('s' => 2,'h' => array($use));
-            $desc []= $d1;
         }
     }
         
@@ -258,6 +253,12 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 $unique_types[] = $type;
                 if ($type == 1 || $type == 2)
                 {
+                    // Dipl Synthesis, af Ptychio Fuguas
+                    if ($type == 2)
+                    {
+                        $moria_ptychio_antfug = 0;
+                        $useantfug = null;
+                    }
                     $moria_diplomasodeiou += 3.0;
                     $d1 = array('s' => 3,'h' => array($r1));
                     $desc []= $d1;
@@ -274,6 +275,12 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 }
             }
         }
+    }
+
+    if ($moria_ptychio_antfug > 0)
+    {
+        $d1 = array('s' => 2,'h' => array($useantfug));
+        $desc []= $d1;
     }
 
     
@@ -687,7 +694,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     */
 
     
-    $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min(min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1,$max_sumyk) + $moria_79;
+    $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1 + $moria_79;
     return min($score,100.0);
 }
 

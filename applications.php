@@ -128,6 +128,7 @@ if (!array_key_exists("pos",$req))
                 <th class="all">Περιγραφή</th>
                 <th class="all">Θέσεις</th>
                 <th class="all">Επιλογές</th>
+                <th class="all">Μόρια</th>
                 <th class="all">Αιτήσεις</th>
             </thead><tbody>';
 
@@ -141,6 +142,10 @@ if (!array_key_exists("pos",$req))
 
         printf('<td>');
         printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
+        printf('</td>');
+
+        printf('<td>');
+        printf("%s",ScoreForThesi($ur['ID'],$contestrow['ID'],$placerow['ID'],$r3['ID']));
         printf('</td>');
 
         printf('<td>');
