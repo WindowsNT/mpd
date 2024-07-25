@@ -87,14 +87,14 @@ if (array_key_exists("c",$_POST))
     {
         if (!HasContestAccess($_POST['c'],$ur['ID'],1))
             die;
-        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
-           $_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],$_POST['c']
+        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,LONGDESCRIPTION = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
+           $_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],$_POST['c']
         ));
         $lastRowID = $_POST['c'];
     }
     else    
-    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,MINISTRY,CATEGORY,STARTDATE,ENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?) ",array(
-        $ur['ID'],$_POST['DESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],
+    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,LONGDESCRIPTION,MINISTRY,CATEGORY,STARTDATE,ENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?,?) ",array(
+        $ur['ID'],$_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],
     ));
 
     if ($lastRowID)
@@ -117,7 +117,7 @@ function ViewOrEdit($cid)
                 $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
         }
     if (!$items)
-        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '',"CLASSID" => 0);
+        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','LONGDESCRIPTION' => '','STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '',"CLASSID" => 0);
 
     ?>
     <form method="POST" action="contest.php">
@@ -135,7 +135,11 @@ function ViewOrEdit($cid)
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>
         <br><br>
 
-        <label for="CLASSID">Class ID</label>
+        <label for="LONGDESCRIPTION">Αναλυτική Περιγραφή</label>
+        <textarea name="LONGDESCRIPTION" class="summernote" rows="10"><?= $items['LONGDESCRIPTION'] ?></textarea>
+        <br><br>
+
+        <label for="CLASSID">Τύπος Υπολογισμού Μορίων</label>
         <select name="CLASSID" class="input">
             <option value="0" <?= $items['CLASSID'] == 0 ? "selected" : "" ?>>Προεπιλογή</option>
             <option value="101" <?= $items['CLASSID'] == 101 ? "selected" : "" ?>>Μεταθέσεις Μουσικών Σχολείων</option>
@@ -143,11 +147,11 @@ function ViewOrEdit($cid)
         </select>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Έναρξης</label>
+        <label for="STARTDATE">Ημερομηνία Έναρξης Αιτήσεων</label>
         <input type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>" required/>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Λήξης</label>
+        <label for="STARTDATE">Ημερομηνία Λήξης Αιτήσεων</label>
         <input type="date" name="ENDDATE" class="input" value="<?= $items['ENDDATE'] > 0 ? date("Y-m-d",$items['ENDDATE']) : "" ?>" required/>
         <br><br>
 

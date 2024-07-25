@@ -164,6 +164,14 @@ else
 }
 
 
+function summer()
+{
+  $('.summernote').summernote({
+    height: 120,
+  });
+}
+
+
 // $s .= sprintf('<button class="block button is-small is-danger" href="check.php?t=%s&reject=%s">Απόρριψη</button>',$rolerow['ID'],$r1['ID']);
 
 function rejectproson(role,prid)
@@ -180,6 +188,7 @@ $(document).ready(function()
 {
   AutoBu();
   datatab();
+  summer();
 });
 
 </script>
