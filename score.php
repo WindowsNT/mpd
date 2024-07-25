@@ -262,6 +262,11 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     $moria_diplomasodeiou += 3.0;
                     $d1 = array('s' => 3,'h' => array($r1));
                     $desc []= $d1;
+
+                    // Check position
+                    if ($type == 2 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
+                        $Has_Diploma_For_Position = 1;
+
                 }
                 if ($type == 3 || $type == 4)
                 {
@@ -272,6 +277,11 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     // Check position
                     if ($type == 3 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Βυζαντινής Μουσικής")))
                         $Has_Diploma_For_Position = 1;
+
+                    // Check position
+                    if ($type == 3 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Ταμπουράς")))
+                        $Has_Diploma_For_Position = 1;
+
                 }
             }
         }
