@@ -14,6 +14,48 @@ if (!$afm || !$ur)
 require_once "output.php";
 echo '<div class="content" style="margin: 20px">';
 $t = time();
+
+if (array_key_exists("results",$req))
+{
+    $cr = Single("CONTESTS","ID",$req['results']);
+    if (!$cr)
+        die;
+    if ($cr['ENDDATE'] > $t)
+        die;
+    if ($cr['MORIAVISIBLE'] < 2)
+        die;
+
+    echo 'Αποτελέσματα Διαγωνισμού<hr>';
+    $w = QQ("SELECT * FROM WINTABLE WHERE CID = ? AND UID = ?",array($req['results'],$ur['ID']))->fetchArray();
+    if (!$w)
+        printf('<div class="notification is-warning">
+    Δεν έχετε επιλεγεί για κάποια θέση!
+</div>');
+    else
+    {
+        $desc = array();
+        $sc = ScoreForThesi($ur['ID'],$req['results'],$w['PID'],$w['POS'],0,$desc,AppPreference($w['AID']));
+        $approw = Single("APPLICATIONS","ID",$w['AID']);
+        $placerow = Single("PLACES","ID",$w['PID']);
+        $posrow = Single("POSITIONS","ID",$w['POS']);
+        printf('<div class="notification is-success">
+        Εχετε επιλεγεί!<br><br>
+        Φορέας: <b>%s</b><br>
+        Θέση: <b>%s</b><br>
+        Μόρια: <b>%s</b>
+</div>',$placerow['DESCRIPTION'],$posrow['DESCRIPTION'],$sc);
+
+    }
+
+    $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ? ORDER BY ID ASC",array($req['results'],$ur['ID']));
+    while($r1 = $q1->fetchArray())
+    {
+
+    }
+
+    die;    
+}
+
 if (!array_key_exists("cid",$req))
 {
     PrintButtons(array(array("n" => "Πίσω","h" => "index.php","s" => "is-danger")));
@@ -29,9 +71,18 @@ if (!array_key_exists("cid",$req))
                 <th class="all">Αιτήσεις</th>
             </thead><tbody>';
 
-    $q1 = QQ("SELECT * FROM CONTESTS WHERE STARTDATE < $t AND ENDDATE > $t ORDER BY ENDDATE ASC");
+    $q1 = QQ("SELECT * FROM CONTESTS ORDER BY ENDDATE ASC");
     while($r1 = $q1->fetchArray())
     {
+        $CanAct = 1;
+        if ($r1['STARTDATE'] > $t || $r1['ENDDATE'] < $t)
+        {
+            $CanAct = 0;
+            $cait = QQ("SELECT COUNT(*) FROM APPLICATIONS WHERE CID = ? AND UID = ?",array($r1['ID'],$ur['ID']))->fetchArray()[0];
+            if (!$cait)
+                continue;
+        }
+
         printf('<tr>');
         printf('<td>%s</td>',$r1['ID']);
         printf('<td>%s</td>',$r1['MINISTRY']);
@@ -40,7 +91,9 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['STARTDATE']));
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
-        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s">Προβολή</a>',$r1['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s">Προβολή Φορέων</a>',$r1['ID']);
+        if ($CanAct == 0)
+            printf(' <button class="button is-small is-danger autobutton" href="applications.php?results=%s">Προβολή Αποτελεσμάτων</a>',$r1['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -64,7 +117,7 @@ if (!array_key_exists("cid",$req))
     die;
 }
 
-$contestrow = QQ("SELECT * FROM CONTESTS WHERE STARTDATE < $t AND ENDDATE > $t AND ID = ?",array($req['cid']))->fetchArray();
+$contestrow = QQ("SELECT * FROM CONTESTS WHERE ID = ?",array($req['cid']))->fetchArray();
 if (!$contestrow)
     {
         redirect("applications.php");
@@ -92,7 +145,7 @@ if (!array_key_exists("pid",$req))
         printf('<td>%s</td>',$r2['ID']);
         printf('<td>%s</td>',$r2['DESCRIPTION']);
         printf('<td>');
-        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s">Προβολή</a>',$contestrow['ID'],$r2['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s">Επιλογή Φορέα</a>',$contestrow['ID'],$r2['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -145,7 +198,7 @@ if (!array_key_exists("pos",$req))
         printf('<td>%s</td>',$r3['COUNT']);
 
         printf('<td>');
-        printf('<button class="button is-small is-primary autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Προβολή</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
+        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s&pid=%s&pos=%s">Επιλογή θέσης</a>',$contestrow['ID'],$placerow['ID'],$r3['ID']);
         printf('</td>');
 
         if ($contestrow['MORIAVISIBLE'] >= 1)
@@ -198,6 +251,14 @@ if (array_key_exists("aid",$req))
     unset($req['aid']);
 }
 
+
+$CanAct = 1;
+$t = time();
+if ($contestrow['STARTDATE'] > $t || $contestrow['ENDDATE'] < $t)
+{   
+    $CanAct = 0;
+}
+
 if (!array_key_exists("aid",$req))
     {
         PrintButtons(array(array("n" => "Πίσω","h" => sprintf("applications.php?cid=%s&pid=%s",$contestrow['ID'],$placerow['ID']),"s" => "is-danger"),array("n" => "Αρχική","h" => "index.php","s" => "is-warning")));
@@ -209,22 +270,33 @@ if (!array_key_exists("aid",$req))
     $desc = array();        
     if (!$app)
     {
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc);
-        if ($sc >= 0)
-            {
-                if ($contestrow['MORIAVISIBLE'] >= 1)
-                    echo PrintDescriptionFromScore($desc,false);
-                if ($contestrow['MORIAVISIBLE'] >= 1)
-                    printf('<br>Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br>',$sc);
-                printf('<button class="button is-primary  autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$contestrow['ID'],$placerow['ID'],$posrow['ID']);
-            }
+        if (!$CanAct)
+        {
+            echo 'H προθεσμία των αιτήσεων έληξε.';
+        }
         else
-            printf('<br>Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <br><b>%s</b>',$rejr);
+        {
+            $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc);
+            if ($sc >= 0)
+                {
+                    if ($contestrow['MORIAVISIBLE'] >= 1)
+                        echo PrintDescriptionFromScore($desc,false);
+                    if ($contestrow['MORIAVISIBLE'] >= 1)
+                        printf('<br>Τα μόριά σας για αυτή τη θέση: <b>%s</b><br><br>',$sc);
+                    printf('<button class="button is-primary  autobutton" href="applications.php?cid=%s&pid=%s&pos=%s&aid=0">Κάνε αίτηση</a>',$contestrow['ID'],$placerow['ID'],$posrow['ID']);
+                }
+            else
+                printf('<br>Δεν μπορείτε να κάνετε αίτηση για αυτή τη θέση: <br><b>%s</b>',$rejr);
+        }
 //            echo PrintProsontaForThesi($req['cid'],$req['pid'],$req['pos']);
         }
     else
     {
-        printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+
+        if ($CanAct)
+            printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
+        else
+            printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app));
         $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc,AppPreference($app['ID']) == 1);
         if ($contestrow['MORIAVISIBLE'] >= 1)
             {
