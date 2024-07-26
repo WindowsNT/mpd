@@ -711,7 +711,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
 function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array(),$prosononly = 0,&$desc = array(),$forwhichplace = 0,$forwhichpos = 0,$whatpref = 0)
 {
-    global $rejr,$xmlp,$required_check_level,$first_pref_score;
+    global $rejr,$xmlp,$required_check_level;
     EnsureProsonLoaded();
     $pr = Single("USERS","ID",$uid);
     if (!$pr)
@@ -864,7 +864,7 @@ function CalculateScore($uid,$cid,$placeid,$posid,$debug = 0,&$linkssave = array
     if ($posid)
     {
         if ($whatpref == 1)
-            $score += $first_pref_score;
+            $score += $contestrow['FIRSTPREFSCORE'];
         $v = CalculateScore($uid,$cid,$placeid,0,$debug,$linkssave,$prosononly,$desc,0,$posid);
         if ($v == -1)
             return -1;

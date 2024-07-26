@@ -151,6 +151,10 @@ shaders: {
 
     <div class="navbar-item">
 
+    <?php
+  if ($test_users == 0)
+  {
+  ?>
     <div class="dropdown is-hoverable">
   <div class="dropdown-trigger">
     <button class="button is-danger" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -169,6 +173,9 @@ shaders: {
      </div>
     </div>
   </div>
+  <?php
+  }
+  ?>
 </div>
 <a class="navbar-item" href="https://www.youtube.com/watch?v=0U2-Xbg2xMY">
         <button class="button is-link">Video Demo</button>
@@ -188,7 +195,11 @@ shaders: {
         Μητρώο Προσόντων και Διαγωνισμών
 
         <hr>
-        Εξομοίωση login<hr><br><br>
+        <?php
+        if ($test_users)
+        {
+        ?>
+        <b>Δοκιμαστικά login</b><hr>
         <table class="table">
         <thead>
           <th>#</th>
@@ -207,6 +218,9 @@ shaders: {
             <tr><td>9</td><td><a href="auth.php?redirect=index.php&afm2=1001001009">Ζάxου Γεωργιος</a></td><td>Προβολή Διαγωνισμού</td></tr>
         </tbody>
         </table>
+        <?php
+        }
+        ?>
 
 <?php
 }

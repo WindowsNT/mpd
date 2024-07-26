@@ -3,9 +3,8 @@
 $dbxx = 'mpd.db';
 //$dbxx = 'sylviamichael.hopto.org:7015';
 $pageroot = 'https://www.msa-apps.com/mpd';
-$first_pref_score = 2;
 $required_check_level = 2;
-
+$test_users = 1;
 
 // Comment check 14 in WebAuthn for biometric login to work!
 

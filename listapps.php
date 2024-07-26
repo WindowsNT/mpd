@@ -115,7 +115,7 @@ while($r1 = $q1->fetchArray())
 
 
     // Prosonta
-    printf('<td>');
+    printf('<td><button onclick="toggle(\'#pro%s\');" class="button is-small is-link">Προβολή</button><div id="pro%s" style="display:none;">',$r1['ID'],$r1['ID']);
     foreach($desc as $dd)
     {
         $prosontalist = $dd['h'];
@@ -160,7 +160,7 @@ while($r1 = $q1->fetchArray())
         else
             printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&enable=%s">Ανενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
         if ($r1['FORCEDMORIA'] == 0)
-            printf('<button class="is-link is-small button block" onclick="changescore(%s,%s,%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+            printf('<button class="is-primary is-small button block" onclick="changescore(%s,%s,%s,%s);">Αλλαγή Σκορ</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
         else
             printf('<button class="is-danger is-small button block" onclick="resetscore(%s,%s,%s,%s);">%s</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID'],$r1['FORCEDMORIA']);
 
@@ -170,7 +170,7 @@ while($r1 = $q1->fetchArray())
         if ($r1['FORCERESULT'] == -1)
             printf('<button class="autobutton is-danger is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=0">Όχι</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
         else
-            printf('<button class="autobutton is-link is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
+            printf('<button class="autobutton is-primary is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&aid=%s&result=1">Υποχρεωτικό Αποτέλεσμα</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
     }
     else
     {

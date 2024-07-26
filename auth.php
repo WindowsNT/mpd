@@ -1,9 +1,12 @@
 <?php
 require_once "function.php";
-if (array_key_exists("afm2",$_SESSION))
-    $_SESSION['afm'] = $_SESSION['afm2'];
-if (array_key_exists("afm2",$_GET))
-    $_SESSION['afm'] = $_GET['afm2'];
+if ($test_users)
+{
+    if (array_key_exists("afm2",$_SESSION))
+        $_SESSION['afm'] = $_SESSION['afm2'];
+    if (array_key_exists("afm2",$_GET))
+        $_SESSION['afm'] = $_GET['afm2'];
+}
 if (array_key_exists("logout",$_GET))
     {
         unset($_SESSION['afm']);

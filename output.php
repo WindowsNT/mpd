@@ -163,6 +163,10 @@ else
         );
 }
 
+function toggle(j)
+{
+  $(j).toggle();
+}
 
 function summer()
 {
