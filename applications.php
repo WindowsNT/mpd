@@ -47,12 +47,55 @@ if (array_key_exists("results",$req))
 
     }
 
+    echo 'Οι αιτήσεις σας<hr>';
+    echo '<table class="table datatable" style="width: 100%">';
+    echo '<thead>
+                <th class="all">#</th>
+                <th class="all">Φορέας</th>
+                <th class="all">Θέση</th>
+                <th class="all">Μόρια</th>
+                <th class="all">Αιτήσεις Άλλων</th>
+                <th class="all">Ενέργειες</th>
+            </thead><tbody>';
+
     $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ? ORDER BY ID ASC",array($req['results'],$ur['ID']));
     while($r1 = $q1->fetchArray())
     {
+        $pref = AppPreference($r1['ID']);
 
+        $won = Single("WINTABLE","AID",$r1['ID']);
+
+        $fr = Single("PLACES","ID",$r1['PID']);
+        $pr = Single("POSITIONS","ID",$r1['POS']);
+        $desc = array();
+        $sc = ScoreForThesi($ur['ID'],$req['results'],$fr['ID'],$pr['ID'],0,$desc,$pref == 1);
+        printf('<tr>');
+        printf('<td>%s</td>',$r1['ID']);
+        printf('<td>%s</td>',$fr['DESCRIPTION']);
+        printf('<td>%s</td>',$pr['DESCRIPTION']);
+        printf('<td>%s</td>',$sc);
+
+        printf('<td>');
+
+        $q2 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND PID = ? AND POS = ?",array($req['results'],$fr['ID'],$pr['ID']));
+        while($r2 = $q2->fetchArray())
+        {
+            if ($r2['UID'] == $ur['ID']) continue;
+
+            
+        }
+        printf('</td>');
+
+        printf('<td>');
+        if (!$won)
+        {   
+            printf('<button class="autobutton is-warning is-small button" href="objections.php?aid=%s">Ένσταση</button>',$r1['ID']);
+        }
+        printf('</td>');
+        
+        printf('</tr>');
     }
-
+    echo '</tbody></table>';
     die;    
 }
 
@@ -91,9 +134,9 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['STARTDATE']));
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
-        printf('<button class="button is-small is-warning autobutton" href="applications.php?cid=%s">Προβολή Φορέων</a>',$r1['ID']);
-        if ($CanAct == 0)
-            printf(' <button class="button is-small is-danger autobutton" href="applications.php?results=%s">Προβολή Αποτελεσμάτων</a>',$r1['ID']);
+        printf('<button class="button is-small is-warning autobutton block" href="applications.php?cid=%s">Προβολή Φορέων</button> ',$r1['ID']);
+        if ($CanAct == 0 && $r1['MORIAVISIBLE'] >= 2)
+            printf(' <button class="button is-small is-danger autobutton block" href="applications.php?results=%s">Προβολή Αποτελεσμάτων</button>',$r1['ID']);
         printf('</td>');
 
         printf('<td>');
@@ -297,7 +340,9 @@ if (!array_key_exists("aid",$req))
             printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div><button class="button is-danger sureautobutton" q="Θέλετε σίγουρα να ακυρώσετε την αίτηση;" href="applications.php?cid=%s&pid=%s&pos=%s&aid=%s">Διαγραφή</button><br><br>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app),$contestrow['ID'],$placerow['ID'],$posrow['ID'],$app['ID']);
         else
             printf('<div class="notification is-info">Έγινε αίτηση (%s)<br>Α.Π. %s</div>',date("d/m/Y H:i",$app['DATE']),ApplicationProtocol($app));
-        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc,AppPreference($app['ID']) == 1);
+            $pref = AppPreference($app['ID']);
+
+        $sc = ScoreForThesi($ur['ID'],$req['cid'],$req['pid'],$posrow['ID'],0,$desc,$pref == 1);
         if ($contestrow['MORIAVISIBLE'] >= 1)
             {
                 echo PrintDescriptionFromScore($desc,true);
