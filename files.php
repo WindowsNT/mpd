@@ -27,9 +27,9 @@ if (array_key_exists("f1",$_FILES))
 	$tempfile = $file['tmp_name'];
 	$vev = file_get_contents($tempfile);
 
-    if (filesize($tempfile) > 5*1024*1024)
+    if (filesize($tempfile) > 10*1024*1024)
     {
-        die("Το αρχείο είναι μεγαλύτερο από 5MB.");
+        die("Το αρχείο είναι μεγαλύτερο από 10MB.");
     }
 
     // check jpg
@@ -137,14 +137,14 @@ if ($_GET['f'] == 0)
 <!--        <input type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required class="input"/><br>-->
 <div class="file has-name is-boxed">
     <label class="file-label">
-        <input class="file-input" type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required >
+        <input class="file-input" type="file" name="f1" id="f1" accept=".zip,.png,.jpg,.pdf,.jpeg;capture=camera" required >
         <span class="file-cta">
             <span class="file-icon">
                 <i class="fa fa-upload"></i>
             </span>
             <span class="file-label">
                 Επιλογή αρχείου<br>
-                JPG/PDF/PNG <= 5MB
+                ZIP/JPG/PDF/PNG <= 10MB
             </span>
         </span>
         <span class="file-name">Κάντε κλικ για να επιλέξετε...</span>

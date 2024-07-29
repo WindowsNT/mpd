@@ -33,13 +33,13 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
     $score = 0.0;
 
-    $moria_tpe = 0.0;
-    $moria_languages = 0.0;
 
     $moria_conservatoire_instrument = 0.0;
-    $moria_ptychio_antfug = 0.0;
+    $moria_ptychio_antfugsyn = 0.0;
     $moria_diplomasodeiou = 0.0;
 
+    $moria_tpe = 0.0;
+    $moria_languages = 0.0;
     $moria_uni = 0.0;
     $moria_proyp1 = 0.0;
     $moria_proyp2 = 0.0;
@@ -163,146 +163,6 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
         $desc []= $d1;
     }
 
-    // Diploma/Ptychio Organou
-    if (1)
-    {
-        $instruments_av = array();
-        foreach($all_prosonta as $proson)
-        {
-            $r1 = $proson['row'];
-            if ($r1['CLASSID'] != 401 && $r1['CLASSID'] != 405) continue;
-
-            foreach($proson['params'] as $param)
-            {
-                $pidx = $param['PIDX'];
-                if ($pidx == 3)
-                {
-                    $langx = $param['PVALUE'];
-                    if (!array_key_exists($langx,$instruments_av))
-                        $instruments_av[$langx] = array("s" => 0,"u" => array());
-    
-                    if ($r1['CLASSID'] == 401)     
-                        {
-                            $instruments_av[$langx]['s'] = 4.0;
-
-                            // Check position
-                            if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($langx)))
-                                $Has_Diploma_For_Position = 1;
-                        }
-                    if ($r1['CLASSID'] == 405 && $instruments_av[$langx]['s'] < 2.0)      
-                        $instruments_av[$langx]['s'] = 2.0;
-                    $instruments_av[$langx]['u'] = $r1;
-                }
-            }
-        }
-        foreach($instruments_av as $langu)
-        {
-            $moria_conservatoire_instrument += $langu['s'];
-            $d1 = array('s' => $langu['s'],'h' => array($langu['u']));
-            $desc []= $d1;
-        }
-    }
-
-
-    // Ptychio Ant/Fug
-    $useantfug = null;
-    if (1)
-    {
-        $use = array();
-        foreach($all_prosonta as $proson)
-        {
-            $r1 = $proson['row'];
-            if ($r1['CLASSID'] != 408) continue;
-
-            foreach($proson['params'] as $param)
-            {
-                $pidx = $param['PIDX'];
-                if ($pidx == 3)
-                {
-                    $lev = $param['PVALUE'];
-                    if ($lev >= 3)
-                    {
-                        $moria_ptychio_antfug = 2;
-                        $useantfug = $r1;
-
-                        // Check position
-                        if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
-                            $Has_Diploma_For_Position = 1;
-                    }
-                }
-            }
-        }
-    }
-        
-    // Dipl Orch (4)/Byz (4),Synth (3)/Chor (3)
-    if (1)
-    {
-        $unique_types = array();
-        foreach($all_prosonta as $proson)
-        {
-            $r1 = $proson['row'];
-            if ($r1['CLASSID'] != 407) continue;
-
-            // 1 chorus,2 synth,3 byz,4 orch,
-            foreach($proson['params'] as $param)
-            {
-                $type = $param['PIDX'];
-                if (in_array($type,$unique_types))
-                    continue;
-
-                $unique_types[] = $type;
-                if ($type == 1 || $type == 2)
-                {
-                    // Dipl Synthesis, af Ptychio Fuguas
-                    if ($type == 2)
-                    {
-                        $moria_ptychio_antfug = 0;
-                        $useantfug = null;
-                    }
-                    $moria_diplomasodeiou += 3.0;
-                    $d1 = array('s' => 3,'h' => array($r1));
-                    $desc []= $d1;
-
-                    // Check position
-                    if ($type == 2 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
-                        $Has_Diploma_For_Position = 1;
-
-                }
-                if ($type == 3 || $type == 4)
-                {
-                    $moria_diplomasodeiou += 4.0;
-                    $d1 = array('s' => 4,'h' => array($r1));
-                    $desc []= $d1;
-
-                    // Check position
-                    if ($type == 3 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Βυζαντινής Μουσικής")))
-                        $Has_Diploma_For_Position = 1;
-
-                    // Check position
-                    if ($type == 3 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Ταμπουράς")))
-                        $Has_Diploma_For_Position = 1;
-
-                }
-            }
-        }
-    }
-
-    if ($moria_ptychio_antfug > 0)
-    {
-        $d1 = array('s' => 2,'h' => array($useantfug));
-        $desc []= $d1;
-    }
-
-    
-    // Total Conservatoire
-    if (1)
-    {
-        $j = array();
-        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Ωδείου (Μέγιστο: $max_odeio)</b>","CLASSID" => 0,"ID" => 0);
-        $d1 = array('s' => min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio),'h' => $j);
-        $desc []= $d1;
-    }
-
 
     // University
     if (1)
@@ -323,10 +183,6 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
             if ($r1['CLASSID'] == 102) $whatpid = 8;
             if ($r1['CLASSID'] == 103) $whatpid = 7;
             if ($r1['CLASSID'] == 104) $whatpid = 7;
-
-
-
-
 
             $cur_idr = '';
             $cur_sx = '';
@@ -454,6 +310,127 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
     }
 
 
+    // Diploma/Ptychio Organou
+    if (1)
+    {
+        $instruments_av = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 401 && $r1['CLASSID'] != 405) continue;
+
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx == 3)
+                {
+                    $langx = $param['PVALUE'];
+                    if (!array_key_exists($langx,$instruments_av))
+                        $instruments_av[$langx] = array("s" => 0,"u" => array());
+    
+                    if ($r1['CLASSID'] == 401)     
+                        {
+                            $instruments_av[$langx]['s'] = 4.0;
+
+                            // Check position
+                            if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($langx)))
+                                $Has_Diploma_For_Position = 1;
+                        }
+                    if ($r1['CLASSID'] == 405 && $instruments_av[$langx]['s'] < 2.0)      
+                        $instruments_av[$langx]['s'] = 2.0;
+                    $instruments_av[$langx]['u'] = $r1;
+                }
+            }
+        }
+        foreach($instruments_av as $langu)
+        {
+            $moria_conservatoire_instrument += $langu['s'];
+            $d1 = array('s' => $langu['s'],'h' => array($langu['u']));
+            $desc []= $d1;
+        }
+    }
+
+
+    // Ptychio Ant/Fug/Syn
+    $useantfugsyn = null;
+    if (1)
+    {
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 408) continue;
+
+            foreach($proson['params'] as $param)
+            {
+                $pidx = $param['PIDX'];
+                if ($pidx == 3)
+                {
+                    $lev = $param['PVALUE'];
+                    if ($lev >= 3)
+                    {
+                        $moria_ptychio_antfugsyn = 2;
+                        if ($lev == 4)
+                            $moria_ptychio_antfugsyn = 3;
+                        if ($lev >= 5)
+                            $moria_ptychio_antfugsyn = 4;
+                        $useantfugsyn = $r1;
+
+                        // Check position
+                        if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Ευρωπαϊκής Μουσικής")))
+                            $Has_Diploma_For_Position = 1;
+                    }
+                }
+            }
+        }
+    }
+        
+    if (1)
+    {
+        $unique_types = array();
+        foreach($all_prosonta as $proson)
+        {
+            $r1 = $proson['row'];
+            if ($r1['CLASSID'] != 407) continue;
+
+            // 1 chorus,2 byz,3 orch,
+            foreach($proson['params'] as $param)
+            {
+                $type = $param['PIDX'];
+                if (in_array($type,$unique_types))
+                    continue;
+
+                $unique_types[] = $type;
+                $moria_diplomasodeiou += 4.0;
+                $d1 = array('s' => 5,'h' => array($r1));
+                $desc []= $d1;
+
+                // Check position
+                if ($type == 2 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Θεωρητικά Βυζαντινής Μουσικής")))
+                    $Has_Diploma_For_Position = 1;
+
+                // Check position
+                if ($type == 2 && $posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents("Ταμπουράς")))
+                    $Has_Diploma_For_Position = 1;
+            }
+        }
+    }
+
+    if ($moria_ptychio_antfugsyn > 0)
+    {
+        $d1 = array('s' => $moria_ptychio_antfugsyn,'h' => array($useantfugsyn));
+        $desc []= $d1;
+    }
+
+    
+    // Total Conservatoire
+    if (1)
+    {
+        $j = array();
+        $j[0] = array("DESCRIPTION" => "<b>Συνολικά Μόρια Ωδείου (Μέγιστο: $max_odeio)</b>","CLASSID" => 0,"ID" => 0);
+        $d1 = array('s' => min(($moria_conservatoire_instrument + $moria_ptychio_antfugsyn + $moria_diplomasodeiou),$max_odeio),'h' => $j);
+        $desc []= $d1;
+    }
+
 
 
     // Koin
@@ -497,7 +474,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 {
                     if ($param['PVALUE'] == 2)
                     {
-                        $moria_k += 2.0;
+                        $moria_k += 4.0;
                         $isMono = 1;
                         $d1 = array('s' => 2.0,'h' => array($r1));
                         $desc []= $d1;
@@ -590,7 +567,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     $v %= 30;
                     $days = $v;
                 
-                    $resv = round($years * 0.5 + $months / 24.0 + $days/720.0,2);
+                    $resv = round($years * 1.0 + $months / 12.0 + $days/360.0,2);
                     $moria_proyp1 = $resv;
                     $d1 = array('s' => $resv,'h' => array($r1));
                     $d1['h'][0]['DESCRIPTION'] = "Προυπηρεσία Γενικά";
@@ -674,37 +651,9 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
 
 
-    /*
-        Ptychio - Met - Did - PostPhD 
-        5,7,11,13       Other
-        8,10,14,16       TMS
-        +4               TMS + Eid for the place
-        MAX 36
-
-        Odeio
-        Dipl  Org/Orch/Byz/ 4
-        Dipl  Orch/Chor/    3
-        Pty   Ant/Fug       2
-        MAX 18
-
-        Apait Either PT + Eid or Dipl Org
-
-        Proy 
-        2*mous + 0.5*gen max 20
-        PE79 + 2
-        Entop +4
-        PP +2
-        Sinip +4
-        Gamos/Monog +2
-        Paidia 2,4,8,10
-        MAX 40
-
-
-
-    */
 
     
-    $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfug + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1 + $moria_79;
+    $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfugsyn + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1 + $moria_79;
     return min($score,100.0);
 }
 

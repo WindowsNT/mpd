@@ -25,6 +25,7 @@ if (array_key_exists("results",$req))
     if ($cr['MORIAVISIBLE'] < 2)
         die;
 
+    PrintButtons(array(array("n" => "Πίσω","h" => "applications.php","s" => "is-danger")));
     echo 'Αποτελέσματα Διαγωνισμού<hr>';
     $w = QQ("SELECT * FROM WINTABLE WHERE CID = ? AND UID = ?",array($req['results'],$ur['ID']))->fetchArray();
     if (!$w)

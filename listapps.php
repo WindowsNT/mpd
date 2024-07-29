@@ -155,6 +155,11 @@ while($r1 = $q1->fetchArray())
     printf('<td>');
     if ($wa)
     {
+        $ec = QQ("SELECT * FROM OBJECTIONS WHERE AID = ? ",array($r1['ID']))->fetchArray();
+        if ($ec && $ec['RESULT'] != 2)
+            printf('<button class="autobutton is-danger is-small button block" href="objections.php?aid=%s">Ενστάσεις</button> ',$r1['ID']);
+        if ($ec && $ec['RESULT'] == 2)
+            printf('<button class="autobutton is-success is-small button block" href="objections.php?aid=%s">Ενστάσεις</button> ',$r1['ID']);
         if ($r1['INACTIVE'] == 0)
             printf('<button class="autobutton is-success is-small button block" href="listapps.php?cid=%s&pid=%s&pos=%s&disable=%s">Ενεργή</button> ',$req['cid'],$req['pid'],$req['pos'],$r1['ID']);
         else

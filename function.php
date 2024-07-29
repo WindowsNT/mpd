@@ -55,6 +55,9 @@ printdie($s2);
 $def_xml_proson = <<<XML
 <root>
     <classes>
+        <c n="10" t="Βιογραφικό Σημείωμα" unique="1" >
+        </c>
+
         <c n="1" t="Πτυχία Πανεπιστημίου" >
             <classes>
                 <c n="101" t="Πτυχίο" el="6" >
@@ -143,14 +146,14 @@ $def_xml_proson = <<<XML
                 </c>
                 <c n="408" t="Πτυχία Θεωρητικών" unique="1" >
                     <params>
-                        <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας"/>
+                        <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας,Δίπλωμα Σύνθεσης"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
                 <c n="407" t="Διπλώματα Θεωρητικών" >
                     <params>
-                        <p n="Επιλογή Διπλώματος" id="3" t="1" min="1" max="5" list="Δίπλωμα Διεύθυνσης Χορωδίας,Δίπλωμα Σύνθεσης,Δίπλωμα Βυζαντινής Μουσικής,Δίπλωμα Διεύθυνσης Ορχήστρας" unique="1"/>
+                        <p n="Επιλογή Διπλώματος" id="3" t="1" min="1" max="3" list="Δίπλωμα Διεύθυνσης Χορωδίας,Δίπλωμα Βυζαντινής Μουσικής,Δίπλωμα Διεύθυνσης Ορχήστρας" unique="1"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
@@ -573,6 +576,18 @@ function eval2($e,$uid = 0,$cid = 0,$placeid = 0,$posid = 0)
     }
 }
 
+function HasAppAccess($aid,$uid,$wr = 0)
+{
+    global $superadmin; if ($superadmin) return true;
+    $app = Single("APPLICATIONS","ID",$aid);
+    if (!$app)
+        return 0;
+
+    if ($app['UID'] == $uid)
+        return 1;
+
+    return HasContestAccess($app['CID'],$uid,$wr);
+}
 
 function HasContestAccess($cid,$uid,$wr = 0) 
 {
