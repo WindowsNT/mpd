@@ -171,6 +171,8 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
         $ex1 = array();
 
+        $HasPtyNoTMS = 0;
+        $HasPtyTMS = 0;
         foreach($all_prosonta as $proson)
         {
             $r1 = $proson['row'];
@@ -216,11 +218,14 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     if ($param['PVALUE'] == "Μη Πτυχίο ΤΜΣ") // No TMS Pty
                     {
                         $mu = 0;
-                        if ($r1['CLASSID'] == 101) $mu = 5.0;
+                        $mu = 5.0;
+                        $HasPtyNoTMS = 1;
+/*                        if ($r1['CLASSID'] == 101) $mu = 5.0;
                         if ($r1['CLASSID'] == 102) $mu = 7.0;
                         if ($r1['CLASSID'] == 103) $mu = 11.0;
                         if ($r1['CLASSID'] == 104) $mu = 13.0;
-
+                        */
+/*
                         if ($r1['CLASSID'] == 102)
                         {
                             foreach($proson['params'] as $param3)
@@ -229,7 +234,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                                     $mu--;
                             }                
                         }
-
+*/
                         if ($ex1[$cur_idr][$cur_sx][$cur_tm]['s'] < $mu)
                         {
                             $ex1[$cur_idr][$cur_sx][$cur_tm]['s'] = $mu;
@@ -239,6 +244,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     else
                     {
                         $mu = 0;
+                        $HasPtyTMS = 1;
                         if ($r1['CLASSID'] == 101) $mu = 8.0;
                         if ($r1['CLASSID'] == 102) $mu = 10.0;
                         if ($r1['CLASSID'] == 103) $mu = 14.0;
@@ -296,6 +302,9 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 }
             }
         }
+
+        if ($HasPtyNoTMS && $HasPtyTMS)
+            $moria_uni -= 2.0;
     }
 
 
@@ -327,14 +336,17 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     $langx = $param['PVALUE'];
                     if (!array_key_exists($langx,$instruments_av))
                         $instruments_av[$langx] = array("s" => 0,"u" => array());
+
+                    if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($langx)) && $Has_Uni_For_Position)
+                        continue; // already has uni position, don't count the instrument
     
                     if ($r1['CLASSID'] == 401)     
                         {
-                            $instruments_av[$langx]['s'] = 4.0;
-
                             // Check position
                             if ($posrow && mb_strtolower(RemoveAccents($posrow['DESCRIPTION'])) == mb_strtolower(RemoveAccents($langx)))
                                 $Has_Diploma_For_Position = 1;
+
+                            $instruments_av[$langx]['s'] = 4.0;
                         }
                     if ($r1['CLASSID'] == 405 && $instruments_av[$langx]['s'] < 2.0)      
                         $instruments_av[$langx]['s'] = 2.0;
@@ -401,7 +413,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
 
                 $unique_types[] = $type;
                 $moria_diplomasodeiou += 4.0;
-                $d1 = array('s' => 5,'h' => array($r1));
+                $d1 = array('s' => 4,'h' => array($r1));
                 $desc []= $d1;
 
                 // Check position
@@ -476,7 +488,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                     {
                         $moria_k += 4.0;
                         $isMono = 1;
-                        $d1 = array('s' => 2.0,'h' => array($r1));
+                        $d1 = array('s' => 4.0,'h' => array($r1));
                         $desc []= $d1;
                     }
                 }

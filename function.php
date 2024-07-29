@@ -1003,7 +1003,6 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
     $cntx = 0;
     while($r1 = $q1->fetchArray())
     {
-        if ($r1['ID'] == 13) xdebug_break();
         $cntx++;
         $s .= sprintf('<tr>');
         $s .= sprintf('<td>%s</td>',$r1['ID']);
