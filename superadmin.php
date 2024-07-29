@@ -22,9 +22,10 @@ if (array_key_exists("backup",$req))
     {
         $bn = tempnam(sys_get_temp_dir(), 'MyFileName').'.db';
         $bnz = $bn.".zip";
-        $dbn = $dbxx;
-        exec("sqlite3 $dbn \".backup $bn\" ");
-        exec("sqlite3 $bn \"vacuum;\" ");
+        QQ(sprintf("VACUUM main INTO '%s'",$bn));
+//        $dbn = $dbxx;
+ //       exec("sqlite3 $dbn \".backup $bn\" ");
+  //      exec("sqlite3 $bn \"vacuum;\" ");
         $zip = new ZipArchive();
         $zip->open($bnz, ZipArchive::CREATE);
         $zip->addFile($bn,$bn);

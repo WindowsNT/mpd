@@ -294,14 +294,15 @@ function ViewOrEdit($pid,$items,$fcid = 0)
 
                     if ($pa['t'] == 4)
                     {
-                        // Sort items
+                      /*  // Sort items
                         if ($pa['list'] == '--TMS--' || $pa['list'] == '--TMS2--')
                         {
 
                         }
                         else
                             sort($vv);
-                    }
+                    */                  
+                  }
 
                     foreach($vv as $v)
                     {

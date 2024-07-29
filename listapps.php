@@ -116,14 +116,17 @@ while($r1 = $q1->fetchArray())
 
     // Prosonta
     printf('<td><button onclick="toggle(\'#pro%s\');" class="button is-small is-link">Προβολή</button><div id="pro%s" style="display:none;">',$r1['ID'],$r1['ID']);
+    printf('<table class="table"><thead><th>#</th><th>Προσόν</th><th>Μόρια</th><th>Αρχεία</th></thead><tbody>');
     foreach($desc as $dd)
     {
         $prosontalist = $dd['h'];
         foreach($prosontalist as $prosonrow)
         {
-            $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID']))->fetchArray();
+            printf('<tr>');
+            printf('<td>%s</td>',$prosonrow['ID']);
             if ($cidrow['CLASSID'] == 0)
             {
+                $exist = QQ("SELECT * FROM PROSONFORCE WHERE UID = ? AND CID = ? AND PLACEID = ? AND POS = ? AND PIDCLASS = ? AND PRID = ?",array($ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID']))->fetchArray();
                 if ($exist)
                     printf('<button class="button is-small is-danger" onclick="changeprosonscore(%s,%s,%s,%s,%s,%s,1);">%s</button> %s<br>',$ur['ID'],$req['cid'],$fr['ID'],$pr['ID'],$prosonrow['CLASSID'],$prosonrow['ID'],$exist['SCORE'],$prosonrow['DESCRIPTION']);
                 else
@@ -132,9 +135,9 @@ while($r1 = $q1->fetchArray())
             else
             {
                 if ($prosonrow['ID'] == 0)
-                    printf('<button class="button is-small is-info">%s</button><br>%s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+                    printf('<td>%s</td><td><button class="button is-small is-info">%s</button></td>',$prosonrow['DESCRIPTION'],$dd['s']);
                 else
-                    printf('<b>%s</b><br>%s<br>',$dd['s'],$prosonrow['DESCRIPTION']);
+                    printf('<td>%s</td><td>%s</td>',$prosonrow['DESCRIPTION'],$dd['s']);
             }
 
             // View the items
@@ -144,11 +147,12 @@ while($r1 = $q1->fetchArray())
             {
                 $subt .= sprintf('<a target="_blank" href="viewfile.php?f=%s">%s</a><br>',$files2['ID'],$files2['DESCRIPTION']);
             }
-            echo $subt;
+            printf('<td>%s</td>', $subt);
+            printf('</tr>');
         }
-        printf('<br>');
     }
-//    echo PrintProsontaForThesi($req['cid'],$fr['ID'],$pr['ID'],1);
+    printf('</tbody></table>');
+    //    echo PrintProsontaForThesi($req['cid'],$fr['ID'],$pr['ID'],1);
 //    echo ViewUserProsontaForContest($ur['ID'],$req['cid'],$fr['ID'],$pr['ID']);
     printf('</td>');
 
