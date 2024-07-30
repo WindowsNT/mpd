@@ -26,6 +26,9 @@ $d = file_get_contents("files/{$fr['CLSID']}");
 if (!$d)
     die;
 $finfo = new finfo(FILEINFO_MIME);
-header(sprintf('Content-Type: %s',$finfo->buffer($d)));
+$ty = $finfo->buffer($d);
+header(sprintf('Content-Type: %s',$ty));
+header(sprintf('Content-Disposition: inline; filename="%s"',$fr['FNAME']));
+
 echo $d;
 die;
