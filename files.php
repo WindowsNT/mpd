@@ -47,7 +47,23 @@ if (array_key_exists("f1",$_FILES))
 
     if ($lastRowID != 0)
     {
-        QQ("UPDATE PROSON SET STATE = 0 WHERE ID = ? AND STATE != 0",array($_POST['e']));
+        $whatstate = 0;
+        // Auto Accept ?
+        $pr = Single("PROSON","ID",$_POST['e']);
+        if ($pr)
+        {
+            EnsureProsonLoaded();
+            $xx = $xmlp;
+            $croot = RootForClassId($xx->classes,$pr['CLASSID']);
+            if ($croot)
+            {
+                $autoaccept = $croot->attributes()['autoaccept'];
+                if ($autoaccept)
+                 $whatstate =            $required_check_level;
+            }        
+
+        }
+        QQ("UPDATE PROSON SET STATE = ? WHERE ID = ?",array($whatstate,$_POST['e']));
     }
     if (array_key_exists("force_user",$req))
         redirect("provider.php");
@@ -137,14 +153,14 @@ if ($_GET['f'] == 0)
 <!--        <input type="file" name="f1" id="f1" accept=".png,.jpg,.pdf,.jpeg;capture=camera" required class="input"/><br>-->
 <div class="file has-name is-boxed">
     <label class="file-label">
-        <input class="file-input" type="file" name="f1" id="f1" accept=".zip,.png,.jpg,.pdf,.jpeg;capture=camera" required >
+        <input class="file-input" type="file" name="f1" id="f1" accept=".docx,.zip,.png,.jpg,.pdf,.jpeg;capture=camera" required >
         <span class="file-cta">
             <span class="file-icon">
                 <i class="fa fa-upload"></i>
             </span>
             <span class="file-label">
                 Επιλογή αρχείου<br>
-                ZIP/JPG/PDF/PNG <= 10MB
+                ZIP/JPG/PDF/PNG/DOCX <= 10MB
             </span>
         </span>
         <span class="file-name">Κάντε κλικ για να επιλέξετε...</span>

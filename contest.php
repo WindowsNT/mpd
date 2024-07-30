@@ -87,14 +87,14 @@ if (array_key_exists("c",$_POST))
     {
         if (!HasContestAccess($_POST['c'],$ur['ID'],1))
             die;
-        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,LONGDESCRIPTION = ?,FIRSTPREFSCORE = ?,MORIAVISIBLE = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
-           $_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],$_POST['c']
+        QQ("UPDATE CONTESTS SET DESCRIPTION = ?,LONGDESCRIPTION = ?,FIRSTPREFSCORE = ?,MORIAVISIBLE = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,OBJSTARTDATE = ?,OBJENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
+           $_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),strtotime($_POST['OBJSTARTDATE']),strtotime($_POST['OBJENDDATE']),$_POST['CLASSID'],$_POST['c']
         ));
         $lastRowID = $_POST['c'];
     }
     else    
-    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,LONGDESCRIPTION,FIRSTPREFSCORE,MORIAVISIBLE,MINISTRY,CATEGORY,STARTDATE,ENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?,?,?,?) ",array(
-        $ur['ID'],$_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$_POST['CLASSID'],
+    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,LONGDESCRIPTION,FIRSTPREFSCORE,MORIAVISIBLE,MINISTRY,CATEGORY,STARTDATE,ENDDATE,OBJSTARTDATE,OBJENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ",array(
+        $ur['ID'],$_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),strtotime($_POST['OBJSTARTDATE']),strtotime($_POST['OBJENDDATE']),$_POST['CLASSID'],
     ));
 
     if ($lastRowID)
@@ -151,9 +151,14 @@ function ViewOrEdit($cid)
         <input type="number" step="0.01" name="FIRSTPREFSCORE" class="input" value="<?= $items['FIRSTPREFSCORE'] ?>" required/>
         <br><br>
 
-        <label for="MORIAVISIBLE">Ορατά τα μόρια στους αιτούντες (0-2)</label>
-        <input type="number" min="0" max="2" name="MORIAVISIBLE" class="input" value="<?= $items['MORIAVISIBLE'] ?>" required/>
+        <label for="MORIAVISIBLE">Κατάσταση</label>
+        <select name="MORIAVISIBLE" class="input">
+            <option value="0" <?= $items['MORIAVISIBLE'] == 0 ? "selected" : "" ?>>Μη ορατά μόρια</option>
+            <option value="1" <?= $items['MORIAVISIBLE'] == 1 ? "selected" : "" ?>>Ορατά μόρια</option>
+            <option value="2" <?= $items['MORIAVISIBLE'] == 2 ? "selected" : "" ?>>Ορατά αποτελέσματα</option>
+        </select>
         <br><br>
+
 
         <label for="STARTDATE">Ημερομηνία Έναρξης Αιτήσεων</label>
         <input type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>" required/>
@@ -161,6 +166,14 @@ function ViewOrEdit($cid)
 
         <label for="STARTDATE">Ημερομηνία Λήξης Αιτήσεων</label>
         <input type="date" name="ENDDATE" class="input" value="<?= $items['ENDDATE'] > 0 ? date("Y-m-d",$items['ENDDATE']) : "" ?>" required/>
+        <br><br>
+
+        <label for="STARTDATE">Ημερομηνία Έναρξης Ενστάσεων</label>
+        <input type="date" name="OBJSTARTDATE" class="input" value="<?= $items['OBJSTARTDATE'] > 0 ? date("Y-m-d",$items['OBJSTARTDATE']) : "" ?>" required/>
+        <br><br>
+
+        <label for="STARTDATE">Ημερομηνία Λήξης Ενστάσεων</label>
+        <input type="date" name="OBJENDDATE" class="input" value="<?= $items['OBJENDDATE'] > 0 ? date("Y-m-d",$items['OBJENDDATE']) : "" ?>" required/>
         <br><br>
 
         <button class="button is-success">Υποβολή<button>

@@ -55,12 +55,12 @@ printdie($s2);
 $def_xml_proson = <<<XML
 <root>
     <classes>
-        <c n="10" t="Βιογραφικό Σημείωμα" unique="1" >
+        <c n="10" t="Βιογραφικό Σημείωμα" unique="1" autoaccept="1" nodates="1">
         </c>
 
         <c n="1" t="Πτυχία Πανεπιστημίου" >
             <classes>
-                <c n="101" t="Πτυχίο" el="6" >
+                <c n="101" t="Πτυχίο" el="6" candior="1">
                     <params>
                         <p n="Ιδρυμα" id="1" t="0" />
                         <p n="Σχολή" id="2" t="0" />
@@ -128,7 +128,7 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
-        <c n="4" t="Διπλώματα/Πτυχία Μουσικής από Ωδείο" >
+        <c n="4" t="Διπλώματα/Πτυχία Μουσικής από Ωδείο και Καλλιτεχνικός Φάκελος" >
             <classes>
                 <c n="405" t="Πτυχίο Οργάνου" >
                     <params>
@@ -137,26 +137,28 @@ $def_xml_proson = <<<XML
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="401" t="Δίπλωμα Οργάνου" >
+                <c n="401" t="Δίπλωμα Οργάνου" candior="1">
                     <params>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Όργανο" id="3" t="4" unique="1" list="--TMS2--"/>
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="408" t="Πτυχία Θεωρητικών" unique="1" >
+                <c n="408" t="Πτυχία Θεωρητικών" unique="1" candior="1">
                     <params>
                         <p n="Επίπεδο" id="3" t="1" min="1" max="5" list="Πτυχίο Ωδικής,Πτυχίο Αρμονίας,Πτυχίο Αντίστιξης,Πτυχίο Φούγκας,Δίπλωμα Σύνθεσης"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
                 </c>
-                <c n="407" t="Διπλώματα Θεωρητικών" >
+                <c n="407" t="Διπλώματα Θεωρητικών" candior="1">
                     <params>
                         <p n="Επιλογή Διπλώματος" id="3" t="1" min="1" max="3" list="Δίπλωμα Διεύθυνσης Χορωδίας,Δίπλωμα Βυζαντινής Μουσικής,Δίπλωμα Διεύθυνσης Ορχήστρας" unique="1"/>
                         <p n="Ιδρυμα" id="2" t="0" />
                         <p n="Βαθμός" id="1" t="2" min="8" max="10"/>
                     </params>
+                </c>
+                <c n="411" t="Καλλιτεχνικός Φάκελος"  unique="1" autoaccept="1" nodates="1">
                 </c>
             </classes>
         </c>
@@ -406,7 +408,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 //      QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,LONGDESCRIPTION TEXT,FIRSTPREFSCORE TEXT,MORIAVISIBLE INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,CLASSTYPE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,LONGDESCRIPTION TEXT,FIRSTPREFSCORE TEXT,MORIAVISIBLE INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,OBJSTARTDATE INTEGER,OBJENDDATE INTEGER,CLASSTYPE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
@@ -920,7 +922,7 @@ function PrintContests($uid)
         $s .= sprintf('<td>%s</td>',$r1['MINISTRY']);
         $s .= sprintf('<td>%s</td>',$r1['CATEGORY']);
         $s .= sprintf('<td>%s<br><br>%s</td>',$r1['DESCRIPTION'],$r1['LONGDESCRIPTION']);
-        $s .= sprintf('<td>%s &mdash; %s</td>',date("d/m/Y",$r1['STARTDATE']),date("d/m/Y",$r1['ENDDATE']));
+        $s .= sprintf('<td>Αιτήσεις<br>%s &mdash; %s<br><br>Ενστάσεiς<br>%s &mdash; %s</td>',date("d/m/Y",$r1['STARTDATE']),date("d/m/Y",$r1['ENDDATE']),date("d/m/Y",$r1['OBJSTARTDATE']),date("d/m/Y",$r1['OBJENDDATE']));
         $s .= sprintf('<td>');
         $s .= PrintForeisContest($uid,$r1['ID']);
         $s .= sprintf('</td>');
@@ -1033,7 +1035,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             $parlist[(int)$pa['id']] = (string)$pa['list'];                       
         }    
 
-        $s .= sprintf('<td>%s<br>%s<br>%s</td>',date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞',$r1['DIORISMOS'] == 1 ? "Προσόν Διορισμού" : "");
+        $s .= sprintf('<td>%s<br>%s<br>%s</td>',$r1['STARTDATE'] == 0 ? '' : date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞',$r1['DIORISMOS'] == 1 ? "Προσόν Διορισμού" : "");
 
         // Parameters
         $s .= sprintf('<td>');
@@ -1102,7 +1104,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
                         $bt = 'is-danger';
                     }
                 if ($r1['STATE'] > 0)
-                    $s .= sprintf('<br><br><button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να το εγκρίνουν ξανά! Συνέχεια;" class="sureautobutton button is-small %s" href="files.php?e=%s&f=0">%s</button>',$bt,$r1['ID'],$musttext);
+                    $s .= sprintf('<br><br><button q="Αν αλλάξετε το προσόν θα ακυρωθεί η έγκρισή του και θα πρέπει να εγκριθεί ξανά! Συνέχεια;" class="sureautobutton button is-small %s" href="files.php?e=%s&f=0">%s</button>',$bt,$r1['ID'],$musttext);
                 else
                     $s .= sprintf('<br><br><button class="autobutton button is-small %s" href="files.php?e=%s&f=0">%s</button>',$bt,$r1['ID'],$musttext);
             }

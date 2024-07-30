@@ -85,7 +85,7 @@ function sure(tit,msg,url)
           gotop(url);
         },
     },
-    cancel: 'Όχι'
+    cancel: '&nbsp;Όχι'
 });
 }
 

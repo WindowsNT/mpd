@@ -207,9 +207,25 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         <input type="text" name="DESCRIPTION" class="input" value="<?= $items['DESCRIPTION'] ?>" required/>
         <br><br>
 
-        <label for="STARTDATE">Ημερομηνία Έναρξης Ισχύος Δικαιολογητικού</label>
-        <input required type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
-        <br><br>
+        <?php
+            $nodates = $croot->attributes()['nodates'];
+            if ($nodates == 1)
+            {
+                ?>
+                <input type="hidden" name="STARTDATE" class="input" value=<?= time() ?>/>
+                <?php
+            }
+            else
+            {
+                ?>
+                    <label for="STARTDATE">Ημερομηνία Έναρξης Ισχύος Δικαιολογητικού</label>
+                    <input required type="date" name="STARTDATE" class="input" value="<?= $items['STARTDATE'] > 0 ? date("Y-m-d",$items['STARTDATE']) : "" ?>"/>
+                    <br><br>
+                <?php
+        
+            }
+        ?>
+
 
         <?php
             $canend = $croot->attributes()['canend'];
@@ -229,12 +245,28 @@ function ViewOrEdit($pid,$items,$fcid = 0)
         
             }
         ?>
-        <label for="STARTDATE">Είναι το δικαιολογητικό προσόν διορισμού;</label>
-        <select name="DIORISMOS" class="input">
-            <option value="0">Όχι</option>
-            <option value="1" <?= (int)$items['DIORISMOS'] ? "selected" : "" ?>>Ναι</option>
-        </select>
-        <br><br>
+
+        <?php
+            $candior = $croot->attributes()['candior'];
+            if ($candior == 0)
+            {
+                ?>
+                <input type="hidden" name="DIORISMOS" class="input" value="0" />
+                <?php
+            }
+            else
+            {
+                ?>
+                <label for="DIORISMOS">Είναι το δικαιολογητικό προσόν διορισμού;</label>
+                <select name="DIORISMOS" class="input">
+                    <option value="0">Όχι</option>
+                    <option value="1" <?= (int)$items['DIORISMOS'] ? "selected" : "" ?>>Ναι</option>
+                </select>
+                <br><br>
+                <?php        
+            }
+        ?>
+
 
         <?php
         $params_root = $croot->params;
@@ -342,11 +374,13 @@ function ViewOrEdit($pid,$items,$fcid = 0)
                     printf('<label for="param_%s">%s</label><input class="input" type="number" step="0.01" min="%s" max="%s" name="param_%s" value="%s"  /><br><br>',$pa['id'],$pa['n'],$pa['min'],$pa['max'],$pa['id'],$parval);
             }
         }
-        ?>
-        <div class="notification is-info">
+        if (!$pid)
+        echo '        <div class="notification is-info">
             Μόλις πατήσετε υποβολή για νέο προσόν, θα μεταβείτε στην οθόνη ανεβάσματος δικαιολογητικών.
-</div>
-<br><br>
+        </div>
+            ';
+        ?>
+        <br><br>
         <button class="button is-success ">Υποβολή<button>
     </form>
     <?php

@@ -60,6 +60,7 @@ if (array_key_exists("results",$req))
             </thead><tbody>';
 
     $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ? AND UID = ? ORDER BY ID ASC",array($req['results'],$ur['ID']));
+    $t = time();
     while($r1 = $q1->fetchArray())
     {
         $pref = AppPreference($r1['ID']);
@@ -90,7 +91,12 @@ if (array_key_exists("results",$req))
         printf('<td>');
         if (!$won)
         {   
-            printf('<button class="autobutton is-warning is-small button" href="objections.php?aid=%s">Ένσταση</button>',$r1['ID']);
+            printf('Ενστάσεις %s &mdash; %s<br><br>',date("d/m/Y",$cr['OBJSTARTDATE']),date("d/m/Y",$cr['OBJENDDATE']));
+            $en = Single("OBJECTIONS","AID",$r1['ID']);
+            if (($cr['OBJSTARTDATE'] < $t && $cr['OBJENDDATE'] > $t) || $en)
+            {
+                printf('<button class="autobutton is-warning is-small button" href="objections.php?aid=%s">Ένσταση</button>',$r1['ID']);
+            }
         }
         printf('</td>');
         
@@ -136,7 +142,7 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
         printf('<button class="button is-small is-warning autobutton block" href="applications.php?cid=%s">Προβολή Φορέων</button> ',$r1['ID']);
-        if ($CanAct == 0 && $r1['MORIAVISIBLE'] >= 2)
+        if ($CanAct == 0 || $r1['MORIAVISIBLE'] >= 2)
             printf(' <button class="button is-small is-danger autobutton block" href="applications.php?results=%s">Προβολή Αποτελεσμάτων</button>',$r1['ID']);
         printf('</td>');
 

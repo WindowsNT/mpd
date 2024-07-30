@@ -5,7 +5,7 @@
         $item = array of ['s'] => score and ['h'] => row of proson used
 */
 
-// Scores for metathesi music schools algorithm 
+// Scores for metathesi/apospasi music schools algorithm 
 function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpref = 0,$typems = 0)
 {
     global $required_check_level,$rejr;
@@ -539,10 +539,7 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
                 {
                     if ($param['PVALUE'] == "ΠΕ79" || $param['PVALUE'] == "ΠΕ79.01")
                     {
-//                        $d1 = array('s' => 2,'h' => array($r1));
-  //                      $d1['h'][0]['DESCRIPTION'] = "ΠΕ79";
-    //                    $desc []= $d1;
-                        $moria_79 = 2.0;
+//                        $moria_79 = 2.0;
                     }
                 }
                 if ($param['PIDX'] == 4)
@@ -661,8 +658,42 @@ function CalculateScoreForMS($uid,$cid,$placeid,$posid,&$desc = array(),$whatpre
         }
     }
 
+    // CV required
+    $HasCV = 0;
+    foreach($all_prosonta as $proson)
+    {
+        $r1 = $proson['row'];
+        if ($r1['CLASSID'] == 10) {
+            $HasCV = 1;
+            break;
+        }   
+    }
 
+    // Kal Fak required
+    $HasKF = 0;
+    foreach($all_prosonta as $proson)
+    {
+        $r1 = $proson['row'];
+        if ($r1['CLASSID'] == 411) {
+            $HasKF = 1;
+            break;
+        }   
+    }
 
+    if (!$HasCV)
+    {
+        $desc = array();
+        $rejr = "Λείπει προαπαιτούμενο: Βιογραφικό Σημείωμα";
+        return -1;
+    }
+
+/*    if (!$HasKF)
+    {
+        $desc = array();
+        $rejr = "Λείπει προαπαιτούμενο: Καλλιτεχνικός Φάκελος";
+        return -1;
+    }
+*/
 
     
     $score = min(($moria_tpe + $moria_languages),$max_tpex) + min(($moria_conservatoire_instrument + $moria_ptychio_antfugsyn + $moria_diplomasodeiou),$max_odeio) + min($moria_uni,$max_uni) + min($moria_y,$max_proy)+ min($moria_k,$max_koin) + $moria_1 + $moria_79;
