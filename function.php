@@ -1631,6 +1631,7 @@ function PrintProsontaForThesi($cid,$placeid,$posid,$what = 0)
 
 function PushProsonState($prid)
 {
+    global $required_check_level;
     $r = Single("PROSON","ID",$prid);
     if (!$r) return;
 
@@ -1640,8 +1641,18 @@ function PushProsonState($prid)
 
     if ($r['STATE'] < 0)
         Push3_Send(sprintf("To προσόν %s δεν έγινε δεκτό! [%s]",$r['DESCRIPTION'],$r['FAILREASON']),array($u['CLSID']));
-    if ($r['STATE'] > 0)
+    if ($r['STATE'] >= $required_check_level)
         Push3_Send(sprintf("To προσόν %s έγινε δεκτό!",$r['DESCRIPTION']),array($u['CLSID']));
+
+}
+
+function PushAithsiRemoved($uid)
+{
+    $u = Single("USERS","ID",$uid);
+    if (!$u)
+        return;
+
+    Push3_Send("Η αίτηση διαγράφηκε!",array($u['CLSID']));
 
 }
 
@@ -1654,7 +1665,7 @@ function PushAithsiCompleted($appid)
     if (!$u)
         return;
 
-    Push3_Send("Έγινε η αίτηση!",array($u['CLSID']));
+    Push3_Send(sprintf("Έγινε η αίτηση!\r\nΑ.Π. %s",ApplicationProtocol($r)),array($u['CLSID']));
 }
 
 function scanAllDir($dir,$dirs = false) {

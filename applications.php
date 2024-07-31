@@ -142,7 +142,7 @@ if (!array_key_exists("cid",$req))
         printf('<td>%s</td>',date("Y-m-d",$r1['ENDDATE']));
         printf('<td>');
         printf('<button class="button is-small is-warning autobutton block" href="applications.php?cid=%s">Προβολή Φορέων</button> ',$r1['ID']);
-        if ($CanAct == 0 || $r1['MORIAVISIBLE'] >= 2)
+        if ($CanAct == 0 && $r1['MORIAVISIBLE'] >= 2)
             printf(' <button class="button is-small is-danger autobutton block" href="applications.php?results=%s">Προβολή Αποτελεσμάτων</button>',$r1['ID']);
         printf('</td>');
 
@@ -296,9 +296,14 @@ if (array_key_exists("aid",$req))
         PushAithsiCompleted($lastRowID);
     }
     else
-        QQ("DELETE FROM APPLICATIONS WHERE ID = ? AND UID = ?",array($req['aid'],$ur['ID']));
+        {
+            QQ("DELETE FROM APPLICATIONS WHERE ID = ? AND UID = ?",array($req['aid'],$ur['ID']));
+            PushAithsiRemoved($ur['ID']);
+        }
 
     unset($req['aid']);
+    redirect(sprintf("applications.php?cid=%s&pid=%s",$contestrow['ID'],$placerow['ID'],$posrow['ID']));
+    die;
 }
 
 

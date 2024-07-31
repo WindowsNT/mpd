@@ -212,7 +212,7 @@ $(document).ready(
 function Push3_ShowOptions($id = 0,$output = 0,$style = 0)
 {  
 $str = sprintf('
-<div id="notify_div" class="content" style="margin: 20px">
+<div id="notify_div" class="content">
 <div id="notify_enable_button" style="display:none;" >Μπορείτε να ενεργοποιήσετε push notifications για αυτόν τον browser.<br><button class="btn btn-primary button is-primary" onclick="askpush();">Ενεργοποίηση</button></div>
 <div id="notify_already_there" style="display:none;">Push Notifications Ενεργοποιημένες<br><button class="btn button btn-success is-success" onclick="sendpush(\'%s\',\'Αυτό είναι ένα δοκιμαστικό μήνυμα\');">Δοκιμή</button> <button class="btn btn-danger button is-danger" onclick="disablepush(\'%s\');">Απενεργοποίηση</button></div>
 <button id="notify_disabled" style="display:none;" class="btn button btn-warning is-warning" >Οι ειδοποιήσεις έχουν απαγορευτεί σε αυτόν τον Browser</button>

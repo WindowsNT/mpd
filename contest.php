@@ -87,6 +87,34 @@ if (array_key_exists("c",$_POST))
     {
         if (!HasContestAccess($_POST['c'],$ur['ID'],1))
             die;
+
+        $cr = Single("CONTESTS","ID",$_POST['c']);
+        
+        if ($cr['MORIAVISIBLE'] == 0 && $_POST['MORIAVISIBLE'] == 1)
+        {
+            $us = array();
+            $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ?",array($_POST['c']));
+            while($r1 = $q1->fetchArray())
+            {
+                $ux = Single("USERS","ID",$r1['UID']);
+                $us[] = $ux['CLSID'];
+            }
+            $us = array_unique($us);
+            Push3_Send(sprintf("Ορατά Mόρια στο Διαγωνισμό\r\n%s",$cr['DESCRIPTION']),$us);
+        }
+        if ($cr['MORIAVISIBLE'] != 2 && $_POST['MORIAVISIBLE'] == 2)
+        {
+            $us = array();
+            $q1 = QQ("SELECT * FROM APPLICATIONS WHERE CID = ?",array($_POST['c']));
+            while($r1 = $q1->fetchArray())
+            {
+                $ux = Single("USERS","ID",$r1['UID']);
+                $us[] = $ux['CLSID'];
+            }
+            $us = array_unique($us);
+            Push3_Send(sprintf("Ορατά Αποτελέσματα στο Διαγωνισμό\r\n%s",$cr['DESCRIPTION']),$us);
+        }
+        
         QQ("UPDATE CONTESTS SET DESCRIPTION = ?,LONGDESCRIPTION = ?,FIRSTPREFSCORE = ?,MORIAVISIBLE = ?,MINISTRY = ?,CATEGORY = ?,STARTDATE = ?,ENDDATE = ?,OBJSTARTDATE = ?,OBJENDDATE = ?,CLASSID = ? WHERE ID = ? ",array(
            $_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),strtotime($_POST['OBJSTARTDATE']),strtotime($_POST['OBJENDDATE']),$_POST['CLASSID'],$_POST['c']
         ));
