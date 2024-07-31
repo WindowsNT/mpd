@@ -28,11 +28,18 @@ if (array_key_exists("aid",$_POST))
         else
         QQ("REPLACE INTO OBJECTIONS (ID,AID,OBJTEXT,DATE) VALUES(?,?,?,?)",array(
             $_POST['oid'],$_POST['aid'],$_POST['OBJTEXT'],time()
-        ));        
+        ));    
+        
+        Push3_Send(sprintf("Η ένσταση έχει υποβληθεί!"),array($ur['CLSID']));
+        
         redirect(sprintf("applications.php?results=%s",$app['CID']));
     }
     else
     {
+
+        $wu = Single("USERS","ID",$app['UID']);
+        Push3_Send(sprintf("Η ένσταση έχει απαντηθεί!"),array($wu['CLSID']));
+
         $oo = Single("OBJECTIONS","ID",$_POST['oid']);
         QQ("REPLACE INTO OBJECTIONS (ID,AID,OBJTEXT,OBJANSWER,DATE,RESULT) VALUES(?,?,?,?,?,?)",array(
             $_POST['oid'],$_POST['aid'],$oo['OBJTEXT'],$_POST['OBJANSWER'],$oo['DATE'],2

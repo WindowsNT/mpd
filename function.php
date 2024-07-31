@@ -1646,6 +1646,45 @@ function PushProsonState($prid)
 
 }
 
+function PushProsonCheckers($pid)
+{
+    
+    $prr = Single("PROSON","ID",$pid);
+    if (!$prr)
+        return;
+
+    $wu = Single("USERS","ID",$prr['UID']);
+    if (!$wu)
+        return;
+
+    $where = array();
+    $q1 = QQ("SELECT * FROM ROLES WHERE ROLE = ?",array(ROLE_CHECKER));
+    while($r1 = $q1->fetchArray())
+    {
+        $y = 0;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        $afms = $params['afms'];
+        if (count($afms) == 1 && $afms[0] == 0)
+            $y = 1;
+        else
+        {
+            if (in_array($wu['AFM'],$afms))
+                $y = 1;
+        }
+
+        if ($y)
+        {
+            $wu2 = Single("USERS","ID",$r1['UID']);
+            if ($wu2)
+                $where[] = $wu2['CLSID'];
+        }
+    }
+
+    $where = array_unique($where);
+    Push3_Send(sprintf("Ανέβασμα νέου προσόντος\r\n%s %s",$wu['LASTNAME'],$wu['FIRSTNAME']),$where);
+}
+
+
 function PushAithsiRemoved($uid)
 {
     $u = Single("USERS","ID",$uid);

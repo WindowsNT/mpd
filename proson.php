@@ -83,6 +83,7 @@ if (array_key_exists("e",$_POST))
            $_POST['DESCRIPTION'],$_POST['CLASSID'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),$lastRowID
         ));
         $lastRowID = $_POST['e'];
+        PushProsonCheckers($lastRowID);
         QQ("DELETE FROM PROSONPAR WHERE PID = ?",array($lastRowID));
         $lastRowID = $_POST['e'];
     
@@ -93,6 +94,7 @@ if (array_key_exists("e",$_POST))
             QQ("INSERT INTO PROSON (UID,CLSID,DESCRIPTION,CLASSID,STARTDATE,ENDDATE) VALUES (?,?,?,?,?,?) ",array(
         $uid,guidv4(),$_POST['DESCRIPTION'],$_POST['CLASSID'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE'])
     ));
+            PushProsonCheckers($lastRowID);
         }
 
     $pid = 0;
