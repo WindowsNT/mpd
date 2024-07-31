@@ -1,10 +1,26 @@
 <?php
 
-$dbxx = 'mpd.db';
+
+//print('<xmp>');print_r($_SERVER); die;
+
+$dbxx = 'mpdtest.db';
 //$dbxx = 'sylviamichael.hopto.org:7015';
-$pageroot = 'https://www.msa-apps.com/mpd';
 $required_check_level = 2;
 $test_users = 1;
+$psd_login = 'https://www.msa-apps.com/slogin.php';
+$taxis_login = 'https://www.msa-apps.com/taxis.php';
+
+$pageroot = 'https://www.msa-apps.com/mpd';
+
+if ($_SERVER['SERVER_NAME'] == "musicschools.minedu.gov.gr")
+{
+    $pageroot = 'https://musicschools.minedu.gov.gr';
+    $dbxx = 'mpdlive.db';
+    $test_users = 0;
+    $psd_login = 'https://musicschools.minedu.gov.gr/slogin.php';
+    $taxis_login = 'https://musicschools.minedu.gov.gr/taxis.php';
+}
+
 
 // Comment check 14 in WebAuthn for biometric login to work!
 

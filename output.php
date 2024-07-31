@@ -43,10 +43,10 @@ function datatab(resp = true,fi = false)
 {
            if (datatabe == 1)
                 return;
-            datatabe = 1;
           var dt = $('.datatable');
 			if (dt)
 		    	{
+          datatabe = 1;
 			    dt.dataTable({
             layout: {
               topStart: {

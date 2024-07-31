@@ -393,10 +393,12 @@ function PrepareDatabase($msql = 0)
     global $lastRowID,$xml_proson;
     if ($msql == 0)
         $j = '';
+    global $test_users;
 
     if ($msql && Single("GLOBALXML","ID",1))
         return;
-
+    BeginTransaction();
+    
     QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY $j,XML TEXT)");
     QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT,TYPE INTEGER)",$j));
@@ -406,7 +408,6 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSON (ID INTEGER PRIMARY KEY %s,UID INTEGER,CLSID TEXT,DESCRIPTION TEXT,CLASSID INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,STATE INTEGER,FAILREASON TEXT,DIORISMOS INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
-//      QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONEV (ID INTEGER PRIMARY KEY %s,UID INTEGER,EVUID INTEGER,RESULT INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
     QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,LONGDESCRIPTION TEXT,FIRSTPREFSCORE TEXT,MORIAVISIBLE INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,OBJSTARTDATE INTEGER,OBJENDDATE INTEGER,CLASSTYPE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
@@ -429,44 +430,47 @@ function PrepareDatabase($msql = 0)
 
 
     // Test set
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ',?)",array(guidv4()));
-    $u1Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u2@example.org','1001001002','ΓΕΩΡΓΙΟΥ','ΒΑΣΙΛΕΙΟΣ',?)",array(guidv4()));
-    $u2Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u3@example.org','1001001003','ΝΙΚΟΛΑΟΥ','ΠΑΝΑΓΙΩΤΗΣ',?)",array(guidv4()));
-    $u3Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001005','ΜΑΡΗΣ','ΦΩΤΗΣ',?)",array(guidv4()));
-    $u4Id = $lastRowID;
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u5@example.org','1001001006','ΜΑΡΙΝΟΥ','ΕΥΤΥΧΙΑ',?)",array(guidv4()));
-    $u5Id = $lastRowID;
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
-    $r1id = $lastRowID;
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,?)",array(ROLE_CREATOR));
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,?)",array(ROLE_GLOBALPROSONEDITOR));
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
-    $u4Id = $lastRowID;
+    if ($test_users == 1)
+    {
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u1@example.org','1001001001','ΠΑΠΑΔΟΠΟΥΛΟΣ','ΝΙΚΟΣ',?)",array(guidv4()));
+        $u1Id = $lastRowID;
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u2@example.org','1001001002','ΓΕΩΡΓΙΟΥ','ΒΑΣΙΛΕΙΟΣ',?)",array(guidv4()));
+        $u2Id = $lastRowID;
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u3@example.org','1001001003','ΝΙΚΟΛΑΟΥ','ΠΑΝΑΓΙΩΤΗΣ',?)",array(guidv4()));
+        $u3Id = $lastRowID;
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001005','ΜΑΡΗΣ','ΦΩΤΗΣ',?)",array(guidv4()));
+        $u4Id = $lastRowID;
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u5@example.org','1001001006','ΜΑΡΙΝΟΥ','ΕΥΤΥΧΙΑ',?)",array(guidv4()));
+        $u5Id = $lastRowID;
+        QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u2Id,1)");
+        $r1id = $lastRowID;
+        QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u3Id,?)",array(ROLE_CREATOR));
+        QQ("INSERT INTO ROLES (UID,ROLE) VALUES($u4Id,?)",array(ROLE_GLOBALPROSONEDITOR));
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u4@example.org','1001001004','ΠΑΠΑΖΟΓΛΟΥ','ΜΙΧΑΗΛ',?)",array(guidv4()));
+        $u4Id = $lastRowID;
 
-    QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u8@example.org','1001001008','ΦΟΥΡΗΣ','ΑΓΑΜΕΜΝΩΝ',?)",array(guidv4()));
+        QQ("INSERT INTO USERS (MAIL,AFM,LASTNAME,FIRSTNAME,CLSID) VALUES ('u8@example.org','1001001008','ΦΟΥΡΗΣ','ΑΓΑΜΕΜΝΩΝ',?)",array(guidv4()));
 
-    $rparam1 = '<root>
-    <classes>
-        <c n="1" t="Πτυχία Πανεπιστημίου" >
-            <classes>
-                <c n="101" t="Πτυχίο" el="6">
-                    <params>
-                        <p n="Ιδρυμα" id="1" t="0" v="ΕΚΠΑ"/>
-                        <p n="Σχολή" id="2" t="0" v="ΦΙΛΟΣΟΦΙΚΗ"/>
-                        <p n="Τμήμα" id="3" t="0" v="ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ"/>
-                    </params>
-                </c>
-            </classes>
-        </c>
-    </classes>
-</root>';
-    QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?)",array($u4Id,ROLE_UNI));
-    $r4id = $lastRowID;
+        $rparam1 = '<root>
+        <classes>
+            <c n="1" t="Πτυχία Πανεπιστημίου" >
+                <classes>
+                    <c n="101" t="Πτυχίο" el="6">
+                        <params>
+                            <p n="Ιδρυμα" id="1" t="0" v="ΕΚΠΑ"/>
+                            <p n="Σχολή" id="2" t="0" v="ΦΙΛΟΣΟΦΙΚΗ"/>
+                            <p n="Τμήμα" id="3" t="0" v="ΜΟΥΣΙΚΩΝ ΣΠΟΥΔΩΝ"/>
+                        </params>
+                    </c>
+                </classes>
+            </c>
+        </classes>
+    </root>';
+        QQ("INSERT INTO ROLES (UID,ROLE) VALUES(?,?)",array($u4Id,ROLE_UNI));
+        $r4id = $lastRowID;
+    }
 
-
+    QQ("COMMIT");
 
 }
 

@@ -135,7 +135,7 @@ shaders: {
 
   <div class="navbar-brand">
     <div class="navbar-item">
-      <img src="../shde/icon.svg" />
+      <img src="icon.svg" />
   </div>
 
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -165,8 +165,8 @@ shaders: {
     <div class="dropdown-content">
     <div class="dropdown-item">
         <p>
-          <a href="https://www.msa-apps.com/taxis.php" class="button is-small is-primary block" >Taxis Login</a>
-          <a href="https://www.msa-apps.com/slogin.php" class="button is-small is-primary block" >ΠΣΔ Login</a>
+          <a href="<?= $taxis_login ?>" class="button is-small is-primary block" >Taxis Login</a>
+          <a href="<?= $psd_login ?>" class="button is-small is-primary block" >ΠΣΔ Login</a>
           <a href="bio.php?login" class="button is-small is-link block">Biometric Login</a>
         </p>
       </div>
