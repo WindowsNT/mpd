@@ -1705,6 +1705,37 @@ function PushAithsiCompleted($appid)
         return;
 
     Push3_Send(sprintf("Έγινε η αίτηση!\r\nΑ.Π. %s",ApplicationProtocol($r)),array($u['CLSID']));
+
+    // And checkers
+    $where = array();
+    $q1 = QQ("SELECT * FROM ROLES WHERE ROLE = ?",array(ROLE_CREATOR));
+    while($r1 = $q1->fetchArray())
+    {
+        $y = 0;
+        $params = json_decode($r1['ROLEPARAMS'],true);
+        $afms = $params['contests'];
+        if (count($afms) == 1 && $afms[0] == 0)
+            $y = 1;
+        else
+        {
+            if (in_array($r['CID'],$afms))
+                $y = 1;
+        }
+
+        if ($y)
+        {
+            $wu2 = Single("USERS","ID",$r1['UID']);
+            if ($wu2)
+                $where[] = $wu2['CLSID'];
+        }
+    }
+
+    $where = array_unique($where);
+    $cr = Single("CONTESTS","ID",$r['CID']);
+    $fr = Single("PLACES","ID",$r['PID']);
+    $pr = Single("POSITIONS","ID",$r['POS']);
+    Push3_Send(sprintf("Νέα αίτηση\r\n%s %s\r\n%s\r\n%s\r\n%s",$u['LASTNAME'],$u['FIRSTNAME'],$cr['DESCRIPTION'],$fr['DESCRIPTION'],$pr['DESCRIPTION']),$where);
+
 }
 
 function scanAllDir($dir,$dirs = false) {
