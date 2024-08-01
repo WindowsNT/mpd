@@ -91,6 +91,7 @@ else
 {
  
   echo '<div class="content" style="margin: 20px">';
+  $_SESSION['return_ministry_login'] = 'mpd';
   $_SESSION['return_msa'] = 'mpd';
   $_SESSION['return_psd_login'] = "mpd";
 
@@ -167,6 +168,7 @@ shaders: {
         <p>
           <a href="<?= $taxis_login ?>" class="button is-small is-primary block" >Taxis Login</a>
           <a href="<?= $psd_login ?>" class="button is-small is-primary block" >ΠΣΔ Login</a>
+          <a href="locallogin.php" class="button is-small is-primary block" >Τοπικό Login</a>
           <a href="bio.php?login" class="button is-small is-link block">Biometric Login</a>
         </p>
       </div>
@@ -177,9 +179,16 @@ shaders: {
   }
   ?>
 </div>
+<?php
+if ($test_users == 1)
+{
+  ?>
 <a class="navbar-item" href="https://www.youtube.com/watch?v=0U2-Xbg2xMY">
         <button class="button is-link">Video Demo</button>
       </a>
+      <?php
+}
+?>
     </div>
 
     <div class="navbar-end">
