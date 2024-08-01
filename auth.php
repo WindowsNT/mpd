@@ -63,9 +63,10 @@ if (!$ur && $afm != 0)
 
 
 $superadmin = 0;
-if ($afm == "114789033")
+if ((int)$afm == 114789033)
     $superadmin = 1;
 if (array_key_exists("redirect",$_SESSION))
     header(sprintf("Location: %s",$_SESSION['redirect']));
 if (array_key_exists("redirect",$_GET))
     header(sprintf("Location: %s",$_GET['redirect']));
+

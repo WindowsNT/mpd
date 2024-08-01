@@ -27,6 +27,60 @@ define('ROLE_ROLEEDITOR',6);
 define('ROLE_CONTESTVIEWER',7);
 define('ROLE_SUPERADMIN',99);
 
+$music_schools_csv = <<<MMSS
+1;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΠΑΛΛΗΝΗΣ;mail@gym-mous-pallin.att.sch.gr mail@lyk-mous-pallin.att.sch.gr;ΘΕΣΗ ΜΑΡΙΖΑ - ΠΑΛΛΗΝΗ;2106668547 2106032840;23.900659;38.009256;Μουσικό Σχολείο Παλλήνης;"";37
+2;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΑΓΡΙΝΙΟΥ - ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-agrin.ait.sch.gr;2ο ΧΛΜ ΕΘΝΙΚΗΣ ΟΔΟΥ ΑΓΡΙΝΙΟΥ ΑΝΤΙΡΡΙΟΥ;2641053595;21.41205;38.607228;Μουσικό Σχολείο Αγρινίου;"";1
+3;Μουσικό Σχολείο Αλίμου;mail@gym-mous-alim.att.sch.gr;Κυθηρίων 69 & Δήμητρας 17;2109963671;23.734704;37.910006;Μουσικό Σχολείο Αλίμου;https://www.msa-apps.com;4
+4;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΑΜΦΙΣΣΑΣ - ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΑΜΦΙΣΣΑΣ;mail@gym-mous-amfiss.fok.sch.gr;ΓΚΕΛΕΣΤΑΘΗ 13;2265023886;22.383053;38.525257;Μουσικό Σχολείο Αμφισσας;"";6
+5;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΒΑΡΘΟΛΟΜΙΟΥ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;gymmvar@sch.gr;ΤΕΡΜΑ  ΠΑΛΙΟΠΥΡΓΟΥ;2623042749;21.203311;37.85539;Μουσικό Σχολείο Βαρθμολομιού;"";9
+6;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΔΥΤΙΚΗΣ ΛΕΣΒΟΥ;mail@gym-mous-dytlesv.les.sch.gr;ΚΑΛΛΟΝΗ-ΔΗΜΟΣ ΔΥΤΙΚΗΣ ΛΕΣΒΟΥ-ΛΕΣΒΟΣ;2253025457;26.207659;39.233766;Μουσικό Σχολείο Δυτικής Λέσβου;"";14
+7;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΗΓΟΥΜΕΝΙΤΣΑΣ;mgymigoum@sch.gr;Μαζαρακιά Θεσπρωτίας;2665095617;20.37329;39.416534;Μουσικό Σχολείο Ηγουμενίτσας;"";16
+8;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΘΕΣΣΑΛΟΝΙΚΗΣ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-thess.thess.sch.gr;ΠΡΟΕΚΤΑΣΗ ΕΓΝΑΤΙΑΣ 118;2310300828;22.986298;40.592798;Μουσικό Σχολείο Θεσσαλονίκης;"";19
+9;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΙΛΙΟΥ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-iliou.att.sch.gr;ΠΕΤΡΑΚΟΓΙΩΡΓΗ 1;2102384855;23.725536;38.046288;Μουσικό Σχολείο Ιλίου;"";20
+10;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΚΑΒΑΛΑΣ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-kaval.kav.sch.gr;Χρυσοστόμου Σμύρνης 10;2510247190;24.39804;40.93521;Μουσικό Σχολείο Καβάλας;"";22
+11;Μουσικό Γυμνάσιο Καρδίτσας - Λυκειακές Τάξεις;gymmkard@sch.gr;ΑΓΙΟΥ ΒΗΣΣΑΡΙΟΥ 37;2441073970;21.918312;39.381331;Μουσικό Σχολείο Καρδίτσας;"";24
+12;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΚΑΣΤΟΡΙΑΣ;mail@gym-mous-kastor.kas.sch.gr;ΠΕΡΙΟΧΗ ΧΛΟΗ;2467028605;21.259203;40.531689;Μουσικό Σχολείο Καστοριάς;"";25
+13;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΚΕΡΚΥΡΑΣ;mail@gym-mous-kerkyr.ker.sch.gr;ΤΖΑΒΡΟΥ-ΚΑΤΩ  ΚΟΡΑΚΙΑΝΑ;2661091573;19.841147;39.662704;Μουσικό Σχολείο Κέρκυρας;"";27
+14;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΚΟΡΙΝΘΟΥ ΜΕ Μ.Λ.Τ.;mail@gym-mous-korinth.kor.sch.gr;Μπουμπουλίνας 94 Ποσειδωνία Κόρινθος;2741080251;22.970008;37.933719;Μουσικό Σχολείο Κορίνθου;"";29
+15;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ Λ.Τ. ΑΜΥΝΤΑΙΟΥ;mail@gym-mous-amynt.flo.sch.gr;ΝΕΕΣ ΕΡΓΑΤΙΚΕΣ ΚΑΤΟΙΚΙΕΣ;2386023224;21.678322;40.696838;Μουσικό Σχολείο Αμυνταίου;"";5
+16;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΛΑΜΙΑΣ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-lamias.fth.sch.gr;ΛΕΩΦΟΡΟΣ ΚΑΛΥΒΙΩΝ 154;2231046476;22.396083;38.889743;Μουσικό Σχολείο Λαμίας;"";30
+17;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΛΑΣΙΘΙΟΥ;mail@gym-mous-lasith.las.sch.gr;ΚΑΒΟΥΣΙ ΛΑΣΙΘΙΟΥ;2842094886;25.85839;35.12253;Μουσικό Σχολείο Λασιθίου;"";32
+18;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΛΕΥΚΑΔΑΣ ΚΑΙ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-lefkad.lef.sch.gr;ΛΕΩΦΟΡΟΣ ΦΙΛΟΣΟΦΩΝ;2645021625;20.710602;38.824983;Μουσικό Σχολείο Λευκάδας;"";33
+19;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΛΙΒΑΔΕΙΑΣ;mail@gym-mous-livad.voi.sch.gr;ΑΓΙΟΣ ΓΕΩΡΓΙΟΣ  BΟΙΩΤΙΑΣ;2261044117;22.93045;38.3945;Μουσικό Σχολείο Λιβαδειάς;"";34
+20;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΜΕ Λ.Τ. ΑΛΕΞΑΝΔΡΟΥΠΟΛΗΣ;mail@gym-mous-alexandr.evr.sch.gr;Ηροδότου & Δήμητρας;2551350304;25.869782;40.852861;Μουσικό Σχολείο Αλεξανδρούπολης;"";3
+21;Μουσικό Γυμνάσιο με Λυκειακές Τάξεις Σιάτιστας - Κωνσταντίνος και Ελένη Παπανικολάου;mail@gym-mous-siatist.koz.sch.gr;ΠΛΑΤΕΙΑ ΠΑΥΛΟΥ ΜΕΛΑ;2465023461;21.555091;40.252425;Μουσικό Σχολείο Σιάτιστας;"";46
+22;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΞΑΝΘΗΣ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;gymmousx@sch.gr;ΔΙΟΜΗΔΕΙΑ ΞΑΝΘΗΣ;2541092212;24.901741;41.088301;Μουσικό Σχολείο Ξάνθης;"";36
+23;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΠΕΙΡΑΙΑ - ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΠΕΙΡΑΙΑ;msp@sch.gr;Κ. ΜΑΥΡΟΜΙΧΑΛΗ 27;2104204426;23.642155;37.954129;Μουσικό Σχολείο Πειραιά;"";39
+24;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΠΡΟΣΥΜΝΗ - ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΑΡΓΟΛΙΔΑΣ;mail@gym-mous-argol.arg.sch.gr;ΠΡΟΣΥΜΝΑ;2751089277;22.833284;37.712208;Μουσικό Σχολείο Αργολίδας;"";7
+25;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΠΤΟΛΕΜΑΪΔΑΣ;mousptol@sch.gr;ΜΑΡΤΙΟΥ - ΚΟΡΑΗ;2463081775;21.686738;40.508355;Μουσικό Σχολείο Πτολεμαΐδας;"";41
+26;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΡΕΘΥΜΝΟΥ;mail@gym-mous-rethymn.reth.sch.gr;ΚΑΝΤΑΝΟΛΕΟΝΤΟΣ 10;2831027553;24.482362;35.364389;Μουσικό Σχολείο Ρεθύμνου;"";42
+27;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΡΟΔΟΥ - ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΡΟΔΟΥ;mail@gym-mous-rodou.dod.sch.gr;ΚΟΣΚΙΝΟΥ - ΡΟΔΟΣ;2241065651;28.200029;36.386639;Μουσικό Σχολείο Ρόδου;"";43
+28;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΣΑΜΟΥ;mail@gym-mous-samou.sam.sch.gr;ΑΓΙΑ ΕΙΡΗΝΗ;2273023497;26.979123;37.75219;Μουσικό Σχολείο Σάμου;"";44
+29;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΣΕΡΡΩΝ-ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ;mail@gym-mous-serron.ser.sch.gr;ΠΡΩΤΟ ΧΙΛ ΣΕΡΡΩΝ-ΝΕΟΧΩΡΙΟΥ;2321035353;23.556251;41.073276;Μουσικό Σχολείο Σερρών;"";45
+30;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΣΠΑΡΤΗΣ με Λυκειακές Τάξεις Α;mail@gym-mous-spart.lak.sch.gr;Κλαδάς Σπάρτη 23150;2731089069;22.4279817;37.118982;Μουσικό Σχολείο Σπάρτης;"";47
+31;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΧΑΛΚΙΔΑΣ ΜΕ Λ.Τ. ΝΙΚΟΣ ΣΚΑΛΚΩΤΑΣ;mail@gym-mous-chalk.eyv.sch.gr;ΚΑΛΟΧΩΡΙ ΠΑΝΤΕΙΧΙ;2221032910;23.596828;38.384963;Μουσικό Σχολείο Χαλκίδας;"";50
+32;ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ-ΛΥΚΕΙΟ ΚΟΜΟΤΗΝΗΣ ΡΟΔΟΠΗΣ;mail@gym-mous-komot.rod.sch.gr;Π. ΕΛΛΗ 6;2531037236;25.393116;41.122688;Μουσικό Σχολείο Κομοτηνής;"";28
+33;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΑΘΗΝΑΣ;mail@gym-mous-athin.att.sch.gr;Δράκοντος 37;2105130758;23.702567;37.994613;Μουσικό Σχολείο Αθήνας;"";2
+34;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΑΡΤΑΣ;mail@gym-mous-artas.art.sch.gr;ΦΙΛΟΘΕΗ ΑΡΤΑΣ;2681085364;20.919912;39.162538;Μουσικό Σχολείο Αρτας;"";8
+35;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΒΕΡΟΙΑΣ;mail@gym-mous-veroias.ima.sch.gr;ΑΓΙΑ ΒΑΡΒΑΡΑ;2331065787;22.238867;40.496121;Μουσικό Σχολείο Βέροιας;"";10
+36;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΒΟΛΟΥ: ΓΥΜΝΑΣΙΟ ΚΑΙ ΛΥΚΕΙΟ;gymmousv@sch.gr;ΠΕΝΤΗΚΟΣΤΟΥ ΤΕΤΑΡΤΟΥ ΣΥΝΤ. ΕΛΑΣ ΤΕΡΜΑ;2421071096;22.95233;39.373836;Μουσικό Σχολείο Βόλου;"";11
+37;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΓΙΑΝΝΙΤΣΩΝ;mail@gym-mous-giann.pel.sch.gr;ΕΓΝΑΤΙΑΣ 97;2382028999;22.401853;40.782868;Μουσικό Σχολείο Γιαννιτσών;"";12
+38;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΔΡΑΜΑΣ (ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ-ΜΟΥΣΙΚΟ ΓΕΝΙΚΟ ΛΥΚΕΙΟ);mail@gym-mous-dramas.dra.sch.gr;1o ΧΛΜ. Ε.O ΔΡΑΜΑΣ-ΚΑΒΑΛΑΣ;2521028191;24.18008;41.139554;Μουσικό Σχολείο Δράμας;"";13
+39;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΖΑΚΥΝΘΟΥ;gymmousz@sch.gr;ΕΡΥΘΡΟΥ ΣΤΑΥΡΟΥ 1;2695045812;20.895575;37.776228;Μουσικό Σχολείο Ζακύνθου;"";15
+40;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΗΡΑΚΛΕΙΟΥ (ΓΥΜΝΑΣΙΟ ΚΑΙ ΓΕΝΙΚΟ ΛΥΚΕΙΟ);mail@gym-mous-irakl.ira.sch.gr;Πρώην Αμερικανική Βάση Γουρνών;2810761696;25.283541;35.327705;Μουσικό Σχολείο Ηρακλείου;"";17
+41;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΘΕΡΙΣΟΥ;mail@gym-mous-theris.chan.sch.gr;ΦΡΟΥΔΙΑ ΧΑΛΕΠΑΣ;2821088065;35.523366;ΧΑΝΙΩΝ;Μουσικό Σχολείο Θερίσου;"";18
+42;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΙΩΑΝΝΙΝΩΝ - ΝΙΚΟΛΑΟΣ ΔΟΥΜΠΑΣ;mail@gym-mous-ioann.ioa.sch.gr;ΚΩΝΣΤΑΝΤΙΝΟΥΠΟΛΕΩΣ 1;2651065457;20.837657;39.683187;Μουσικό Σχολείο Ιωαννίνων;"";21
+43;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΚΑΛΑΜΑΤΑΣ  ΜΑΡΙΑ ΚΑΛΛΑΣ ΓΥΜΝΑΣΙΟ - ΓΕΝΙΚΟ ΛΥΚΕΙΟ;mail@gym-mous-kalam.mes.sch.gr;ΓΕΩΡΓΙΟΥ ΚΑΡΕΛΙΑ & ΣΙΜΩΝΟΣ ΚΑΡΑ (ΑΝΑΤΟΛΙΚΗ ΠΑΡΑΛΙΑ);2721096966;22.13166;37.026054;Μουσικό Σχολείο Καλαμάτας;"";23
+44;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΚΑΤΕΡΙΝΗΣ;mail@gym-mous-kater.pie.sch.gr;ΕΘΝΙΚΟΥ ΣΤΑΔΙΟΥ 1;2351031444;22.509472;40.262754;Μουσικό Σχολείο Κατερίνης;"";26
+45;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΛΑΡΙΣΑΣ(ΓΥΜΝΑΣΙΟ-ΛΥΚΕΙΟ);mail@gym-mous-laris.lar.sch.gr;ΤΑΣΟΥ ΛΕΙΒΑΔΙΤΗ 18;2410627121;22.411295;39.617369;Μουσικό Σχολείο Λάρισας;"";31
+46;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΜΥΤΙΛΗΝΗΣ;mail@lyk-mous-mytil.les.sch.gr;ΠΑΝΑΓΙΟΥΔΑ;2251045784;26.526429;39.148356;Μουσικό Σχολείο Μυτιλήνης;"";35
+47;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΠΑΤΡΩΝ (ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ - ΜΟΥΣΙΚΟ ΛΥΚΕΙΟ);lykmpatr@sch.gr;ΠΑΡΟΔΟΣ ΕΒ ΕΓΛΥΚΑΔΑ 30;2610641800;21.763037;38.223055;Μουσικό Σχολείο Πάτρας;"";38
+48;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΠΡΕΒΕΖΑΣ;mail@gym-mous-prevez.pre.sch.gr;ΛΕΩΦΟΡΟΣ ΙΩΑΝΝΙΝΩΝ  210;2682029686;20.745103;38.980219;Μουσικό Σχολείο Πρέβεζας;"";40
+49;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΤΡΙΚΑΛΩΝ;mail@gym-mous-trikal.tri.sch.gr;ΔΗΜΟΚΡΙΤΟΥ ΚΑΙ ΠΕΡΙΦΕΡΕΙΑΚΗ ΤΡΙΚΑΛΩΝ ΡΙΖΑΡΙΟ;2431074471;21.795815;39.542787;Μουσικό Σχολείο Τρικάλων;"";49
+50;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΤΡΙΠΟΛΗΣ (ΜΟΥΣΙΚΟ ΓΥΜΝΑΣΙΟ ΜΕ ΛΥΚΕΙΑΚΕΣ ΤΑΞΕΙΣ);mail@gym-mous-tripol.ark.sch.gr;ΝΙΚΟΥ ΓΚΑΤΣΟΥ;2710235440;22.364208;37.501028;Μουσικό Σχολείο Τρίπολης;"";48
+51;ΜΟΥΣΙΚΟ ΣΧΟΛΕΙΟ ΧΙΟΥ;gymmouschi@sch.gr;ΑΓΙΟΙ ΑΝΑΡΓΥΡΟΙ - ΘΥΜΙΑΝΑ;2271081360;26.137517;38.310331;Μουσικό Σχολείο Χίου;"";51
+MMSS;
+
 function RoleToText($r)
 {
     if ($r == ROLE_CHECKER) return 'Ελεγκτής Προσόντων';
@@ -254,7 +308,7 @@ $def_xml_proson = <<<XML
             </classes>
         </c>
 
-        <c n="999" t="Άλλα προσόντα" >
+        <c n="999" t="Άλλα προσόντα" canend="2">
         </c>
 
     </classes>
@@ -409,7 +463,7 @@ function PrepareDatabase($msql = 0)
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONFILE (ID INTEGER PRIMARY KEY %s,UID INTEGER,PID INTEGER,CLSID TEXT,DESCRIPTION TEXT,FNAME TEXT,TYPE TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID),FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PROSONPAR (ID INTEGER PRIMARY KEY %s,PID INTEGER,PIDX INTEGER,PVALUE TEXT,FOREIGN KEY (PID) REFERENCES PROSON(ID))",$j));
 
-    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,LONGDESCRIPTION TEXT,FIRSTPREFSCORE TEXT,MORIAVISIBLE INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,OBJSTARTDATE INTEGER,OBJENDDATE INTEGER,CLASSTYPE INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
+    QQ(sprintf("CREATE TABLE IF NOT EXISTS CONTESTS (ID INTEGER PRIMARY KEY %s,UID INTEGER,MINISTRY TEXT,CATEGORY TEXT,DESCRIPTION TEXT,LONGDESCRIPTION TEXT,FIRSTPREFSCORE TEXT,MORIAVISIBLE INTEGER,STARTDATE INTEGER,ENDDATE INTEGER,OBJSTARTDATE INTEGER,OBJENDDATE INTEGER,CLASSID INTEGER,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS PLACES (ID INTEGER PRIMARY KEY %s,CID INTEGER,PARENTPLACEID INTEGER,DESCRIPTION TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PARENTPLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONS (ID INTEGER PRIMARY KEY %s,CID INTEGER,PLACEID INTEGER,DESCRIPTION TEXT,COUNT INTEGER,FOREIGN KEY (CID) REFERENCES CONTESTS(ID),FOREIGN KEY (PLACEID) REFERENCES PLACES(ID))",$j));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS POSITIONGROUPS (ID INTEGER PRIMARY KEY %s,CID INTEGER,GROUPLIST TEXT,FOREIGN KEY (CID) REFERENCES CONTESTS(ID))",$j));
@@ -1042,7 +1096,8 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
         $s .= sprintf('<td>%s<br>%s<br>%s</td>',$r1['STARTDATE'] == 0 ? '' : date("d/m/Y",$r1['STARTDATE']),$r1['ENDDATE'] ? date("d/m/Y",$r1['ENDDATE']) : '∞',$r1['DIORISMOS'] == 1 ? "Προσόν Διορισμού" : "");
 
         // Parameters
-        $s .= sprintf('<td>');
+        $s .= sprintf('<td><button class="button is-small is-link" onclick="toggle(\'#pparx%s\');">Προβολή</button><br>',$r1['ID']);
+        $s .= sprintf('<div id="pparx%s" style="display:none;">',$r1['ID']);
         $q2 = QQ("SELECT * FROM PROSONPAR WHERE PID = ? ",array($r1['ID']));
         while($r2 = $q2->fetchArray())
         {
@@ -1086,6 +1141,7 @@ function PrintProsonta($uid,$veruid = 0,$rolerow = null,$level = 1)
             
             $s .= sprintf('<b>%s</b><br>%s %s<br>',$parnames[$r2['PIDX']],$vvv,$vvv2);
         }
+        $s .= sprintf('</div>');
         $s .= sprintf('</td>');
 
 

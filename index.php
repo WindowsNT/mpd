@@ -51,35 +51,19 @@ if ($afm && $ur)
       if ($superadmin)
       {
         $q1 = QQ("SELECT * FROM ROLES");
+        printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ');
+        printf('<button class="button autobutton  is-link block " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+        printf('<button class="button autobutton  is-link block " href="editkena.php">Διόρθωση Κενών</button> ');
+        printf('<button class="button autobutton  is-primary block " href="roleeditor.php">Role Editor</button> ');
         while(($r1 = $q1->fetchArray()))
         {
           if ($r1['ROLE'] == ROLE_CHECKER)
           {
             printf('<button class="button autobutton  is-info block  " href="check.php?t=%s">Έλεγχος Προσόντων Ομάδας %s</button> ',$r1['ID'],$r1['ID']);
           }
-          if ($r1['ROLE'] == ROLE_CREATOR)
-          {
-            printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
-          }
-          if ($r1['ROLE'] == ROLE_CONTESTVIEWER)
-          {
-            printf('<button class="button autobutton  is-primary block " href="contest.php">Διαγωνισμοί</button> ',$r1['ID']);
-          }
           if ($r1['ROLE'] == ROLE_UNI)
           {
             printf('<button class="button autobutton  is-link block " href="provider.php?t=%s">Ίδρυμα Ομάδα %s</button> ',$r1['ID'],$r1['ID']);
-          }
-          if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR)
-          {
-            printf('<button class="button autobutton  is-link block " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
-          }
-          if ($r1['ROLE'] == ROLE_FOREASSETPLACES)
-          {
-            printf('<button class="button autobutton  is-link block " href="editkena.php">Διόρθωση Κενών</button> ');
-          }
-          if ($r1['ROLE'] == ROLE_ROLEEDITOR)
-          {
-            printf('<button class="button autobutton  is-primary block " href="roleeditor.php">Role Editor</button> ');
           }
         }
       }

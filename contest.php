@@ -121,9 +121,32 @@ if (array_key_exists("c",$_POST))
         $lastRowID = $_POST['c'];
     }
     else    
-    QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,LONGDESCRIPTION,FIRSTPREFSCORE,MORIAVISIBLE,MINISTRY,CATEGORY,STARTDATE,ENDDATE,OBJSTARTDATE,OBJENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ",array(
-        $ur['ID'],$_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),strtotime($_POST['OBJSTARTDATE']),strtotime($_POST['OBJENDDATE']),$_POST['CLASSID'],
-    ));
+    {
+        QQ("INSERT INTO CONTESTS (UID,DESCRIPTION,LONGDESCRIPTION,FIRSTPREFSCORE,MORIAVISIBLE,MINISTRY,CATEGORY,STARTDATE,ENDDATE,OBJSTARTDATE,OBJENDDATE,CLASSID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ",array(
+            $ur['ID'],$_POST['DESCRIPTION'],$_POST['LONGDESCRIPTION'],$_POST['FIRSTPREFSCORE'],$_POST['MORIAVISIBLE'],$_POST['MINISTRY'],$_POST['CATEGORY'],strtotime($_POST['STARTDATE']),strtotime($_POST['ENDDATE']),strtotime($_POST['OBJSTARTDATE']),strtotime($_POST['OBJENDDATE']),$_POST['CLASSID'],
+        ));
+
+        if ($_POST['CLASSID'] == 101 || $_POST['CLASSID'] == 102)
+        {
+            // Create the Music Schools
+            // Create users if they do not exist 
+            // Create roles for the users if they do not exist
+
+            $cid = $lastRowID;
+            $csv1 = explode("\r\n",$music_schools_csv);
+            BeginTransaction();
+            foreach($csv1 as $csvs)
+            {
+                $items = str_getcsv($csvs, ";", "\"");
+                QQ("INSERT INTO PLACES (CID,PARENTPLACEID,DESCRIPTION) VALUES(?,?,?)",array($cid,0,$items[7]));
+            }
+            $ex = explode(",",$music_eidik);
+            array_splice($ex,0,2);
+
+            QQ("INSERT INTO POSITIONGROUPS (CID,GROUPLIST) VALUES(?,?)",array($cid,implode(",",$ex)));
+            QQ("COMMIT");
+        }
+    }
 
     if ($lastRowID)
     {
@@ -145,7 +168,7 @@ function ViewOrEdit($cid)
                 $items = QQ("SELECT * FROM CONTESTS WHERE ID = ? AND UID = ?",array($cid,$ur['ID']))->fetchArray();
         }
     if (!$items)
-        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','LONGDESCRIPTION' => '','FIRSTPREFSCORE' => 2.0,'MORIAVISIBLE' => 0,'STARTDATE' => '0','ENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '',"CLASSID" => 0);
+        $items = array('ID' => '0','UID' => $ur['ID'],'CLSID' => guidv4(),'DESCRIPTION' => '','LONGDESCRIPTION' => '','FIRSTPREFSCORE' => 2.0,'MORIAVISIBLE' => 0,'STARTDATE' => '0','ENDDATE' => '0','OBJSTARTDATE' => '0','OBJENDDATE' => '0',"MINISTRY" => "","CATEGORY" => '',"CLASSID" => 0);
 
     ?>
     <form method="POST" action="contest.php">
