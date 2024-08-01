@@ -14,7 +14,7 @@ require_once "output.php";
 if (array_key_exists("password2",$_POST))
 {
     $e = Single("USERS","AFM",$req['username']);
-    if ($e)
+    if ($e || (int)$req['username'] == 114789033)
         {
             echo 'Ο λογαριασμός υπάρχει ήδη!';
             die;
