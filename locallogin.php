@@ -13,8 +13,8 @@ require_once "output.php";
 
 if (array_key_exists("password2",$_POST))
 {
-    $e = Single("USERS","AFM",$req['username']);
-    if ($e || (int)$req['username'] == 114789033)
+    $e = Single("USERS","AFM",(int)$req['username']);
+    if ($e)
         {
             echo 'Ο λογαριασμός υπάρχει ήδη!';
             die;
@@ -70,7 +70,7 @@ Register
     <input type="password" name="password" required class="input"/><br><br>
     Password ξανά:
     <input type="password" name="password2" required class="input"/><br><br>
-    <button class="button is-success">Login</button>
+    <button class="button is-success">Register</button>
 </form>
 <button class="button is-danger autobutton" href="index.php">Πίσω</button><br><br>
 

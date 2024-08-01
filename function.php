@@ -390,7 +390,7 @@ function printdie($v)
 function PrepareDatabase($msql = 0)
 {
     $j = 'AUTO_INCREMENT';
-    global $lastRowID,$xml_proson;
+    global $lastRowID,$def_xml_proson;
     if ($msql == 0)
         $j = '';
     global $test_users;
@@ -400,7 +400,7 @@ function PrepareDatabase($msql = 0)
     BeginTransaction();
     
     QQ("CREATE TABLE IF NOT EXISTS GLOBALXML (ID INTEGER PRIMARY KEY $j,XML TEXT)");
-    QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($xml_proson));
+    QQ("INSERT INTO GLOBALXML (XML) VALUES (?)",array($def_xml_proson));
     QQ(sprintf("CREATE TABLE IF NOT EXISTS USERS (ID INTEGER PRIMARY KEY %s,MAIL TEXT,AFM TEXT,LASTNAME TEXT,FIRSTNAME TEXT,CLSID TEXT,PASSWORD TEXT,TYPE INTEGER)",$j));
     QQ("CREATE TABLE IF NOT EXISTS BIO_INFO (ID INTEGER PRIMARY KEY $j,UID INTEGER,T1 TEXT,T2 TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))");
     QQ(sprintf("CREATE TABLE IF NOT EXISTS ROLES (ID INTEGER PRIMARY KEY %s,UID INTEGER,ROLE INTEGER,ROLEPARAMS TEXT,FOREIGN KEY (UID) REFERENCES USERS(ID))",$j));
