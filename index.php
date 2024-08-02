@@ -30,7 +30,7 @@ if ($afm && $ur)
           }
           if ($r1['ROLE'] == ROLE_GLOBALPROSONEDITOR || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
-            printf('<button class="button autobutton  is-link block  " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+            printf('<button class="button autobutton  is-link block  " href="globaleditor.php">Διόρθωση Προσόντων</button> ');
           }
           if ($r1['ROLE'] == ROLE_FOREASSETPLACES || $r1['ROLE'] == ROLE_SUPERADMIN)
           {
@@ -52,7 +52,7 @@ if ($afm && $ur)
       {
         $q1 = QQ("SELECT * FROM ROLES");
         printf('<button class="button autobutton  is-primary block  " href="contest.php">Διαγωνισμοί</button> ');
-        printf('<button class="button autobutton  is-link block " href="globaleditor.php">Διόρθωση Προσόνων</button> ');
+        printf('<button class="button autobutton  is-link block " href="globaleditor.php">Διόρθωση Προσόντων</button> ');
         printf('<button class="button autobutton  is-link block " href="editkena.php">Διόρθωση Κενών</button> ');
         printf('<button class="button autobutton  is-primary block " href="roleeditor.php">Role Editor</button> ');
         while(($r1 = $q1->fetchArray()))

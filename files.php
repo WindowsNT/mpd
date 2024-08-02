@@ -170,6 +170,12 @@ if ($_GET['f'] == 0)
         <br><br>
         <button class="button is-success">Yποβολή</button>
         </form>
+        <script>
+        $('form').submit(function(){
+    $(this).find(':input[type=submit]').prop('disabled', true);
+});
+    </script>
+
     <?php
 
     if ($file_count != 0)

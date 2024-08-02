@@ -383,8 +383,13 @@ function ViewOrEdit($pid,$items,$fcid = 0)
             ';
         ?>
         <br><br>
-        <button class="button is-success ">Υποβολή<button>
+        <button type="submit" class="button is-success">Υποβολή<button>
     </form>
+    <script>
+        $('form').submit(function(){
+    $(this).find(':input[type=submit]').prop('disabled', true);
+});
+    </script>
     <?php
 }
 

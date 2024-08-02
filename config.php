@@ -14,11 +14,11 @@ $pageroot = 'https://www.msa-apps.com/mpd';
 
 if ($_SERVER['SERVER_NAME'] == "musicschools.minedu.gov.gr")
 {
-    $pageroot = 'https://musicschools.minedu.gov.gr';
+    $pageroot = 'https://musicschools.minedu.gov.gr/mpd';
     $dbxx = 'mpdlive.db';
     $test_users = 0;
     $psd_login = 'https://musicschools.minedu.gov.gr/slogin.php';
-    $taxis_login = 'https://musicschools.minedu.gov.gr/taxis.php';
+    $taxis_login = 'https://musicschools.minedu.gov.gr/taxis2.php';
 }
 
 

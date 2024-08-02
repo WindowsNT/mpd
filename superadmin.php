@@ -16,6 +16,36 @@ if (array_key_exists("vacuum",$req))
     die;
 }
 
+if (array_key_exists("users",$req))
+{
+    $q1 = QQ("SELECT * FROM USERS");
+    require_once "output.php";
+    echo '<div class="content" style="margin: 20px">';
+
+    $s = '<table class="table datatable" style="width: 100%">';
+    $s .= '<thead>
+                <th class="all">#</th>
+                <th class="all">ΑΦΜ</th>
+                <th class="all">Επίθετο</th>
+                <th class="all">Όνομα</th>
+                <th class="all">Ενέργειες</th>
+            </thead><tbody>';
+
+    while($r1 = $q1->fetchArray())
+    {
+        $s .= sprintf('<tr>');
+        $s .= sprintf('<td>%s</td>',$r1['ID']);
+        $s .= sprintf('<td>%s</td>',$r1['AFM']);
+        $s .= sprintf('<td>%s</td>',$r1['LASTNAME']);
+        $s .= sprintf('<td>%s</td>',$r1['FIRSTNAME']);
+        $s .= sprintf('<td><a href="impersonate.php?u=%s">Impersonate</td>',$r1['ID']);
+        $s .= sprintf('</tr>');
+    }
+    $s .= '</tbody></table>';
+    echo $s;
+    die;
+}
+
 if (array_key_exists("backup",$req))
 {
     try
@@ -129,6 +159,7 @@ echo '<div class="content" style="margin: 20px">';
 printf('<button class="button autobutton  is-danger block" href="index.php">Πίσω</button> ');
 printf('<hr>');
 
+printf('<a class="button  is-primary block" href="superadmin.php?users=1">Χρήστες</a> ');
 printf('<a class="button  is-primary block" href="superadmin.php?backup=1">Backup</a> ');
 printf('<a class="button  is-primary block" href="superadmin.php?backupfiles=1">Backup Προσόντων [%.2f MB]</a> ',get_dir_size("./files")/(1024*1024));
 printf('<button class="button autobutton  is-primary block" href="superadmin.php?vacuum=1">Vacuum [%.2f MB]</button> ',filesize($dbxx)/(1024*1024));
