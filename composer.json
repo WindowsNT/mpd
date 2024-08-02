@@ -2,8 +2,7 @@
     "require": {
         "phpmailer/phpmailer": "^6.9.1",
         "minishlink/web-push": "^8.0",
-		"koderzi/php-github-updater": "^1.6",
+        "koderzi/php-github-updater": "^1.6",
         "lbuchs/webauthn": "^2.2"
-
     }
 }
