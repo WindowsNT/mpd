@@ -12,7 +12,7 @@ if (array_key_exists("logout",$_GET))
         if (array_key_exists("sl_attr",$_SESSION))
         {
             unset($_SESSION['sl_attr']);
-            redirect("https://www.msa-apps.com/slogin.php?logout");
+            redirect("$psd_login?logout");
             die;
         }
     }

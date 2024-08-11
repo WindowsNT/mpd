@@ -42,7 +42,10 @@ if (array_key_exists("password",$_POST))
             $f = 0;
     }
     if ($f)
-        die("Λάθος username/password!");
+        {
+            sleep(1);
+            die("Λάθος username/password!");
+        }
     else
     {
         $_SESSION['afm2'] = $req['username'];
